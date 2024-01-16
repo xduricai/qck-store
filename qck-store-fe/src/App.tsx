@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { NavBar } from './Navigation';
+import { Navbar } from './navigation/Navbar';
 import './App.css'
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <NavBar />
+      <Navbar />
     </QueryClientProvider>
   )
 }

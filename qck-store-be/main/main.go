@@ -1,6 +1,11 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"encoding/hex"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/sha3"
+)
 
 func main() {
 	r := gin.Default()
@@ -10,4 +15,12 @@ func main() {
 		})
 	})
 	r.Run()
+}
+
+// TODO move elsewhere
+func generatePasswordHash(password *string) string {
+	pw := []byte(*password)
+	hash := make([]byte, 64)
+	sha3.ShakeSum256(hash, pw)
+	return hex.EncodeToString(hash)
 }

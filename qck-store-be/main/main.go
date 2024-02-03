@@ -1,26 +1,31 @@
 package main
 
 import (
-	"encoding/hex"
+	"log"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/sha3"
+	"github.com/joho/godotenv"
+	"github.com/xduricai/qck-store/qck-store-be/controllers"
+	"github.com/xduricai/qck-store/qck-store-be/database"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
+	if err := godotenv.Load("../.env"); err != nil {
+		log.Fatal("Could not retrieve environment variables")
+	}
+
+	DB := database.Init()
+	defer database.Close(DB)
+
+	server := gin.Default()
+	controllers.RegisterUserController(DB, server)
+
+	// TODO remove
+	server.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
-	r.Run()
-}
 
-// TODO move elsewhere
-func generatePasswordHash(password *string) string {
-	pw := []byte(*password)
-	hash := make([]byte, 64)
-	sha3.ShakeSum256(hash, pw)
-	return hex.EncodeToString(hash)
+	server.Run()
 }

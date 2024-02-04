@@ -23,6 +23,7 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 	{
 		routes.GET("/all", controller.GetAll)
 		routes.POST("/login", controller.Login)
+		routes.POST("/register", controller.Register)
 	}
 
 	return controller
@@ -33,6 +34,20 @@ func (c *UserController) GetAll(ctx *gin.Context) {
 	ctx.IndentedJSON(status, users)
 }
 
+func (c *UserController) Register(ctx *gin.Context) {
+	var requestBody userh.RegistrationCommand
+
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		ctx.Status(http.StatusBadRequest)
+	}
+
+	if res, status := c.userCommandHandler.Register(&requestBody); status != http.StatusInternalServerError {
+		ctx.JSON(status, res)
+	} else {
+		ctx.Status(status)
+	}
+}
+
 func (c *UserController) Login(ctx *gin.Context) {
 	var requestBody userh.LoginCommand
 
@@ -40,8 +55,8 @@ func (c *UserController) Login(ctx *gin.Context) {
 		ctx.Status(http.StatusBadRequest)
 	}
 
-	if result, status := c.userCommandHandler.Login(&requestBody); status == http.StatusOK {
-		ctx.JSON(status, result)
+	if res, status := c.userCommandHandler.Login(&requestBody); status == http.StatusOK {
+		ctx.JSON(status, res)
 	} else {
 		ctx.Status(status)
 	}

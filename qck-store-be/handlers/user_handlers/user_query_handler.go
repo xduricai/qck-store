@@ -22,7 +22,7 @@ func NewUserQueryHandler(db *sql.DB) *UserQueryHandler {
 
 func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 	var rows *sql.Rows
-	query := "SELECT id, role, firstname, lastname FROM users"
+	query := "SELECT Id, Role, Firstname, Lastname FROM Users"
 
 	if data, err := h.db.Query(query); err == nil {
 		rows = data

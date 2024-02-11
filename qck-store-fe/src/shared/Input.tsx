@@ -8,13 +8,13 @@ type InputProps = {
     className?: string;
 }
 
-export function Input({ value, placeholder, onChange, label='', className='' }: InputProps) {
+export function Input({ value, placeholder, onChange, label="", className="" }: InputProps) {
     const id = useId();
     
     return (
-        <div className='flex flex-col gap-1'>
+        <div className="flex flex-col gap-1">
             {label && 
-                <label className='text-sm font-semibold' htmlFor={id}>
+                <label className="text-sm font-semibold" htmlFor={id}>
                     {label}
                 </label>
             }

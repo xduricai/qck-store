@@ -12,7 +12,6 @@ import { Registration } from './registration/Registration';
 function App() {
   const queryClient = new QueryClient();
   const [user, setUser]  = useState<User>();
-  // const UserContext = useUserContext()
 
   return (
     <QueryClientProvider client={queryClient}>

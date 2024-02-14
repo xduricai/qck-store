@@ -14,9 +14,8 @@ type RegistrationResponse struct {
 }
 
 type LoginCommand struct {
-	Email    string
-	Username string
-	Password string
+	Identifier string
+	Password   string
 }
 
 type RegistrationCommand struct {

@@ -77,12 +77,11 @@ func (h *UserCommandHandler) Register(command *RegistrationCommand) (Registratio
 func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 	var res UserResponse
 	var password string
-	command.Email = strings.ToLower(command.Email)
-	command.Username = strings.ToLower(command.Username)
-	query := "SELECT Id, Role, Firstname, Lastname, Password FROM Users WHERE Email = $1 OR Username = $2"
+	command.Identifier = strings.ToLower(command.Identifier)
+	query := "SELECT Id, Role, Firstname, Lastname, Password FROM Users WHERE Email = $1 OR Username = $1"
 
 	if err := h.db.
-		QueryRow(query, command.Email, command.Username).
+		QueryRow(query, command.Identifier).
 		Scan(
 			&res.Id,
 			&res.Role,

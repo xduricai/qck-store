@@ -1,11 +1,12 @@
 type ButtonProps = {
     label: string;
-    onClick: () => unknown;
+    onClick?: () => unknown;
     color?: "plain" | "outlined" | "accent";
     className?: string
+    form?: string
 };
 
-export function Button({ label, onClick, color="plain", className }: ButtonProps) {
+export function Button({ label, onClick, className, form, color="plain" }: ButtonProps) {
     const colors = {
         plain: "border-[1px] border-zinc-400 hover:border-zinc-800 hover:bg-zinc-100",
         outlined: "text-purple-800 border-[1px] border-purple-800 hover:bg-zinc-100",
@@ -15,6 +16,7 @@ export function Button({ label, onClick, color="plain", className }: ButtonProps
     return <button 
                 className={`${colors[color]} hover:underline h-10 rounded font-medium px-4 w-max ${className}`}
                 onClick={onClick}
+                form={form}
             >
                 {label}
             </button>

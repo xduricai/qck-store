@@ -35,7 +35,8 @@ export function Login() {
                     Sign in using your email or username
                 </span>
             </div>
-            <form id="loginForm" onSubmit={submit}>
+
+            <form id="loginForm" className="flex flex-col gap-y-4" onSubmit={submit}>
                 <Input 
                     className="w-72"
                     value={identifier}
@@ -52,6 +53,7 @@ export function Login() {
                     label="Password"
                 />
             </form>
+
             <div>
                 <p onClick={toRegistration} className="text-[13px] font-semibold text-purple-800 hover:underline cursor-pointer">
                     Don't have an account? Click here to register

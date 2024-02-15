@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { Input } from "../shared/Input";
 import { Button } from "../shared/Button";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +14,8 @@ export function Login() {
     const navigate = useNavigate();
     const toRegistration = () => navigate('/register');
 
-    async function submit() {
+    async function submit(event: FormEvent) {
+        event.preventDefault();
         try {
             const res = await login(identifier, password);
             userContext.setUser(res);
@@ -34,21 +35,23 @@ export function Login() {
                     Sign in using your email or username
                 </span>
             </div>
-            <Input 
-                className="w-72"
-                value={identifier}
-                onChange={(event) => setIdentifier(event.target.value)}
-                placeholder="Username or Email..."
-                label="Username or Email"
-            />
-            <Input 
-                className="w-72"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Password..."
-                label="Password"
-            />
+            <form id="loginForm" onSubmit={submit}>
+                <Input 
+                    className="w-72"
+                    value={identifier}
+                    onChange={(event) => setIdentifier(event.target.value)}
+                    placeholder="Username or Email..."
+                    label="Username or Email"
+                />
+                <Input 
+                    className="w-72"
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Password..."
+                    label="Password"
+                />
+            </form>
             <div>
                 <p onClick={toRegistration} className="text-[13px] font-semibold text-purple-800 hover:underline cursor-pointer">
                     Don't have an account? Click here to register
@@ -59,7 +62,7 @@ export function Login() {
                     </p>
                 }
             </div>
-            <Button className="ml-auto" label="Confirm" color="accent" onClick={submit} />
+            <Button className="ml-auto" label="Confirm" color="accent" form="loginForm" />
         </div>
     );
 }

@@ -2,42 +2,25 @@ import { useState } from "react";
 import { Input } from "../shared/Input";
 import { Button } from "../shared/Button";
 import { useNavigate } from "react-router-dom";
-import { User } from '../types/user';
 import { useUserContext } from '../UserContext';
+import { login } from "../api/userClient";
 
 export function Login() {
     const [ identifier, setIdentifier ] = useState('');
     const [ password, setPassword ] = useState('');
     const [ formErr, setFormErr ] = useState('');
+
+    const userContext = useUserContext();
     const navigate = useNavigate();
     const toRegistration = () => navigate('/register');
-    const userContext = useUserContext();
 
     async function submit() {
-        if (identifier.length < 4 || password.length < 4) {
-            setFormErr("Incorrect name, email or password");
-            return;
-        }
-
         try {
-            const res = await fetch("http://localhost:8080/users/login", {
-                method: "POST",
-                body: JSON.stringify({ identifier, password })
-            });
-            if (res.status === 401) {
-                setFormErr("Incorrect password");
-                return;
-            }
-            if (res.status === 404) {
-                setFormErr("No account matches given username or email")
-                return;
-            }
-
-            const user: User = await res.json();
-            userContext.setUser(user);
-        } catch {
-            setFormErr("An unknown error has occurred");
-            return;
+            const res = await login(identifier, password);
+            userContext.setUser(res);
+        } catch (err) {
+            if (typeof err === "string") setFormErr(err);
+            else setFormErr("An unknown error has occurred")
         }
     }
     
@@ -54,7 +37,7 @@ export function Login() {
             <Input 
                 className="w-72"
                 value={identifier}
-                onChange={setIdentifier}
+                onChange={(event) => setIdentifier(event.target.value)}
                 placeholder="Username or Email..."
                 label="Username or Email"
             />
@@ -62,7 +45,7 @@ export function Login() {
                 className="w-72"
                 type="password"
                 value={password}
-                onChange={setPassword}
+                onChange={(event) => setPassword(event.target.value)}
                 placeholder="Password..."
                 label="Password"
             />

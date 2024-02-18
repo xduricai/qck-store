@@ -22,6 +22,8 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 	var routes = server.Group("/users")
 	{
 		routes.GET("/all", controller.GetAll)
+		routes.GET("/email/:email", controller.IsEmailAvailable)
+		routes.GET("/username/:name", controller.IsUsernameAvailable)
 		routes.POST("/login", controller.Login)
 		routes.POST("/register", controller.Register)
 	}
@@ -32,6 +34,18 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 func (c *UserController) GetAll(ctx *gin.Context) {
 	users, status := c.userQueryHandler.GetAll()
 	ctx.IndentedJSON(status, users)
+}
+
+func (c *UserController) IsEmailAvailable(ctx *gin.Context) {
+	email := ctx.Param("email")
+	status := c.userQueryHandler.IsEmailAvailable(email)
+	ctx.Status(status)
+}
+
+func (c *UserController) IsUsernameAvailable(ctx *gin.Context) {
+	name := ctx.Param("name")
+	status := c.userQueryHandler.IsUsernameAvailable(name)
+	ctx.Status(status)
 }
 
 func (c *UserController) Register(ctx *gin.Context) {

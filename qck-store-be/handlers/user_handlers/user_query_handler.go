@@ -4,10 +4,13 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type IUserQueryHandler interface {
 	GetAll() ([]UserResponse, int)
+	IsEmailAvailable(string) int
+	IsUsernameAvailable(string) int
 }
 
 type UserQueryHandler struct {
@@ -45,4 +48,34 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 		log.Println(err)
 	}
 	return users, http.StatusOK
+}
+
+func (h *UserQueryHandler) IsEmailAvailable(email string) int {
+	var res bool
+	email = strings.ToLower(email)
+	query := "SELECT EXISTS	(SELECT Id FROM Users WHERE Email = $1)"
+
+	if err := h.db.QueryRow(query, email).Scan(&res); err != nil {
+		return http.StatusInternalServerError
+	}
+	if res {
+		return http.StatusOK
+	} else {
+		return http.StatusNotFound
+	}
+}
+
+func (h *UserQueryHandler) IsUsernameAvailable(name string) int {
+	var res bool
+	name = strings.ToLower(name)
+	query := "SELECT EXISTS (SELECT Id FROM Users WHERE Username = $1)"
+
+	if err := h.db.QueryRow(query, name).Scan(&res); err != nil {
+		return http.StatusInternalServerError
+	}
+	if res {
+		return http.StatusOK
+	} else {
+		return http.StatusNotFound
+	}
 }

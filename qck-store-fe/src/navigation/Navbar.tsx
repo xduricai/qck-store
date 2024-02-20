@@ -4,7 +4,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Logo } from "./Logo";
 import { IconButton } from "../shared/IconButton";
-import { useUserContext } from "../UserContext";
+import { useUserContext } from "../global/UserContext";
  
 export function Navbar(): JSX.Element {
     const userContext = useUserContext();

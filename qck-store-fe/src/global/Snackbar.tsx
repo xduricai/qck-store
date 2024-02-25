@@ -5,7 +5,7 @@ export type SnackbarProps = { message: string; style: SnackbarStyle; };
 const snackbarColors = {
     success: "bg-emerald-800",
     error: "bg-red-900",
-    default: "bg-violet-800"
+    default: "bg-purple-800"
 };
 
 export function Snackbar({ message, style }: SnackbarProps) {

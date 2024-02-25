@@ -10,7 +10,7 @@ export function Navbar(): JSX.Element {
     const userContext = useUserContext();
     
     return (
-        <nav className="navbar shadow-lg shadow-zinc-600/30 items-center w-full align-items-center text-xl font-medium h-16 bg-violet-800">
+        <nav className="navbar shadow-lg shadow-zinc-600/10 items-center w-full align-items-center text-xl font-medium h-16">
             {/* <Link to={"/"}>Home</Link> */}
             <Logo />
             {!!userContext.user &&
@@ -21,11 +21,11 @@ export function Navbar(): JSX.Element {
                 
                 <div className="flex flex-row mx-4 w-min">
                     <IconButton>
-                        <SettingsIcon fontSize="large" className="text-white" />
+                        <SettingsIcon fontSize="large" className="text-purple-800" />
                     </IconButton>
                     
                     <IconButton>
-                        <AccountCircleIcon fontSize="large" className="text-white" />
+                        <AccountCircleIcon fontSize="large" className="text-purple-800" />
                     </IconButton>
                 </div>
             </>

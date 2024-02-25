@@ -15,7 +15,7 @@ export function Snackbar({ message, style }: SnackbarProps) {
     return (
         <Overlay>
             <div className="flex h-full justify-center items-end">
-                <div className={`${color} w-80 px-[12px] py-2 mb-8 rounded pointer-events-auto`}>{message}</div>
+                <div className={`${color} w-80 px-[12px] py-2 mb-8 rounded pointer-events-auto text-center`}>{message}</div>
             </div>
         </Overlay>
     );

@@ -17,7 +17,7 @@ function App() {
   const [snackbarData, setSnackbarData] = useState<SnackbarProps | null>();
   const snackbarTimer = useRef<number>();
 
-  function showSnackbar(message: string, style: SnackbarStyle = "default", duration = 4000) {
+  function showSnackbar(message: string, style: SnackbarStyle = "default", duration = 6000) {
     clearTimeout(snackbarTimer.current);
     setSnackbarData({ message, style });
     if (duration == Infinity) return; 

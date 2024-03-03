@@ -1,16 +1,16 @@
 package user_handlers
 
 type UserResponse struct {
-	Id        int
-	Role      string
-	FirstName string
-	LastName  string
+	Id        int    `json:"id"`
+	Role      string `json:"role"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 
 type RegistrationResponse struct {
-	Id         int
-	EmailInUse bool
-	NameInUse  bool
+	Id         int  `json:"id"`
+	EmailInUse bool `json:"emailInUse"`
+	NameInUse  bool `json:"nameInUse"`
 }
 
 type LoginCommand struct {

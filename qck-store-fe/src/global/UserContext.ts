@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { User } from "../types/User";
+import { User } from "../api/responses/User";
 
 export type UserContext = {
     user?: User;

@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Navbar } from './navigation/Navbar';
 import { useRef, useState } from 'react';
 import { CurrentUserContext } from './global/UserContext';
-import { User } from './types/User';
+import { User } from './api/responses/User';
 import { Route, Navigate, Routes } from 'react-router-dom';
 import { Home } from './home/Home';
 import { Login } from './login/Login';

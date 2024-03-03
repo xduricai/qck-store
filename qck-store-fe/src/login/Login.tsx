@@ -2,8 +2,9 @@ import { FormEvent, useState } from "react";
 import { Input } from "../shared/Input";
 import { Button } from "../shared/Button";
 import { useNavigate } from "react-router-dom";
-import { useUserContext } from '../UserContext';
-import { login } from "../api/userClient";
+import { useUserContext } from '../global/UserContext';
+import { login } from "../api/UserClient";
+import { useSnackbarContext } from "../global/SnackbarContext";
 
 export function Login() {
     const [ identifier, setIdentifier ] = useState('');
@@ -11,6 +12,7 @@ export function Login() {
     const [ formErr, setFormErr ] = useState('');
 
     const userContext = useUserContext();
+    const showSnackbar = useSnackbarContext();
     const navigate = useNavigate();
     const toRegistration = () => navigate('/register');
 
@@ -21,7 +23,10 @@ export function Login() {
             userContext.setUser(res);
         } catch (err) {
             if (typeof err === "string") setFormErr(err);
-            else setFormErr("An unknown error has occurred")
+            else {
+                setFormErr("");
+                showSnackbar("An unknown error has occurred", "error");
+            } 
         }
     }
     

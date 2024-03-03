@@ -29,7 +29,7 @@ export async function register(data: RegistrationCommand) {
         method: "POST",
         body: JSON.stringify(data)
     });
-    if (res.status !== 200) {
+    if (res.status !== 200 && res.status !== 400) {
         throw new Error();
     }
 

@@ -23,7 +23,6 @@ export function Registration() {
     });
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-        console.log(event.target.name);
         setFormData({
             ...formData,
             [event.target.name]: event.target.value
@@ -32,7 +31,6 @@ export function Registration() {
 
     const [ usernameError, setUsernameError ] = useState<string | null>(null);
     const validateUserName = (username: string) => {
-        console.log(username);
         if (username.length < 4) {
             setUsernameError("Username must be at least 4 characters long");
             return;
@@ -105,12 +103,12 @@ export function Registration() {
         }
 
         if (res.nameInUse) {
-            setUsernameError("This username is already taken");
+            setUsernameError("This username is already in use");
         }
         if (res.emailInUse) {
-            setEmailError("This email address is already taken");
+            setEmailError("This email address is already in use");
         }
-        if (!res.id) return;
+        if (res.id < 0) return;
 
         userContext.setUser({
             id: res.id,

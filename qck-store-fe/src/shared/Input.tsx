@@ -45,8 +45,6 @@ export function Input({ value, placeholder, onChange, name, type, label, classNa
                 {validator.error}
             </span>
             }
-
-
         </div>
     )
 }

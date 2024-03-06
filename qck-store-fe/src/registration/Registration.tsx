@@ -119,8 +119,8 @@ export function Registration() {
     }
     
     return (
-        <div className="flex w-max mt-32 mb-8 mx-auto flex-col content-center py-8 px-16 gap-y-4 rounded even-shadow">
-        <div>
+        <div className="flex w-max mt-32 mb-8 mx-auto flex-col content-center py-8 px-16 rounded even-shadow">
+        <div className="mb-4">
             <h1 className="text-2xl font-bold">
                 Register
             </h1>
@@ -128,9 +128,9 @@ export function Registration() {
                 Create an account
             </span>
         </div>
-        <form id="registrationForm" className="flex flex-col gap-y-4" onSubmit={submit}>
+        <form id="registrationForm" className="flex flex-col" onSubmit={submit}>
             <Input 
-                className="w-72"
+                width="w-72"
                 type="text"
                 name="email"
                 value={formData.email}
@@ -140,7 +140,7 @@ export function Registration() {
                 validator={{error: emailError, validate: validateEmail}}
             />
             <Input 
-                className="w-72"
+                width="w-72"
                 type="text"
                 name="username"
                 value={formData.username}
@@ -150,7 +150,7 @@ export function Registration() {
                 validator={{error: usernameError, validate: validateUserName}}
             />
             <Input 
-                className="w-72"
+                width="w-72"
                 type="text"
                 name="firstName"
                 value={formData.firstName}
@@ -160,7 +160,7 @@ export function Registration() {
                 label="First Name"
             />
              <Input 
-                className="w-72"
+                width="w-72"
                 type="text"
                 name="lastName"
                 value={formData.lastName}
@@ -170,7 +170,7 @@ export function Registration() {
                 label="Last Name"
             />
             <Input 
-                className="w-72"
+                width="w-72"
                 type="password"
                 name="password"
                 value={formData.password}
@@ -180,7 +180,7 @@ export function Registration() {
                 label="Password"
             />
             <Input 
-                className="w-72"
+                width="w-72"
                 type="password"
                 name="confirm"
                 value={formData.confirm}
@@ -190,10 +190,7 @@ export function Registration() {
                 label="Confirm Password"
             />
         </form>
-        <div>
-            {formData.password}
-            {formData.confirm}
-            {(formData.password === formData.confirm).toString()}
+        <div className="mb-4">
             <p onClick={toLogin} className="text-[13px] font-semibold text-purple-800 hover:underline cursor-pointer">
                 Already have an account? Click here to sign in
             </p>

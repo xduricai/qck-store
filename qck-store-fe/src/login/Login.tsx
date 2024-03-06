@@ -43,14 +43,14 @@ export function Login() {
 
             <form id="loginForm" className="flex flex-col gap-y-4" onSubmit={submit}>
                 <Input 
-                    className="w-72"
+                    width="w-72"
                     value={identifier}
                     onChange={(event) => setIdentifier(event.target.value)}
                     placeholder="Username or Email..."
                     label="Username or Email"
                 />
                 <Input 
-                    className="w-72"
+                    width="w-72"
                     type="password"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}

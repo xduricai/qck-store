@@ -7,7 +7,7 @@ export function Searchbar() {
     
     return (
         <div className="relative h-min w-80">
-            <Input value={value} placeholder="Search..." onChange={(event) => setValue(event.target.value)} className="w-80" />
+            <Input value={value} placeholder="Search..." onChange={(event) => setValue(event.target.value)} width="w-80" />
             <SearchIcon className="text-gray-600 absolute top-2 right-2" />
         </div>
     )

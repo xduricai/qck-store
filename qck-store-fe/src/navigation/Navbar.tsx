@@ -6,7 +6,7 @@ import { Logo } from "./Logo";
 import { IconButton } from "../shared/IconButton";
 import { useUserContext } from "../global/UserContext";
  
-export function Navbar(): JSX.Element {
+export function Navbar() {
     const userContext = useUserContext();
     
     return (

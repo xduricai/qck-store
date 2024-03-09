@@ -3,6 +3,7 @@ package user_handlers
 import (
 	"database/sql"
 	"encoding/hex"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -47,6 +48,7 @@ func (h *UserCommandHandler) Register(command *RegistrationCommand) (Registratio
 	if err := h.db.
 		QueryRow(query, command.Email, command.Username).
 		Scan(&res.EmailInUse, &res.NameInUse); err != nil {
+		log.Println(err)
 		return res, http.StatusInternalServerError
 	}
 	if res.EmailInUse || res.NameInUse {
@@ -69,6 +71,7 @@ func (h *UserCommandHandler) Register(command *RegistrationCommand) (Registratio
 			password,
 			created,
 		).Scan(&res.Id); err != nil {
+		log.Println(err)
 		return res, http.StatusInternalServerError
 	}
 	return res, http.StatusOK
@@ -89,6 +92,7 @@ func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 			&res.LastName,
 			&password,
 		); err != nil {
+		log.Println(err)
 		return res, http.StatusNotFound
 	}
 

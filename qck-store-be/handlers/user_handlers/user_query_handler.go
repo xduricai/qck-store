@@ -27,6 +27,7 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 	if data, err := h.db.Query(query); err == nil {
 		rows = data
 	} else {
+		log.Println(err)
 		return []UserResponse{}, http.StatusInternalServerError
 	}
 	var users = []UserResponse{}

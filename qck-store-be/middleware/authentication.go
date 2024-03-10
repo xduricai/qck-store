@@ -3,6 +3,7 @@ package middleware
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -31,14 +32,15 @@ func Authenticate(ctx *gin.Context) {
 		return
 	}
 
-	userId := claims["user"].(int)
-	expiration := claims["expiration"].(int64)
+	userId := claims["user"].(float64)
+	expiration := claims["expiration"].(float64)
 
-	if userId <= 0 || expiration < time.Now().Unix() {
+	if userId <= 0 || int64(expiration) < time.Now().Unix() {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	ctx.Set("userId", userId)
+	formattedId := strconv.FormatFloat(userId, 'f', -1, 64)
+	ctx.Set("userId", formattedId)
 	ctx.Next()
 }

@@ -43,6 +43,7 @@ func (c *UserController) Register(ctx *gin.Context) {
 
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		ctx.Status(http.StatusBadRequest)
+		return
 	}
 
 	if res, status := c.userCommandHandler.Register(&requestBody); status != http.StatusOK {
@@ -52,6 +53,7 @@ func (c *UserController) Register(ctx *gin.Context) {
 		if tokenStr, err := services.GenerateToken(res.Id); err != nil {
 			log.Println(err)
 			ctx.Status(http.StatusInternalServerError)
+			return
 		} else {
 			token = tokenStr
 		}
@@ -67,6 +69,7 @@ func (c *UserController) Login(ctx *gin.Context) {
 
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		ctx.Status(http.StatusBadRequest)
+		return
 	}
 
 	if res, status := c.userCommandHandler.Login(&requestBody); status != http.StatusOK {
@@ -76,6 +79,7 @@ func (c *UserController) Login(ctx *gin.Context) {
 		if tokenStr, err := services.GenerateToken(res.Id); err != nil {
 			log.Println(err)
 			ctx.Status(http.StatusInternalServerError)
+			return
 		} else {
 			token = tokenStr
 		}

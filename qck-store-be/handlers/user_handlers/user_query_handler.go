@@ -10,6 +10,7 @@ import (
 
 type IUserQueryHandler interface {
 	GetAll() ([]UserResponse, int)
+	GetUserDetails(string) (UserResponse, int)
 }
 
 type UserQueryHandler struct {
@@ -48,4 +49,16 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 		log.Println(err)
 	}
 	return users, http.StatusOK
+}
+
+func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
+	var res UserResponse
+	query := "SELECT Id, Role, Firstname, Lastname FROM Users WHERE Id = $1"
+
+	if err := h.db.QueryRow(query, id).
+		Scan(&res.Id, &res.Role, &res.FirstName, &res.LastName); err != nil {
+		log.Println(err)
+		return res, http.StatusInternalServerError
+	}
+	return res, http.StatusOK
 }

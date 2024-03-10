@@ -32,5 +32,5 @@ func (c *DirectoryController) GetRootForUser(ctx *gin.Context) {
 	userId := ctx.Param("userId")
 
 	dirs, status := c.directoryQueryHandler.GetRootForUser(userId)
-	ctx.IndentedJSON(status, dirs)
+	ctx.JSON(status, dirs)
 }

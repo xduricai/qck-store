@@ -24,7 +24,7 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 
 	var routes = server.Group("/users")
 	{
-		routes.GET("/authenticate", controller.Authenticate, mw.Authenticate)
+		routes.GET("/authenticate", mw.Authenticate, controller.Authenticate)
 		routes.GET("/all", controller.GetAll)
 		routes.POST("/login", controller.Login)
 		routes.POST("/register", controller.Register)
@@ -35,7 +35,7 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 
 func (c *UserController) GetAll(ctx *gin.Context) {
 	users, status := c.userQueryHandler.GetAll()
-	ctx.IndentedJSON(status, users)
+	ctx.JSON(status, users)
 }
 
 func (c *UserController) Register(ctx *gin.Context) {
@@ -87,5 +87,15 @@ func (c *UserController) Login(ctx *gin.Context) {
 }
 
 func (c *UserController) Authenticate(ctx *gin.Context) {
-	ctx.Status(http.StatusOK)
+	id, ok := GetUserId(ctx)
+	if !ok {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if res, status := c.userQueryHandler.GetUserDetails(id); status != http.StatusOK {
+		ctx.Status(status)
+	} else {
+		ctx.JSON(http.StatusOK, res)
+	}
 }

@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+// test file, TODO remove later
+
 type IUserQueryHandler interface {
 	GetAll() ([]UserResponse, int)
 }

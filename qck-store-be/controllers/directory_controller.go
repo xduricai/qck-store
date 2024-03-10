@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	dirh "github.com/xduricai/qck-store/qck-store-be/handlers/directory_handlers"
+	mw "github.com/xduricai/qck-store/qck-store-be/middleware"
 )
 
 type DirectoryController struct {
@@ -19,6 +20,7 @@ func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryContr
 	}
 
 	var routes = server.Group("/directories")
+	routes.Use(mw.Authenticate)
 	{
 		routes.GET("/root/:userId", controller.GetRootForUser)
 	}

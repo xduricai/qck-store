@@ -1,14 +1,14 @@
 package user_handlers
 
 type UserResponse struct {
-	Id        int    `json:"id"`
+	Id        int    `json:"-"`
 	Role      string `json:"role"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 }
 
 type RegistrationResponse struct {
-	Id         int  `json:"id"`
+	Id         int  `json:"-"`
 	EmailInUse bool `json:"emailInUse"`
 	NameInUse  bool `json:"nameInUse"`
 }

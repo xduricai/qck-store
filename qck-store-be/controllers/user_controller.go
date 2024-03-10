@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	userh "github.com/xduricai/qck-store/qck-store-be/handlers/user_handlers"
+	mw "github.com/xduricai/qck-store/qck-store-be/middleware"
+	"github.com/xduricai/qck-store/qck-store-be/services"
 )
 
 type UserController struct {
@@ -21,6 +24,7 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 
 	var routes = server.Group("/users")
 	{
+		routes.GET("/authenticate", controller.Authenticate, mw.Authenticate)
 		routes.GET("/all", controller.GetAll)
 		routes.POST("/login", controller.Login)
 		routes.POST("/register", controller.Register)
@@ -41,10 +45,20 @@ func (c *UserController) Register(ctx *gin.Context) {
 		ctx.Status(http.StatusBadRequest)
 	}
 
-	if res, status := c.userCommandHandler.Register(&requestBody); status != http.StatusInternalServerError {
-		ctx.JSON(status, res)
-	} else {
+	if res, status := c.userCommandHandler.Register(&requestBody); status != http.StatusOK {
 		ctx.Status(status)
+	} else {
+		var token string
+		if tokenStr, err := services.GenerateToken(res.Id); err != nil {
+			log.Println(err)
+			ctx.Status(http.StatusInternalServerError)
+		} else {
+			token = tokenStr
+		}
+
+		ctx.SetSameSite(http.SameSiteLaxMode)
+		ctx.SetCookie("Authorization", token, 36000*24*30, "", "", false, true)
+		ctx.JSON(status, res)
 	}
 }
 
@@ -55,9 +69,23 @@ func (c *UserController) Login(ctx *gin.Context) {
 		ctx.Status(http.StatusBadRequest)
 	}
 
-	if res, status := c.userCommandHandler.Login(&requestBody); status == http.StatusOK {
-		ctx.JSON(status, res)
-	} else {
+	if res, status := c.userCommandHandler.Login(&requestBody); status != http.StatusOK {
 		ctx.Status(status)
+	} else {
+		var token string
+		if tokenStr, err := services.GenerateToken(res.Id); err != nil {
+			log.Println(err)
+			ctx.Status(http.StatusInternalServerError)
+		} else {
+			token = tokenStr
+		}
+
+		ctx.SetSameSite(http.SameSiteLaxMode)
+		ctx.SetCookie("Authorization", token, 36000*24*30, "", "", false, true)
+		ctx.JSON(status, res)
 	}
+}
+
+func (c *UserController) Authenticate(ctx *gin.Context) {
+	ctx.Status(http.StatusOK)
 }

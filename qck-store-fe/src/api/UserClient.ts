@@ -3,6 +3,17 @@ import { User } from "./responses/User";
 import { BaseUrl } from "./BaseUrl";
 import { RegistrationResponse } from "./responses/RegistrationResponse";
 
+export async function authenticate() {
+    const token = localStorage.getItem("Authorization");
+    if (!token) throw Error;
+
+    const res = await fetch(`${BaseUrl}/users/authenticate`);
+    if (res.status !== 200) throw Error;
+
+    const user: User = await res.json();
+    return user;
+}
+
 export async function login(identifier: string, password: string) {
     if (identifier.length < 4 || password.length < 4) {
         throw "Incorrect name, email or password";

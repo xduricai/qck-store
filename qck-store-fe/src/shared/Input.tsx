@@ -20,7 +20,7 @@ type TextInputValidator = {
 export function Input({ value, placeholder, onChange, width, name, type, label, className, validator }: InputProps) {
     const id = useId();
     const margin = validator && !validator.error?.length ? 'mb-5' : '';
-    
+    const errorBorder = validator?.error ? " border-red-600 focus:border-red-600" : "";    
     return (
         <div className={`w-60 flex flex-col gap-1 ${margin} ${width}`}>
             {label && 
@@ -40,7 +40,7 @@ export function Input({ value, placeholder, onChange, width, name, type, label, 
                 }} 
                 className={`w-full rounded px-3 py-1.5 text-base placeholder:text-gray-600 box-border
                 focus:border-[2px] border-zinc-400 focus:border-zinc-800 focus:m-[-1px] border-[1px]
-                border-transparent outline-none ${className}`}    
+                border-transparent outline-none ${className} ${errorBorder}`}    
             />
             {validator?.error && 
             <span className="text-xs font-semibold text-red-600">

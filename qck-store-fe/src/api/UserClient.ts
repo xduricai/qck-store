@@ -4,10 +4,9 @@ import { BaseUrl } from "./BaseUrl";
 import { RegistrationResponse } from "./responses/RegistrationResponse";
 
 export async function authenticate() {
-    const token = localStorage.getItem("Authorization");
-    if (!token) throw Error;
-
-    const res = await fetch(`${BaseUrl}/users/authenticate`);
+    const res = await fetch(`${BaseUrl}/users/authenticate`, { 
+        credentials: "include"
+    });
     if (res.status !== 200) throw Error;
 
     const user: User = await res.json();
@@ -21,7 +20,8 @@ export async function login(identifier: string, password: string) {
     
     const res = await fetch(`${BaseUrl}/users/login`, {
         method: "POST",
-        body: JSON.stringify({ identifier, password })
+        body: JSON.stringify({ identifier, password }),
+        credentials: "include"
     });
 
     if (res.status === 401) {
@@ -38,7 +38,8 @@ export async function login(identifier: string, password: string) {
 export async function register(data: RegistrationCommand) {
     const res = await fetch(`${BaseUrl}/users/register`, {
         method: "POST",
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        credentials: "include"
     });
     if (res.status !== 200 && res.status !== 400) {
         throw new Error();

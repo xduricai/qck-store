@@ -18,6 +18,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html, body, #root {
+  height: 100%;
+}
+
 @font-face {
   font-family: Gilmer;
   src: url(./assets/fonts/Gilmer-Regular.otf);

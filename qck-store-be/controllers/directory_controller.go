@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	dirh "github.com/xduricai/qck-store/qck-store-be/handlers/directory_handlers"
@@ -22,15 +23,19 @@ func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryContr
 	var routes = server.Group("/directories")
 	routes.Use(mw.Authenticate)
 	{
-		routes.GET("/root/:userId", controller.GetRootForUser)
+		routes.GET("/root", controller.GetRootForUser)
 	}
 
 	return controller
 }
 
 func (c *DirectoryController) GetRootForUser(ctx *gin.Context) {
-	userId := ctx.Param("userId")
+	id, ok := GetUserId(ctx)
+	if !ok {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
 
-	dirs, status := c.directoryQueryHandler.GetRootForUser(userId)
+	dirs, status := c.directoryQueryHandler.GetRootForUser(id)
 	ctx.JSON(status, dirs)
 }

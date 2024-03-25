@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Directory } from "../api/responses/Directory";
 
 type SidebarProps = {
@@ -14,14 +15,15 @@ export function Sidebar({ directories, selectedId, onSelected }: SidebarProps) {
         <div className="h-full w-48 pt-4 border-zinc-400 border-r-[1.5px] overflow-y-auto">
             {
                 directories.map(item => 
-                    <div 
-                    key={item.id} 
+                    <Link key={item.id} to={`/folders/${item.id}`}>
+                    <div  
                     onClick={() => onSelected(item.id)}
                     className={`mx-2 my-1 py-2 pl-2 truncate cursor-pointer font-semibold rounded ${selectedId === item.id ? colorSelected : colorRegular}`
                     }
                     >
                         {item.name}
                     </div>
+                    </Link>
                 )
             }
         </div>

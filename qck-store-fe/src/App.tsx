@@ -38,16 +38,17 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <SnackbarContext.Provider value={showSnackbar}>
         <CurrentUserContext.Provider value={{ user, setUser }}>
-            <Navbar />
-            {loading ? <Loading /> :
-              <Routes>
-                <Route path="/" element={user ? <Home /> : <Initial />} />
-                <Route path="/login" element={user ? <Navigate replace to="/" /> : <Login />} />
-                <Route path="/register" element={user ? <Navigate replace to="/" /> : <Registration />} />
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes> 
-            }
-            {snackbarData && <Snackbar {...snackbarData} />}
+          <Navbar />
+          {loading ? <Loading /> :
+            <Routes>
+              <Route path="/" element={user ? <Home /> : <Initial />} />
+              <Route path="/folders/:folderId" element={user ? <Home /> : <Navigate replace to="/" />} />
+              <Route path="/login" element={user ? <Navigate replace to="/" /> : <Login />} />
+              <Route path="/register" element={user ? <Navigate replace to="/" /> : <Registration />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes> 
+          }
+          {snackbarData && <Snackbar {...snackbarData} />}
         </CurrentUserContext.Provider>
       </SnackbarContext.Provider>
     </QueryClientProvider>

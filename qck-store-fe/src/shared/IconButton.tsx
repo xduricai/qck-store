@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 
 export function IconButton({ children }: { children: ReactNode }) {
     return (
-        <div className="p-2 cursor-pointer rounded-full hover:bg-zinc-800/50">
+        <div className="p-1 m-1 cursor-pointer rounded-full hover:bg-zinc-200">
             {children}
         </div>
     );

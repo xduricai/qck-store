@@ -4,10 +4,9 @@ import { Directory } from "../api/responses/Directory";
 type SidebarProps = {
     directories: Directory[];
     selectedId: number | null;
-    onSelected: (id: number) => void;
 }
 
-export function Sidebar({ directories, selectedId, onSelected }: SidebarProps) {
+export function Sidebar({ directories, selectedId }: SidebarProps) {
     const colorRegular = "hover:bg-zinc-100";
     const colorSelected = "bg-purple-100 text-purple-800";
 
@@ -15,14 +14,10 @@ export function Sidebar({ directories, selectedId, onSelected }: SidebarProps) {
         <div className="h-full w-48 pt-4 border-zinc-400 border-r-[1.5px] overflow-y-auto">
             {
                 directories.map(item => 
-                    <Link key={item.id} to={`/folders/${item.id}`}>
-                    <div  
-                    onClick={() => onSelected(item.id)}
-                    className={`mx-2 my-1 py-2 pl-2 truncate cursor-pointer font-semibold rounded ${selectedId === item.id ? colorSelected : colorRegular}`
-                    }
-                    >
-                        {item.name}
-                    </div>
+                    <Link key={item.id} to={`/folder/${item.id}`}>
+                        <div className={`mx-2 my-1 py-2 pl-2 truncate cursor-pointer font-semibold rounded ${selectedId === item.id ? colorSelected : colorRegular}`}>
+                            {item.name}
+                        </div>
                     </Link>
                 )
             }

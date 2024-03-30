@@ -42,7 +42,7 @@ function App() {
           {loading ? <Loading /> :
             <Routes>
               <Route path="/" element={user ? <Home /> : <Initial />} />
-              <Route path="/folders/:folderId" element={user ? <Home /> : <Navigate replace to="/" />} />
+              <Route path="/folder/:folderId" element={user ? <Home /> : <Navigate replace to="/" />} />
               <Route path="/login" element={user ? <Navigate replace to="/" /> : <Login />} />
               <Route path="/register" element={user ? <Navigate replace to="/" /> : <Registration />} />
               <Route path="*" element={<Navigate to="/" />} />

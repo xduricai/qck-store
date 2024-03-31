@@ -24,6 +24,7 @@ func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryContr
 	routes.Use(mw.Authenticate)
 	{
 		routes.GET("/root", controller.GetRootForUser)
+		routes.GET("/content/:folderid", controller.GetFolderContentForUser)
 	}
 
 	return controller
@@ -38,4 +39,20 @@ func (c *DirectoryController) GetRootForUser(ctx *gin.Context) {
 
 	dirs, status := c.directoryQueryHandler.GetRootForUser(id)
 	ctx.JSON(status, dirs)
+}
+
+func (c *DirectoryController) GetFolderContentForUser(ctx *gin.Context) {
+	id, ok := GetUserId(ctx)
+	folderId := ctx.Param("folderid")
+
+	if !ok {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if res, status := c.directoryCommandHandler.GetFolderContentForUser(id, folderId); status != http.StatusOK {
+		ctx.Status(status)
+	} else {
+		ctx.JSON(status, res)
+	}
 }

@@ -36,7 +36,7 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 	var users = []UserResponse{}
 
 	for rows.Next() {
-		var res = *new(UserResponse)
+		var res UserResponse
 
 		if err := rows.Scan(&res.Id, &res.Role, &res.FirstName, &res.LastName); err != nil {
 			log.Println(err)

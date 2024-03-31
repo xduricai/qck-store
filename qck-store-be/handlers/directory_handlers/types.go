@@ -12,3 +12,8 @@ type FileResponse struct {
 	Modified string `json:"modified"`
 	Created  string `json:"created"`
 }
+
+type DirectoryContentResponse struct {
+	Files       []FileResponse      `json:"files"`
+	Directories []DirectoryResponse `json:"directories"`
+}

@@ -69,7 +69,9 @@ export function Login() {
                     </p>
                 }
             </div>
-            <Button className="ml-auto" label="Confirm" color="accent" form="loginForm" />
+            <Button className="ml-auto"color="accent" form="loginForm" >
+                Confirm
+            </Button>
         </div>
     );
 }

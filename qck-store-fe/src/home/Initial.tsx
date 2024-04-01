@@ -8,11 +8,14 @@ export function Initial() {
     
     return (
         <div className="flex gap-2 flex-col h-[calc(100vh-64px)] text-center justify-center items-center">
-            {/*TODO replace with logo*/}
             <h2 className="text-xl text-purple-800 font-bold">QCK STORE</h2>
-            <Button onClick={toRegister} className="w-[200px]" color="outlined" label="Create an Account" />
+            <Button onClick={toRegister} className="w-[200px]" color="outlined">
+                Create an Account
+            </Button>
             <p>Already have an account?</p>
-            <Button onClick={toLogin} className="w-[200px]" color="accent" label="Sign In" />
+            <Button onClick={toLogin} className="w-[200px]" color="accent" >
+                Sign In
+            </Button>
         </div>
     );
 }

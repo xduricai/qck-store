@@ -195,7 +195,9 @@ export function Registration() {
                 Already have an account? Click here to sign in
             </p>
         </div>
-        <Button className="ml-auto" label="Confirm" color="accent" form="registrationForm" />
+        <Button className="ml-auto" color="accent" form="registrationForm" >
+            Confirm
+        </Button>
         </div>
     );
 }

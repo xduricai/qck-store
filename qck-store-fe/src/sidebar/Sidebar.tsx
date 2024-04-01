@@ -1,5 +1,7 @@
+import AddIcon from '@mui/icons-material/Add';
 import { Link } from "react-router-dom";
 import { Directory } from "../api/responses/Directory";
+import { Button } from "../shared/Button";
 
 type SidebarProps = {
     directories: Directory[];
@@ -11,7 +13,13 @@ export function Sidebar({ directories, selectedId }: SidebarProps) {
     const colorSelected = "bg-purple-100 text-purple-800";
 
     return (
-        <div className="h-full w-48 pt-4 border-zinc-400 border-r-[1.5px] overflow-y-auto">
+        <div className="flex flex-col h-full w-48 pt-4 border-zinc-400 border-r-[1.5px] overflow-y-auto">
+            <Button color="accent" className="mx-2 mb-4 w-[175px]">
+                <span className='flex items-center justify-start mr-4'>
+                    <AddIcon className="mr-1" />
+                    New
+                </span>
+            </Button>
             {
                 directories.map(item => 
                     <Link key={item.id} to={`/folder/${item.id}`}>

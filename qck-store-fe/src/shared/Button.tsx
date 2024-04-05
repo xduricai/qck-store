@@ -6,9 +6,10 @@ type ButtonProps = {
     color?: "plain" | "outlined" | "accent";
     className?: string
     form?: string
+    width?: string;
 };
 
-export function Button({ children, onClick, className, form, color="plain" }: ButtonProps) {
+export function Button({ children, onClick, className, form, color="plain", width="w-max" }: ButtonProps) {
     const colors = {
         plain: "border-[1px] border-zinc-400 hover:border-zinc-800 hover:bg-zinc-100",
         outlined: "text-purple-800 border-[1px] border-purple-800 hover:bg-zinc-100",
@@ -16,7 +17,7 @@ export function Button({ children, onClick, className, form, color="plain" }: Bu
     };
     
     return <button 
-                className={`${colors[color]} hover:underline h-10 rounded font-medium px-4 w-max ${className}`}
+                className={`${colors[color]} ${width} hover:underline h-10 rounded font-medium px-4 ${className}`}
                 onClick={onClick}
                 form={form}
             >

@@ -14,7 +14,7 @@ export function Sidebar({ directories, selectedId }: SidebarProps) {
 
     return (
         <div className="flex flex-col h-full w-48 pt-4 border-zinc-400 border-r-[1.5px] overflow-y-auto">
-            <Button color="accent" className="mx-2 mb-4 w-[175px]">
+            <Button color="accent" width="w-[175px]" className="mx-2 mb-4">
                 <span className='flex items-center justify-start mr-4'>
                     <AddIcon className="mr-1" />
                     New

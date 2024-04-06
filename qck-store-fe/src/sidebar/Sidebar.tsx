@@ -9,11 +9,11 @@ type SidebarProps = {
 }
 
 export function Sidebar({ directories, selectedId }: SidebarProps) {
-    const colorRegular = "hover:bg-zinc-100";
+    const colorRegular = "hover:bg-gray-100";
     const colorSelected = "bg-purple-100 text-purple-800";
 
     return (
-        <div className="flex flex-col h-full w-48 pt-4 border-zinc-400 border-r-[1.5px] overflow-y-auto">
+        <div className="flex flex-col h-full w-48 pt-4 border-gray-400 border-r-[1.5px] overflow-y-auto">
             <Button color="accent" width="w-[175px]" className="mx-2 mb-4">
                 <span className='flex items-center justify-start mr-4'>
                     <AddIcon className="mr-1" />
@@ -35,12 +35,12 @@ export function Sidebar({ directories, selectedId }: SidebarProps) {
 
 /*
 ALT VERSION
-const colorRegular = "border-transparent hover:border-zinc-400 hover:border-zinc-500";
+const colorRegular = "border-transparent hover:border-gray-400 hover:border-gray-500";
 const colorSelected = "border-purple-800 text-purple-800 font-semibold";
 
 return (
-        <div className="h-full w-48 pt-4 border-zinc-400 border-r-[1.5px] overflow-y-auto">
-            <div className="border-zinc-300 ml-4 border-l-2">
+        <div className="h-full w-48 pt-4 border-gray-400 border-r-[1.5px] overflow-y-auto">
+            <div className="border-gray-300 ml-4 border-l-2">
             {
                 directories.map(item => 
                     <div 

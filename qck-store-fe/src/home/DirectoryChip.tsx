@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 export function DirectoryChip({ data }: { data: Directory }) {
     return (
         <Link className="w-full" to={`/folder/${data.id}`}>
-        <div className="flex w-full border-zinc-400 hover:border-zinc-800 hover:bg-purple-100 border-[1px] items-center rounded-lg p-2 cursor-pointer">
-            <FolderIcon className="text-zinc-800 mr-2" />
+        <div className="flex w-full border-gray-400 hover:border-gray-800 hover:bg-purple-100 border-[1px] items-center rounded-lg p-2 cursor-pointer">
+            <FolderIcon className="text-gray-800 mr-2" />
             <span className="truncate">{data.name}</span>
         </div>
         </Link>

@@ -38,14 +38,16 @@ export function Home() {
             {areAnyLoading() ? <Loading /> :         
             <div className="flex w-full">
                 <section className="h-full flex">
-                    {dirs?.length && <Sidebar directories={dirs} selectedId={parseId(folderId)} />}
+                    <Sidebar directories={dirs || []} selectedId={parseId(folderId)} />
                 </section>
 
                 <section className="w-full m-4">
-                    <div className="dynamic-grid gap-4">
-                        {directories.map(dir => <DirectoryChip key={dir.id} data={dir} />)}
-                    </div>
-                    <div className="dynamic-grid gap-4">
+                    {directories.length > 0 && 
+                        <div className="dynamic-grid-sm gap-4 mb-8">
+                            {directories.map(dir => <DirectoryChip key={dir.id} data={dir} />)}
+                        </div>
+                    }
+                    <div className="dynamic-grid-lg gap-4">
                         {files.map(file => <FileChip key={file.id} data={file} />)}
                     </div>
                 </section>

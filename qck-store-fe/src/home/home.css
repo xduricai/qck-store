@@ -1,4 +1,9 @@
-.dynamic-grid {
+.dynamic-grid-sm {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+}
+
+.dynamic-grid-lg {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
 }

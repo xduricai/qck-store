@@ -39,8 +39,8 @@ export function Input({ value, placeholder, onChange, width, name, type, label, 
                     onChange(event);
                 }} 
                 className={`w-full rounded px-3 py-1.5 text-base placeholder:text-gray-600 box-border
-                focus:border-[2px] border-gray-400 focus:border-purple-800 focus:m-[-1px] border-[1px]
-                border-transparent outline-none ${className} ${errorBorder}`}    
+                focus:border-[2px] border-gray-400 focus:border-purple-800 focus:m-[-1px] border-[1.5px]
+                outline-none ${className} ${errorBorder}`}    
             />
             {validator?.error && 
             <span className="text-xs font-semibold text-red-600">

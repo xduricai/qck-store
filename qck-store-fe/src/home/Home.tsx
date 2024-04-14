@@ -6,11 +6,25 @@ import { useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
 import './home.css';
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 export type ContextMenuStatus = {
     type: "folder" | "file";
     id: number;
+}
+
+type ChipProps = {
+    children: ReactNode;
+    className?: string;
+    onClick?: () => any;
+}
+
+function Chip ({ children, className = "", onClick = () => {} }: ChipProps) {
+    return (
+        <span className={`w-full hover:bg-gray-100 items-center p-2 ${className}`} onClick={onClick}>
+            {children}
+        </span>
+    );
 }
 
 export function Home() {
@@ -63,6 +77,20 @@ export function Home() {
                     <div className="dynamic-grid-lg gap-4">
                         {files.map(file => <FileChip key={file.id} menuStatus={menuStatus} setMenuStatus={setMenuStatus} data={file} />)}
                     </div>
+                    
+                <section className="flex flex-row">
+                    <div className="flex flex-col w-48 rounded border-gray-400 border-[1px]">
+                        <Chip>Details</Chip>
+                        <Chip className="rename-toggle" >Rename</Chip>
+                        <Chip>Move To</Chip>
+                        <Chip>Delete</Chip>
+                        <Chip>Details</Chip>
+                        <Chip>Details</Chip>
+                    </div>
+                    <div className="rename-section bg-red-400 w-36 hover:bg-blue-400 hidden hover:flex">
+                        test
+                    </div>
+                </section>
                 </section>
             </div>
             }

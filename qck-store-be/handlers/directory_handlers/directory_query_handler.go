@@ -7,7 +7,7 @@ import (
 )
 
 type IDirectoryQueryHandler interface {
-	GetRootForUser(string) ([]DirectoryResponse, int)
+	GetAllForUser(string) ([]DirectoryResponse, int)
 }
 
 type DirectoryQueryHandler struct {
@@ -20,9 +20,9 @@ func NewDirectoryQueryHandler(db *sql.DB) *DirectoryQueryHandler {
 	}
 }
 
-func (h *DirectoryQueryHandler) GetRootForUser(id string) ([]DirectoryResponse, int) {
+func (h *DirectoryQueryHandler) GetAllForUser(id string) ([]DirectoryResponse, int) {
 	var rows *sql.Rows
-	query := "SELECT Id, Name FROM Directories WHERE UserId = $1 AND ParentId IS NULL"
+	query := "SELECT Id, Name, CASE WHEN ParentId IS NULL THEN 1 ELSE 0 END AS IsRoot FROM Directories WHERE UserId = $1"
 
 	if data, err := h.db.Query(query, id); err == nil {
 		rows = data
@@ -35,7 +35,7 @@ func (h *DirectoryQueryHandler) GetRootForUser(id string) ([]DirectoryResponse, 
 	for rows.Next() {
 		var res = *new(DirectoryResponse)
 
-		if err := rows.Scan(&res.Id, &res.Name); err != nil {
+		if err := rows.Scan(&res.Id, &res.Name, &res.IsRoot); err != nil {
 			log.Println(err)
 			continue
 		}

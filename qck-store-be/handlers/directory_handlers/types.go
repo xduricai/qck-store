@@ -1,8 +1,9 @@
 package directory_handlers
 
 type DirectoryResponse struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
+	IsRoot bool   `json:"isRoot"`
 }
 
 type FileResponse struct {

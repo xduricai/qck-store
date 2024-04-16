@@ -3,7 +3,7 @@ import { Directory } from "./responses/Directory";
 import { FolderContentResponse } from "./responses/FolderContentResponse";
 
 export async function GetRootDirectories() {
-    const res = await fetch(`${BaseUrl}/directories/root`, {
+    const res = await fetch(`${BaseUrl}/directories/all`, {
         credentials: "include"
     });
     if (res.status !== 200) {

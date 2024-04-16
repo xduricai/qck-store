@@ -13,13 +13,14 @@ export function Sidenav({ directories, selectedId }: SidenavProps) {
     const colorSelected = "bg-purple-100 text-purple-800";
 
     return (
-        <div className="flex flex-col h-full w-48 pt-4 border-gray-400 border-r-[1.5px] overflow-y-auto">
+        <div className="flex flex-col h-full w-48 pt-4 border-gray-400 border-r-[1.5px]">
             <Button color="accent" width="w-[175px]" className="mx-2 mb-4 min-h-10">
                 <span className='flex items-center justify-start mr-4'>
                     <AddIcon className="mr-1" />
                     New
                 </span>
             </Button>
+            <div className="flex flex-col overflow-y-auto scrollbar">
             {
                 directories.map(item => 
                     <Link key={item.id} to={`/folder/${item.id}`}>
@@ -29,6 +30,7 @@ export function Sidenav({ directories, selectedId }: SidenavProps) {
                     </Link>
                 )
             }
+            </div>
         </div>
     );
 }

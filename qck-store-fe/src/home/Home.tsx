@@ -7,7 +7,6 @@ import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
 import './home.css';
 import { ReactNode, useEffect, useState } from "react";
-import { Input } from "../shared/Input";
 
 export type ContextMenuStatus = {
     type: "folder" | "file";
@@ -83,14 +82,18 @@ export function Home() {
                 <section className="flex flex-row">
                     <div className="flex flex-col w-48 h-fit rounded outline outline-gray-400 outline-[1px]">
                         <MenuItem>Details</MenuItem>
-                        <MenuItem className="rename-toggle cursor-default">Rename</MenuItem>
+                        <MenuItem className="rename-toggle">Rename</MenuItem>
                         <MenuItem className="moveto-toggle cursor-default">Move To</MenuItem>
                         <MenuItem>Delete</MenuItem>
                     </div>
-                    <div className="rename-section w-48 h-fit mt-10 rounded-r border-gray-400 border hidden hover:flex">
-                        {/* TODO finish */}
-                        <Input />
-                    </div>
+                    {/* //TODO rework to dialog
+                    <div className="rename-section w-48 h-fit mt-5 p-4 rounded-r border-gray-400 border hidden hover:flex flex-col">
+                        <Input label="Enter a new name" placeholder="Name..." />
+                        <div>
+                            <Button color="outlined">Cancel</Button>
+                            <Button color="accent">Save</Button>
+                        </div>
+                    </div> */}
                     <div className="moveto-section w-48 max-h-64 rounded-r border-gray-400 border flex-col overflow-y-scroll scrollbar hidden hover:flex">
                         {/* TODO filter current folder */}
                         { dirs!.map(dir => <MenuItem key={dir.id}>{dir.name}</MenuItem>) }

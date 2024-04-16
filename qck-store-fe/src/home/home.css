@@ -11,3 +11,7 @@
 div:has( > :hover.rename-toggle) ~ .rename-section {
     display: flex;
 }
+
+div:has( > :hover.moveto-toggle) ~ .moveto-section {
+    display: flex;
+}

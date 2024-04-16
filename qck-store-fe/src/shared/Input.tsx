@@ -1,9 +1,9 @@
 import { useId } from "react";
 
 type InputProps = {
-    value: string;
-    placeholder: string;
-    onChange: (value: React.ChangeEvent<HTMLInputElement>) => void;
+    value?: string;
+    placeholder?: string;
+    onChange?: (value: React.ChangeEvent<HTMLInputElement>) => void;
     width?: string;
     name?: string;
     label?: string;
@@ -17,7 +17,7 @@ type TextInputValidator = {
     validate?: (value: string) => void;
 }
 
-export function Input({ value, placeholder, onChange, width, name, type, label, className, validator }: InputProps) {
+export function Input({ value, placeholder, onChange = () => {}, width, name, type, label, className, validator }: InputProps) {
     const id = useId();
     const margin = validator && !validator.error?.length ? 'mb-5' : '';
     const errorBorder = validator?.error ? " border-red-600 focus:border-red-600" : "";    

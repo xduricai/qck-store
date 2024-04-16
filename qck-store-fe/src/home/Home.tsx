@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Sidebar } from "../sidebar/Sidebar";
+import { Sidenav } from "../navigation/Sidenav";
 import { GetFolderContent, GetRootDirectories } from "../api/DirectoryClient";
 import { Loading } from "./Loading";
 import { useLocation, useParams } from "react-router-dom";
@@ -13,15 +13,15 @@ export type ContextMenuStatus = {
     id: number;
 }
 
-type ChipProps = {
+type MenuItemProps = {
     children: ReactNode;
     className?: string;
     onClick?: () => any;
 }
 
-function Chip ({ children, className = "", onClick = () => {} }: ChipProps) {
+function MenuItem ({ children, className = "", onClick = () => {} }: MenuItemProps) {
     return (
-        <span className={`w-full hover:bg-gray-100 items-center p-2 ${className}`} onClick={onClick}>
+        <span className={`w-full hover:bg-gray-100 items-center p-2 cursor-pointer ${className}`} onClick={onClick}>
             {children}
         </span>
     );
@@ -41,9 +41,10 @@ export function Home() {
         queryFn: () => GetFolderContent(folderId)
     });
 
-    const directories = folderId
-        ? content?.directories || [] 
-        : dirs || [];
+    const rootDirs = dirs?.filter(dir => dir.isRoot) || [];
+    const contentDirs = folderId 
+        ? content?.directories || []
+        : rootDirs;  
     const files = content?.files || [];  
 
     const areAnyLoading = () => dirsLoading || contentLoading;
@@ -60,18 +61,18 @@ export function Home() {
     }, [location]);
     
     return (
-        <div className="flex h-[calc(100%-4rem)]">
+        <div className="flex h-[calc(100%-4rem)]" onClick={() => setMenuStatus(null)}>
             {areAnyLoading() ? <Loading /> :         
             <div className="flex w-full">
                 <section className="h-full flex">
-                    <Sidebar directories={dirs || []} selectedId={parseId(folderId)} />
+                    <Sidenav directories={rootDirs} selectedId={parseId(folderId)} />
                 </section>
 
                 <section className="w-full m-4">
                     <span></span>
-                    {directories.length > 0 && 
+                    {contentDirs.length > 0 && 
                         <div className="dynamic-grid-sm gap-4 mb-8">
-                            {directories.map(dir => <DirectoryChip menuStatus={menuStatus} setMenuStatus={setMenuStatus} key={dir.id} data={dir} />)}
+                            {contentDirs.map(dir => <DirectoryChip menuStatus={menuStatus} setMenuStatus={setMenuStatus} key={dir.id} data={dir} />)}
                         </div>
                     }
                     <div className="dynamic-grid-lg gap-4">
@@ -79,16 +80,15 @@ export function Home() {
                     </div>
                     
                 <section className="flex flex-row">
-                    <div className="flex flex-col w-48 rounded border-gray-400 border-[1px]">
-                        <Chip>Details</Chip>
-                        <Chip className="rename-toggle" >Rename</Chip>
-                        <Chip>Move To</Chip>
-                        <Chip>Delete</Chip>
-                        <Chip>Details</Chip>
-                        <Chip>Details</Chip>
+                    <div className="flex flex-col w-48 h-fit rounded outline outline-gray-400 outline-[1px]">
+                        <MenuItem>Details</MenuItem>
+                        <MenuItem className="rename-toggle cursor-default" >Rename</MenuItem>
+                        <MenuItem className="cursor-default">Move To</MenuItem>
+                        <MenuItem>Delete</MenuItem>
                     </div>
-                    <div className="rename-section bg-red-400 w-36 hover:bg-blue-400 hidden hover:flex">
-                        test
+                    <div className="rename-section w-48 max-h-64 rounded-r border-gray-400 border flex-col overflow-y-scroll scrollbar hidden hover:flex">
+                        {/* TODO filter current folder */}
+                        { dirs!.map(dir => <MenuItem key={dir.id}>{dir.name}</MenuItem>) }
                     </div>
                 </section>
                 </section>

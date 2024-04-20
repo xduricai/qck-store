@@ -5,27 +5,11 @@ import { Loading } from "./Loading";
 import { useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
+import { useEffect, useState } from "react";
+import { ContextMenuStatus } from "./ContextMenu";
 import './home.css';
-import { ReactNode, useEffect, useState } from "react";
 
-export type ContextMenuStatus = {
-    type: "folder" | "file";
-    id: number;
-}
-
-type MenuItemProps = {
-    children: ReactNode;
-    className?: string;
-    onClick?: () => any;
-}
-
-function MenuItem ({ children, className = "", onClick = () => {} }: MenuItemProps) {
-    return (
-        <span className={`w-full hover:bg-gray-100 items-center p-2 cursor-pointer ${className}`} onClick={onClick}>
-            {children}
-        </span>
-    );
-}
+export type ItemType = "folder" | "file";
 
 export function Home() {
     const location = useLocation();
@@ -47,8 +31,6 @@ export function Home() {
         : rootDirs;  
     const files = content?.files || [];  
 
-    const areAnyLoading = () => dirsLoading || contentLoading;
-    
     function parseId(id: string | undefined) {
         if (!id) return null;
         const res = parseInt(id);
@@ -60,9 +42,12 @@ export function Home() {
         setMenuStatus(null);
     }, [location]);
     
+    if (dirsLoading || contentLoading) {
+        return <Loading />;
+    }
+
     return (
-        <div className="flex h-[calc(100%-4rem)]" onClick={() => setMenuStatus(null)}>
-            {areAnyLoading() ? <Loading /> :         
+        <div className="flex h-[calc(100%-4rem)]" onClick={() => setMenuStatus(null)}>        
             <div className="flex w-full">
                 <section className="h-full flex">
                     <Sidenav directories={rootDirs} selectedId={parseId(folderId)} />
@@ -76,32 +61,10 @@ export function Home() {
                         </div>
                     }
                     <div className="dynamic-grid-lg gap-4">
-                        {files.map(file => <FileChip key={file.id} menuStatus={menuStatus} setMenuStatus={setMenuStatus} data={file} />)}
+                        {files.map(file => <FileChip key={file.id} dirs={dirs} menuStatus={menuStatus} setMenuStatus={setMenuStatus} data={file} />)}
                     </div>
-                    
-                <section className="flex flex-row">
-                    <div className="flex flex-col w-48 h-fit rounded outline outline-gray-400 outline-[1px]">
-                        <MenuItem>Details</MenuItem>
-                        <MenuItem className="rename-toggle">Rename</MenuItem>
-                        <MenuItem className="moveto-toggle cursor-default">Move To</MenuItem>
-                        <MenuItem>Delete</MenuItem>
-                    </div>
-                    {/* //TODO rework to dialog
-                    <div className="rename-section w-48 h-fit mt-5 p-4 rounded-r border-gray-400 border hidden hover:flex flex-col">
-                        <Input label="Enter a new name" placeholder="Name..." />
-                        <div>
-                            <Button color="outlined">Cancel</Button>
-                            <Button color="accent">Save</Button>
-                        </div>
-                    </div> */}
-                    <div className="moveto-section w-48 max-h-64 rounded-r border-gray-400 border flex-col overflow-y-scroll scrollbar hidden hover:flex">
-                        {/* TODO filter current folder */}
-                        { dirs!.map(dir => <MenuItem key={dir.id}>{dir.name}</MenuItem>) }
-                    </div>
-                </section>
                 </section>
             </div>
-            }
         </div>
     )
 }

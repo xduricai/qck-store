@@ -8,10 +8,10 @@
     grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
 }
 
-div:has( > :hover.rename-toggle) ~ .rename-section {
+div:has( > :hover.moveto-toggle) ~ .moveto-section {
     display: flex;
 }
 
-div:has( > :hover.moveto-toggle) ~ .moveto-section {
+.moveto-section:has( + div > :hover.moveto-toggle) {
     display: flex;
 }

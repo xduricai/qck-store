@@ -16,13 +16,7 @@ type MenuItemProps = {
     onClick?: () => any;
 }
 
-/* POSSIBLE CASES
-    enough room => show right
-    not enough room => show left
-    small screen => show middle
-*/
-
-function getStartingPosition(point: number, size: number, screenSize: number) {
+function getPosX(point: number, size: number, screenSize: number) {
     if (screenSize <= size) {
         return 0;
     }
@@ -30,20 +24,36 @@ function getStartingPosition(point: number, size: number, screenSize: number) {
     let start = point;
     let end = point + size;
     if (end <= screenSize) {
-        // start = 123;
         return start;
+    }
+
+    end = point + size / 2;
+    if (end <= screenSize) {
+        return end - screenSize;
     }
 
     end = point;
     start = point - size;
     if (start > 0) {
-        return start;
+        return end - screenSize;
     }
 
     return (screenSize - size) / 2;
 }
 
-export function MenuItem ({ children, className = "", onClick = () => {} }: MenuItemProps) {
+function getPosY(point: number, size: number, screenSize: number) {
+    if (screenSize <= size) {
+        return 0;
+    }
+
+    if (point + size <= screenSize) {
+        return point;
+    }
+
+    return screenSize - size;
+}
+
+export function MenuItem ({ children, className = "", onClick }: MenuItemProps) {
     return (
         <span className={`w-full bg-white hover:bg-gray-100 items-center p-2 cursor-pointer ${className}`} onClick={onClick}>
             {children}
@@ -58,22 +68,30 @@ type ContextMenuProps = {
 
 export function ContextMenu({ dirs, menuStatus }: ContextMenuProps) {
     const rem = parseInt(getComputedStyle(document.documentElement).fontSize) || 16;
-    const size = 24 * rem;
+    const width = 24 * rem;
+    const height = 12 * rem;
+    const x = getPosX(menuStatus.x, width, window.innerWidth);
+    const y = getPosY(menuStatus.y, height, window.innerHeight);
 
-    const x = getStartingPosition(menuStatus.x, size, window.innerWidth);
-    const y = getStartingPosition(menuStatus.y, size, window.innerHeight);
+    const top = `${y}px`;
+    let left = "unset";
+    let right = "unset";
     
+    if (x >= 0) left = `${x}px`;
+    else right = `${-x}px`;
+
     const style = {
-        left: `${x}px`,
-        top: `${y}px`
+        left, right, top
     }
 
     return (
         <section className="flex flex-row absolute w-fit" style={style} >
+            {x < 0 &&
             <div className="moveto-section w-48 max-h-64 rounded-r border-gray-400 border flex-col overflow-y-scroll scrollbar hidden hover:flex">
                 {/* TODO filter current folder */}
                 { dirs!.map(dir => <MenuItem key={dir.id}>{dir.name}</MenuItem>) }
             </div>
+            }
             <div className="flex flex-col w-48 h-fit rounded outline outline-gray-400 outline-[1px]">
                 <MenuItem>Details</MenuItem>
                 <MenuItem>Rename</MenuItem>
@@ -88,10 +106,13 @@ export function ContextMenu({ dirs, menuStatus }: ContextMenuProps) {
                     <Button color="accent">Save</Button>
                 </div>
             </div> */}
+            {x >= 0 &&
             <div className="moveto-section w-48 max-h-64 rounded-r border-gray-400 border flex-col overflow-y-scroll scrollbar hidden hover:flex">
+                { menuStatus.type === "folder" && <MenuItem>Root Folder</MenuItem> }
                 {/* TODO filter current folder */}
                 { dirs!.map(dir => <MenuItem key={dir.id}>{dir.name}</MenuItem>) }
             </div>
+            }
         </section>
     )
 }

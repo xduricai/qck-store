@@ -57,7 +57,7 @@ export function Home() {
                     <span></span>
                     {contentDirs.length > 0 && 
                         <div className="dynamic-grid-sm gap-4 mb-8">
-                            {contentDirs.map(dir => <DirectoryChip menuStatus={menuStatus} setMenuStatus={setMenuStatus} key={dir.id} data={dir} />)}
+                            {contentDirs.map(dir => <DirectoryChip key={dir.id} dirs={dirs} menuStatus={menuStatus} setMenuStatus={setMenuStatus} data={dir} />)}
                         </div>
                     }
                     <div className="dynamic-grid-lg gap-4">

@@ -2,15 +2,16 @@ import FolderIcon from '@mui/icons-material/Folder';
 import { Directory } from '../api/responses/Directory';
 import { Link } from 'react-router-dom';
 import { MouseEvent } from 'react';
-import { ContextMenuStatus } from './ContextMenu';
+import { ContextMenu, ContextMenuStatus } from './ContextMenu';
 
 type DirectoryChipProps = {
     data: Directory;
     menuStatus: ContextMenuStatus | null;
     setMenuStatus: (status: ContextMenuStatus) => void;
+    dirs?: Directory[];
 }
 
-export function DirectoryChip({ data, menuStatus, setMenuStatus }: DirectoryChipProps) {
+export function DirectoryChip({ data, menuStatus, setMenuStatus, dirs = [] }: DirectoryChipProps) {
     function handleRightClick(event: MouseEvent) {
         event.preventDefault();
         setMenuStatus({ id: data.id, type: "folder", x: event.pageX, y: event.pageY });
@@ -22,6 +23,9 @@ export function DirectoryChip({ data, menuStatus, setMenuStatus }: DirectoryChip
             <FolderIcon className="text-gray-800 mr-2" />
             <span className="truncate">{data.name}</span>
         </div>
+        {menuStatus?.id === data.id && menuStatus.type === "folder" && 
+            <ContextMenu dirs={dirs} menuStatus={menuStatus} />
+        }
         </Link>
     );
 }

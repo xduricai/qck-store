@@ -14,6 +14,7 @@ type FileChipProps = {
 
 export function FileChip({ data, menuStatus, setMenuStatus, dirs = [] }: FileChipProps) {
     function handleRightClick(event: MouseEvent) {
+        event.stopPropagation();
         event.preventDefault();
         setMenuStatus({ id: data.id, type: "file", x: event.pageX, y: event.pageY });
     }

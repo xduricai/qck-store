@@ -4,10 +4,11 @@ import { ItemType } from "./Home";
 import { useParams } from "react-router-dom";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import './home.css';
+import { File } from "../api/responses/File";
 
 export type ContextMenuStatus = {
     type: ItemType;
-    id: number;
+    item: Directory | File;
     x: number;
     y: number;
 }

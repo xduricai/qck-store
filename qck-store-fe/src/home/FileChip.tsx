@@ -16,7 +16,7 @@ export function FileChip({ data, menuStatus, setMenuStatus, dirs = [] }: FileChi
     function handleRightClick(event: MouseEvent) {
         event.stopPropagation();
         event.preventDefault();
-        setMenuStatus({ id: data.id, type: "file", x: event.pageX, y: event.pageY });
+        setMenuStatus({ item: data, type: "file", x: event.pageX, y: event.pageY });
     }
     
     return (
@@ -31,7 +31,7 @@ export function FileChip({ data, menuStatus, setMenuStatus, dirs = [] }: FileChi
             <div className="flex items-center justify-center w-full h-[calc(100%-0.5rem)] mt-2 rounded-lg bg-gray-300">
                 <DescriptionOutlinedIcon sx={{ width: 4/5, height: 4/5, strokeWidth:"1.25%" }} className="text-gray-400" />
             </div>
-            {menuStatus?.id === data.id && menuStatus.type === "file" && 
+            {menuStatus?.item.id === data.id && menuStatus.type === "file" && 
                 <ContextMenu dirs={dirs} menuStatus={menuStatus} />
             }
         </div>

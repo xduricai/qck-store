@@ -1,16 +1,25 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "../shared/Button";
 import { Input } from "../shared/Input";
 
-export default function RenameDialog() {
-    const dialogRef = useRef(null);
-  
+type RenameDialogProps = {
+    open: boolean;
+    setOpen: (open: boolean) => void;
+}
+
+export function RenameDialog({open, setOpen}: RenameDialogProps) {
+    const [ name, setName ] = useState<string>("");
+    const ref = useRef<HTMLDialogElement>(null);
+
+    if (open) ref.current?.showModal();
+    else ref.current?.close();
+
     return (
-        <dialog className="m-8" ref={dialogRef}>
-            <Input />
+        <dialog onCancel={() => {console.log('test')}} className="m-8" ref={ref}>
+            <Input value={name} onChange={(event) => setName(event.target.value)} />
             <div className="flex gap-4 w-full justify-end">
-                <Button onClick={() => console.log(dialogRef)} color="outlined">Close</Button>
-                <Button onClick={() => console.log(dialogRef)} color="outlined">Submit</Button>
+                <Button onClick={() => setOpen(false)} color="outlined">Close</Button>
+                <Button onClick={() => setOpen(false)} color="outlined">Submit</Button>
             </div>
         </dialog>
     ) 

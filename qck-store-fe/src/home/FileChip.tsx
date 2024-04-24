@@ -1,9 +1,10 @@
 import { File } from "../api/responses/File";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
-import { MouseEvent } from "react";
+import { MouseEvent, useState } from "react";
 import { ContextMenu, ContextMenuStatus } from "./ContextMenu";
 import { Directory } from "../api/responses/Directory";
+import { RenameDialog } from "./RenameDialog";
 
 type FileChipProps = {
     data: File;
@@ -13,6 +14,8 @@ type FileChipProps = {
 }
 
 export function FileChip({ data, menuStatus, setMenuStatus, dirs = [] }: FileChipProps) {
+    const [renameOpen, setRenameOpen] = useState(false);
+    
     function handleRightClick(event: MouseEvent) {
         event.stopPropagation();
         event.preventDefault();
@@ -20,6 +23,7 @@ export function FileChip({ data, menuStatus, setMenuStatus, dirs = [] }: FileChi
     }
     
     return (
+        <>
         <div onContextMenu={(event) => handleRightClick(event)} className="flex flex-col aspect-square w-full border-gray-400 hover:border-gray-800 hover:bg-gray-100 border items-center rounded-lg p-2">
             <div className="flex flex-row w-full items-center self-end">
                 <div className="flex flex-col">
@@ -32,8 +36,10 @@ export function FileChip({ data, menuStatus, setMenuStatus, dirs = [] }: FileChi
                 <DescriptionOutlinedIcon sx={{ width: 4/5, height: 4/5, strokeWidth:"1.25%" }} className="text-gray-400" />
             </div>
             {menuStatus?.item.id === data.id && menuStatus.type === "file" && 
-                <ContextMenu dirs={dirs} menuStatus={menuStatus} />
+                <ContextMenu dirs={dirs} menuStatus={menuStatus} setRename={setRenameOpen} />
             }
         </div>
+        <RenameDialog open={renameOpen} setOpen={setRenameOpen} />
+        </>
     );
 }

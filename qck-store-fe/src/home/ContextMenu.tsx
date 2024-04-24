@@ -67,9 +67,10 @@ export function MenuItem ({ children, className = "", onClick }: MenuItemProps) 
 type ContextMenuProps = {
     dirs: Directory[];
     menuStatus: ContextMenuStatus;
+    setRename: (open: boolean) => void;
 }
 
-export function ContextMenu({ dirs, menuStatus }: ContextMenuProps) {
+export function ContextMenu({ dirs, menuStatus, setRename }: ContextMenuProps) {   
     const { folderId } = useParams();
     const currentId = parseInt(folderId || "");
     
@@ -112,8 +113,8 @@ export function ContextMenu({ dirs, menuStatus }: ContextMenuProps) {
             </div>
             }
             <div className="flex flex-col w-48 h-fit rounded outline outline-gray-400 outline-[1px]">
-                <MenuItem>Details</MenuItem>
-                <MenuItem>Rename</MenuItem>
+                <MenuItem onClick={() => {}}>Details</MenuItem>
+                <MenuItem onClick={() => setRename(true)}>Rename</MenuItem>
                 <MenuItem className="moveto-toggle cursor-default justify-between pr-2">
                     Move To <ChevronRightIcon />
                 </MenuItem>

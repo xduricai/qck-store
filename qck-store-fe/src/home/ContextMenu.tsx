@@ -67,10 +67,12 @@ export function MenuItem ({ children, className = "", onClick }: MenuItemProps) 
 type ContextMenuProps = {
     dirs: Directory[];
     menuStatus: ContextMenuStatus;
+    setDetails: (open: boolean) => void;
     setRename: (open: boolean) => void;
+    setDelete: (open: boolean) => void;
 }
 
-export function ContextMenu({ dirs, menuStatus, setRename }: ContextMenuProps) {   
+export function ContextMenu({ dirs, menuStatus, setDetails, setRename, setDelete }: ContextMenuProps) {   
     const { folderId } = useParams();
     const currentId = parseInt(folderId || "");
     
@@ -113,23 +115,15 @@ export function ContextMenu({ dirs, menuStatus, setRename }: ContextMenuProps) {
             </div>
             }
             <div className="flex flex-col w-48 h-fit rounded outline outline-gray-400 outline-[1px]">
-                <MenuItem onClick={() => {}}>Details</MenuItem>
+                <MenuItem onClick={() => setDetails(true)}>Details</MenuItem>
                 <MenuItem onClick={() => setRename(true)}>Rename</MenuItem>
                 <MenuItem className="moveto-toggle cursor-default justify-between pr-2">
                     Move To <ChevronRightIcon />
                 </MenuItem>
-                <MenuItem className="text-red-600 font-semibold">
+                <MenuItem onClick={() => setDelete(true)} className="text-red-600 font-semibold">
                     Delete
                 </MenuItem>
             </div>
-            {/* //TODO rework to dialog
-            <div className="w-48 h-fit mt-5 p-4 rounded-r border-gray-400 border hidden hover:flex flex-col">
-                <Input label="Enter a new name" placeholder="Name..." />
-                <div>
-                    <Button color="outlined">Cancel</Button>
-                    <Button color="accent">Save</Button>
-                </div>
-            </div> */}
             {x >= 0 &&
             <div className={`moveto-section w-48 h-fit max-h-64 rounded-r border-gray-400 border flex-col overflow-y-auto scrollbar hidden hover:flex ${dirsMargin}`}>
                 { filteredDirs!.map(dir => <MenuItem key={dir.id}>{dir.name}</MenuItem>) }

@@ -9,7 +9,7 @@ import { useUserContext } from "../global/UserContext";
 export function Navbar() {
     const userContext = useUserContext();
     return (
-        <nav className="navbar border-gray-400 border-b-[1.5px] items-center w-full align-items-center text-xl font-medium h-16">
+        <nav className="navbar items-center w-full align-items-center text-xl font-medium bg-gray-100 h-16">
             <Logo />
             {!!userContext.user &&
             <>

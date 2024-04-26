@@ -12,7 +12,7 @@ type SidenavProps = {
 }
 
 export function Sidenav({ directories, selectedId, setMenuStatus }: SidenavProps) {
-    const colorRegular = "hover:bg-gray-100";
+    const colorRegular = "hover:bg-gray-200";
     const colorSelected = "bg-purple-100 text-purple-800";
 
     function handleRightClick(event: MouseEvent, item: Directory) {
@@ -21,7 +21,7 @@ export function Sidenav({ directories, selectedId, setMenuStatus }: SidenavProps
     }
 
     return (
-        <div className="flex flex-col h-full w-48 pt-4 border-gray-400 border-r-[1.5px]">
+        <div className="flex flex-col h-full w-48 pt-4">
             <Button color="accent" width="w-[175px]" className="mx-2 mb-4 min-h-10">
                 <span className='flex items-center justify-start mr-4'>
                     <AddIcon className="mr-1" />

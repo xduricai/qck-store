@@ -54,13 +54,12 @@ export function Home() {
 
     return (
         <>
-        <div className="flex h-[calc(100%-4rem)] w-full" onClick={() => setMenuStatus(null)}>
+        <div className="flex h-[calc(100%-4rem)] w-full bg-gray-100" onClick={() => setMenuStatus(null)}>
             <section className="h-full flex">
                 <Sidenav directories={rootDirs} selectedId={parseId(folderId)} setMenuStatus={setMenuStatus} />
             </section>
 
-            <section className="w-full m-4">
-                <span></span>
+            <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">
                 {contentDirs.length > 0 && 
                     <div className="dynamic-grid-sm gap-4 mb-8">
                         {contentDirs.map(dir => <DirectoryChip key={dir.id} setMenuStatus={setMenuStatus} data={dir} />)}

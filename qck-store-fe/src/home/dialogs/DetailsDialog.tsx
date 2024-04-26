@@ -17,19 +17,27 @@ export function DetailsDialog({ open, setOpen, item }: DetailsDialogProps) {
     const close = () => setOpen(false);
 
     return (
-        <dialog onCancel={close} ref={ref} className="w-80 px-8 py-4 rounded outline outline-[1px] outline-gray-400">
+        <dialog onCancel={close} ref={ref} className="w-[340px] px-8 py-4 rounded outline outline-[1px] outline-gray-400">
             <h2 className="text-lg font-semibold mb-2">Details</h2>
-            <div>
+            <div className="flex flex-col gap-y-2 mb-2">
                 <div>
-                    <span>Name</span>
+                    <span className="text-sm">Name</span>
                     <p>{item.name}</p>
                 </div>
                 {"size" in item && 
-                    <div>
-                        <span>Size</span>
-                        <p>{item.size}B</p>
-                    </div>
+                <div>
+                    <span className="text-sm">Size</span>
+                    <p>{item.size}B</p>
+                </div>
                 }
+                <div>
+                    <span className="text-sm">Created</span>
+                    <p>{"TODO add date"}</p>
+                </div>
+                <div>
+                    <span className="text-sm">Last Modified</span>
+                    <p>{"TODO add date"}</p>
+                </div>
             </div>
             <div className="flex mt-4 gap-4 w-full justify-end">
                 <Button onClick={close} color="outlined">Close</Button>

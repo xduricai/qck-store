@@ -1,16 +1,24 @@
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from "react-router-dom";
+import { MouseEvent } from 'react';
 import { Directory } from "../api/responses/Directory";
 import { Button } from "../shared/Button";
+import { ContextMenuStatus } from '../home/ContextMenu';
 
 type SidenavProps = {
     directories: Directory[];
     selectedId: number | null;
+    setMenuStatus: (status: ContextMenuStatus) => void;
 }
 
-export function Sidenav({ directories, selectedId }: SidenavProps) {
+export function Sidenav({ directories, selectedId, setMenuStatus }: SidenavProps) {
     const colorRegular = "hover:bg-gray-100";
     const colorSelected = "bg-purple-100 text-purple-800";
+
+    function handleRightClick(event: MouseEvent, item: Directory) {
+        event.preventDefault();
+        setMenuStatus({ item, type: "folder", x: event.pageX, y: event.pageY });
+    }
 
     return (
         <div className="flex flex-col h-full w-48 pt-4 border-gray-400 border-r-[1.5px]">
@@ -23,7 +31,7 @@ export function Sidenav({ directories, selectedId }: SidenavProps) {
             <div className="flex flex-col overflow-y-auto scrollbar">
             {
                 directories.map(item => 
-                    <Link key={item.id} to={`/folder/${item.id}`}>
+                    <Link key={item.id} to={`/folder/${item.id}`} onContextMenu={(event) => handleRightClick(event, item)}>
                         <div className={`mx-2 my-1 py-2 pl-2 truncate cursor-pointer font-semibold rounded ${selectedId === item.id ? colorSelected : colorRegular}`}>
                             {item.name}
                         </div>

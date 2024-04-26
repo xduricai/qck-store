@@ -6,7 +6,10 @@ import { useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
 import { useEffect, useState } from "react";
-import { ContextMenuStatus } from "./ContextMenu";
+import { ContextMenu, ContextMenuStatus } from "./ContextMenu";
+import { DetailsDialog } from "./dialogs/DetailsDialog";
+import { RenameDialog } from "./dialogs/RenameDialog";
+import { DeleteDialog } from "./dialogs/DeleteDialog";
 import './home.css';
 
 export type ItemType = "folder" | "file";
@@ -15,6 +18,9 @@ export function Home() {
     const location = useLocation();
     const { folderId } = useParams();
     const [ menuStatus, setMenuStatus ] = useState<ContextMenuStatus | null>(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
+    const [renameOpen, setRenameOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
     
     const { data: dirs, isLoading: dirsLoading } = useQuery({
         queryKey: ["dirs"],
@@ -47,24 +53,30 @@ export function Home() {
     }
 
     return (
-        <div className="flex h-[calc(100%-4rem)]" onClick={() => setMenuStatus(null)}>        
-            <div className="flex w-full">
-                <section className="h-full flex">
-                    <Sidenav directories={rootDirs} selectedId={parseId(folderId)} />
-                </section>
+        <>
+        <div className="flex h-[calc(100%-4rem)] w-full" onClick={() => setMenuStatus(null)}>
+            <section className="h-full flex">
+                <Sidenav directories={rootDirs} selectedId={parseId(folderId)} setMenuStatus={setMenuStatus} />
+            </section>
 
-                <section className="w-full m-4">
-                    <span></span>
-                    {contentDirs.length > 0 && 
-                        <div className="dynamic-grid-sm gap-4 mb-8">
-                            {contentDirs.map(dir => <DirectoryChip key={dir.id} dirs={dirs} menuStatus={menuStatus} setMenuStatus={setMenuStatus} data={dir} />)}
-                        </div>
-                    }
-                    <div className="dynamic-grid-lg gap-4">
-                        {files.map(file => <FileChip key={file.id} dirs={dirs} menuStatus={menuStatus} setMenuStatus={setMenuStatus} data={file} />)}
+            <section className="w-full m-4">
+                <span></span>
+                {contentDirs.length > 0 && 
+                    <div className="dynamic-grid-sm gap-4 mb-8">
+                        {contentDirs.map(dir => <DirectoryChip key={dir.id} setMenuStatus={setMenuStatus} data={dir} />)}
                     </div>
-                </section>
-            </div>
+                }
+                <div className="dynamic-grid-lg gap-4">
+                    {files.map(file => <FileChip key={file.id} setMenuStatus={setMenuStatus} data={file} />)}
+                </div>
+            </section>
         </div>
-    )
+        {!!menuStatus && <>
+            <ContextMenu dirs={dirs || []} menuStatus={menuStatus} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} />
+            <DetailsDialog open={detailsOpen} setOpen={setDetailsOpen} item={menuStatus.item} />
+            <RenameDialog open={renameOpen} setOpen={setRenameOpen} />
+            <DeleteDialog open={deleteOpen} setOpen={setDeleteOpen} />
+        </>}
+        </>
+    );
 }

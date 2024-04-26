@@ -32,7 +32,7 @@ export function DetailsDialog({ open, setOpen, item }: DetailsDialogProps) {
                 }
             </div>
             <div className="flex mt-4 gap-4 w-full justify-end">
-                <Button onClick={close} color="plain">Close</Button>
+                <Button onClick={close} color="outlined">Close</Button>
             </div>
         </dialog>
     ) 

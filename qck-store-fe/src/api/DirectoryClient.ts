@@ -30,6 +30,25 @@ export async function GetFolderContent(folderId?: string) {
     return content;
 }
 
+export async function GetSearchResults(query?: string) {
+    //TODO finish
+    
+    // if (!query) return null;
+    
+    // const res = await fetch(`${BaseUrl}/search/${query}`, {
+    //     credentials: "include"
+    // });
+    // if (res.status !== 200) {
+    //     throw new Error();
+    // }
+
+    // const content: FolderContentResponse = await res.json();
+    //TODO remove 
+    const content = { directories: [], files: tempData() };
+    content.files = tempData();
+    return content;
+}
+
 //TODO remove
 function tempData() {
     return [

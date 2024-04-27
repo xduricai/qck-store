@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Sidenav } from "../navigation/Sidenav";
-import { GetFolderContent, GetRootDirectories } from "../api/DirectoryClient";
+import { GetFolderContent, GetRootDirectories, GetSearchResults } from "../api/DirectoryClient";
 import { Loading } from "./Loading";
 import { useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
@@ -16,7 +16,7 @@ export type ItemType = "folder" | "file";
 
 export function Home() {
     const location = useLocation();
-    const { folderId } = useParams();
+    const { folderId, query } = useParams();
     const [ menuStatus, setMenuStatus ] = useState<ContextMenuStatus | null>(null);
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [renameOpen, setRenameOpen] = useState(false);
@@ -27,21 +27,36 @@ export function Home() {
         queryFn: GetRootDirectories
     });
     const { data: content, isLoading: contentLoading } = useQuery({
-        queryKey: ["folder", folderId ],
-        queryFn: () => GetFolderContent(folderId)
+        queryKey: ["content", folderId || query ],
+        queryFn: () => folderId ? GetFolderContent(folderId) : GetSearchResults(query)
     });
 
     const rootDirs = dirs?.filter(dir => dir.isRoot) || [];
-    const contentDirs = folderId 
-        ? content?.directories || []
-        : rootDirs;  
+    const contentDirs = getContentDirs(); 
     const files = content?.files || [];  
+    const title = getTitle();
 
     function parseId(id: string | undefined) {
         if (!id) return null;
         const res = parseInt(id);
         if (isNaN(res)) return null;
         return res;
+    }
+
+    function getContentDirs() {
+        if (folderId) return content?.directories || [];
+        if (query) return content?.directories || [];
+        return rootDirs;
+    }
+
+    function getTitle() {
+        if (folderId) {
+            return dirs?.find(dir => dir.id.toString() === folderId)?.name || "";
+        }
+        if (query) {
+            return `Results for "${query}"`;
+        }
+        return null;
     }
 
     useEffect(() => {
@@ -60,6 +75,7 @@ export function Home() {
             </section>
 
             <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">
+                {title && <h1 className="text-xl font-semibold mb-4">{title}</h1>}
                 {contentDirs.length > 0 && 
                     <div className="dynamic-grid-sm gap-4 mb-8">
                         {contentDirs.map(dir => <DirectoryChip key={dir.id} setMenuStatus={setMenuStatus} data={dir} />)}

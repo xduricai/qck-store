@@ -10,6 +10,7 @@ import { ContextMenu, ContextMenuStatus } from "./ContextMenu";
 import { DetailsDialog } from "./dialogs/DetailsDialog";
 import { RenameDialog } from "./dialogs/RenameDialog";
 import { DeleteDialog } from "./dialogs/DeleteDialog";
+import { NewItemDialog } from "./dialogs/NewItemDialog";
 import './home.css';
 
 export type ItemType = "folder" | "file";
@@ -18,9 +19,10 @@ export function Home() {
     const location = useLocation();
     const { folderId, query } = useParams();
     const [ menuStatus, setMenuStatus ] = useState<ContextMenuStatus | null>(null);
-    const [detailsOpen, setDetailsOpen] = useState(false);
-    const [renameOpen, setRenameOpen] = useState(false);
-    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [ detailsOpen, setDetailsOpen ] = useState(false);
+    const [ renameOpen, setRenameOpen ] = useState(false);
+    const [ deleteOpen, setDeleteOpen ] = useState(false);
+    const [ itemDialogStatus, setItemDialogStatus ] = useState<ItemType | null>(null);
     
     const { data: dirs, isLoading: dirsLoading } = useQuery({
         queryKey: ["dirs"],
@@ -71,7 +73,8 @@ export function Home() {
         <>
         <div className="flex h-[calc(100%-4rem)] w-full bg-gray-100" onClick={() => setMenuStatus(null)}>
             <section className="h-full flex">
-                <Sidenav directories={rootDirs} selectedId={parseId(folderId)} setMenuStatus={setMenuStatus} />
+                <Sidenav directories={rootDirs} selectedId={parseId(folderId)} setMenuStatus={setMenuStatus} setDialogStatus={setItemDialogStatus} />
+                <NewItemDialog dirs={[...dirs || []]} folderId={folderId} status={itemDialogStatus} setStatus={setItemDialogStatus} />
             </section>
 
             <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">

@@ -1,17 +1,20 @@
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from "react-router-dom";
-import { MouseEvent } from 'react';
+import { MouseEvent, useState } from 'react';
 import { Directory } from "../api/responses/Directory";
 import { Button } from "../shared/Button";
 import { ContextMenuStatus } from '../home/ContextMenu';
+import { ItemType } from '../home/Home';
 
 type SidenavProps = {
     directories: Directory[];
     selectedId: number | null;
     setMenuStatus: (status: ContextMenuStatus) => void;
+    setDialogStatus: (status: ItemType | null) => void;
 }
 
-export function Sidenav({ directories, selectedId, setMenuStatus }: SidenavProps) {
+export function Sidenav({ directories, selectedId, setMenuStatus, setDialogStatus }: SidenavProps) {
+    const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
     const colorRegular = "hover:bg-gray-200";
     const colorSelected = "bg-purple-100 text-purple-800";
 
@@ -20,14 +23,29 @@ export function Sidenav({ directories, selectedId, setMenuStatus }: SidenavProps
         setMenuStatus({ item, type: "folder", x: event.pageX, y: event.pageY });
     }
 
+    function toggleDialog(type: ItemType) {
+        setDialogStatus(type);
+        setMenuOpen(false);
+    }
+
     return (
         <div className="flex flex-col h-full w-48 pt-4">
-            <Button color="accent" width="w-[175px]" className="mx-2 mb-4 min-h-10">
+            <Button onClick={() => setMenuOpen(!menuOpen)} color="accent" width="w-[175px]" className="mx-2 mb-4 min-h-10">
                 <span className='flex items-center justify-start mr-4'>
                     <AddIcon className="mr-1" />
                     New
                 </span>
             </Button>
+            {menuOpen &&
+                <div className="absolute mx-2 top-[124px] w-[175px] rounded border-gray-400 border">
+                    <span onClick={() => toggleDialog("folder")} className="flex w-full bg-white hover:bg-gray-100 items-center p-2 cursor-pointer">
+                        Create a Folder
+                    </span>
+                    <span onClick={() => toggleDialog("file")} className="flex w-full bg-white hover:bg-gray-100 items-center p-2 cursor-pointer">
+                        Upload a File
+                    </span>
+                </div>
+            }
             <div className="flex flex-col overflow-y-auto scrollbar">
             {
                 directories.map(item => 

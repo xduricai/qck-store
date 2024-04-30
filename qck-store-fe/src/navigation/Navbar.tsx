@@ -1,13 +1,16 @@
-import "./navigation.css";
 import { Searchbar } from "./Searchbar";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import SettingsIcon from "@mui/icons-material/Settings";
 import { Logo } from "./Logo";
 import { IconButton } from "../shared/IconButton";
 import { useUserContext } from "../global/UserContext";
+import { useState } from "react";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import "./navigation.css";
  
 export function Navbar() {
+    const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
     const userContext = useUserContext();
+    const toggleMenu = () => setMenuOpen(!menuOpen);
+
     return (
         <nav className="navbar items-center w-full align-items-center text-xl font-medium bg-gray-100 h-16">
             <Logo />
@@ -17,15 +20,22 @@ export function Navbar() {
                     <Searchbar />
                 </div>
                 
-                <div className="flex flex-row mx-4 w-min">
+                <div className="mx-2 w-min">                  
                     <IconButton>
-                        <SettingsIcon fontSize="large" className="text-purple-800" />
-                    </IconButton>
-                    
-                    <IconButton>
-                        <AccountCircleIcon fontSize="large" className="text-purple-800" />
+                        <AccountCircleIcon onClick={toggleMenu} fontSize="large" className="text-purple-800" />
                     </IconButton>
                 </div>
+
+                {menuOpen &&
+                    <div className="absolute mx-2 top-14 right-1 w-28 rounded border-gray-400 border">
+                        <span onClick={() => {}} className="flex w-full text-base bg-white hover:bg-gray-100 items-center p-2 cursor-pointer">
+                            Settings
+                        </span>
+                        <span onClick={() => {}} className="flex w-full text-base text-red-600 font-semibold bg-white hover:bg-gray-100 items-center p-2 cursor-pointer">
+                            Log Out
+                        </span>
+                    </div>
+                }
             </>
             }
         </nav>

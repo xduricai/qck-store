@@ -13,7 +13,7 @@ type NewItemDialogProps = {
 
 export function NewItemDialog({status, setStatus, dirs, folderId}: NewItemDialogProps) {
     const [ name, setName ] = useState<string>("");
-    const [ file, setFile ] = useState<string>("");
+    const [ file, setFile ] = useState<File | null>(null);
     const [ folder, setFolder ] = useState<number | undefined>(-1);
     const ref = useRef<HTMLDialogElement>(null);
 
@@ -35,7 +35,7 @@ export function NewItemDialog({status, setStatus, dirs, folderId}: NewItemDialog
     
     function close() {
         setName("");
-        setFile("");
+        setFile(null);
         setStatus(null);
     };
 
@@ -57,16 +57,24 @@ export function NewItemDialog({status, setStatus, dirs, folderId}: NewItemDialog
         else setFolder(id);
     }
 
+    function handleUpload(event: ChangeEvent<HTMLInputElement>) {
+        if (!event.target.files?.length) return;
+        const file = event.target.files[0];
+        setName(file.name);
+        setFile(file);
+    }
+
     return (
         <dialog onCancel={close} ref={ref} className="w-[340px] px-8 py-4 rounded outline outline-[1px] outline-gray-400">
-            <h2 className="text-lg mb-2 font-semibold">{getTitle()}</h2>
+            <div className="flex flex-col gap-y-2">
+                <h2 className="text-lg font-semibold">{getTitle()}</h2>
 
-            <form className="flex flex-col gapy-2">
                 <Input width="w-full" label="Name" value={name} onKeyDown={handleKeyDown} onChange={(event) => setName(event.target.value)} />
                 
                 {status === "file" && 
                     <div>
-                        
+                        <label className="text-sm font-semibold" htmlFor="file-upload">Choose a file</label>
+                        <input onChange={handleUpload} className="max-w-full" id="file-upload" type="file" />
                     </div>
                 }
 
@@ -90,7 +98,7 @@ export function NewItemDialog({status, setStatus, dirs, folderId}: NewItemDialog
                     <Button onClick={close} color="plain">Cancel</Button>
                     <Button onClick={handleSubmit} color="accent">Submit</Button>
                 </div>
-            </form>
+            </div>
         </dialog>
     ) 
 }

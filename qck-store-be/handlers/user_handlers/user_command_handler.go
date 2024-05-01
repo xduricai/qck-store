@@ -81,7 +81,7 @@ func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 	var res UserResponse
 	var password string
 	command.Identifier = strings.ToLower(command.Identifier)
-	query := "SELECT Id, Role, Firstname, Lastname, Password FROM Users WHERE Email = $1 OR Username = $1"
+	query := "SELECT Id, Role, Firstname, Lastname, TotalBytesUsed, Quota, Password FROM Users WHERE Email = $1 OR Username = $1"
 
 	if err := h.db.
 		QueryRow(query, command.Identifier).
@@ -90,6 +90,8 @@ func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 			&res.Role,
 			&res.FirstName,
 			&res.LastName,
+			&res.BytesUsed,
+			&res.BytesTotal,
 			&password,
 		); err != nil {
 		log.Println(err)

@@ -3,4 +3,6 @@ export type User = {
     role: "user" | "admin";
     firstName: string;
     lastName: string;
+    bytesUsed: number;
+    bytesTotal: number;
 }

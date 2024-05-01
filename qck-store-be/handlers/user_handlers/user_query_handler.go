@@ -25,7 +25,7 @@ func NewUserQueryHandler(db *sql.DB) *UserQueryHandler {
 
 func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 	var rows *sql.Rows
-	query := "SELECT Id, Role, Firstname, Lastname FROM Users"
+	query := "SELECT Id, Role, Firstname, Lastname, TotalBytesUsed, Quota FROM Users"
 
 	if data, err := h.db.Query(query); err == nil {
 		rows = data
@@ -38,7 +38,14 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 	for rows.Next() {
 		var res UserResponse
 
-		if err := rows.Scan(&res.Id, &res.Role, &res.FirstName, &res.LastName); err != nil {
+		if err := rows.Scan(
+			&res.Id,
+			&res.Role,
+			&res.FirstName,
+			&res.LastName,
+			&res.BytesUsed,
+			&res.BytesTotal,
+		); err != nil {
 			log.Println(err)
 			continue
 		}
@@ -53,10 +60,17 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 
 func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
 	var res UserResponse
-	query := "SELECT Id, Role, Firstname, Lastname FROM Users WHERE Id = $1"
+	query := "SELECT Id, Role, Firstname, Lastname, TotalBytesUsed, Quota FROM Users WHERE Id = $1"
 
 	if err := h.db.QueryRow(query, id).
-		Scan(&res.Id, &res.Role, &res.FirstName, &res.LastName); err != nil {
+		Scan(
+			&res.Id,
+			&res.Role,
+			&res.FirstName,
+			&res.LastName,
+			&res.BytesUsed,
+			&res.BytesTotal,
+		); err != nil {
 		log.Println(err)
 		return res, http.StatusInternalServerError
 	}

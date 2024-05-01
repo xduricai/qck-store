@@ -5,6 +5,7 @@ import { Directory } from "../api/responses/Directory";
 import { Button } from "../shared/Button";
 import { ContextMenuStatus } from '../home/ContextMenu';
 import { ItemType } from '../home/Home';
+import { Tracker } from './Tracker';
 
 type SidenavProps = {
     directories: Directory[];
@@ -57,6 +58,7 @@ export function Sidenav({ directories, selectedId, setMenuStatus, setDialogStatu
                 )
             }
             </div>
+            <Tracker />
         </div>
     );
 }

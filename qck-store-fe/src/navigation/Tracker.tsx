@@ -28,7 +28,7 @@ function getTrackerInput(used: number, total: number) {
     const usedDisplay = (used / coef);
     const totalDisplay = (total / coef);
     const percentage = Math.min(Math.round(usedDisplay / totalDisplay * 100), 100);
-    
+
     return {
         used: `${usedDisplay.toFixed(2)}${unit}`,
         total: `${totalDisplay.toFixed(2)}${unit}`,
@@ -43,7 +43,7 @@ export function Tracker() {
     const used = userContext.user?.bytesUsed || 0;
     const total = userContext.user?.bytesTotal || 0;
     const input = getTrackerInput(used, total); 
-
+    
     if (barRef.current) {
         barRef.current.style.width = input.percentage; 
     }
@@ -52,7 +52,7 @@ export function Tracker() {
         <div className="flex flex-col mt-auto pt-2 pb-4 px-4 border-t border-gray-400">
             <span className="mb-1 px-[1px]">Storage Used</span>
             <div className="h-2 rounded-lg bg-purple-200">
-                <div ref={barRef} className="h-full rounded-lg bg-purple-800" />
+                <div ref={barRef} className={`h-full rounded-lg bg-purple-800 ${barRef.current ? '' : 'w-0'}`} />
             </div>
 
             <div className="flex justify-between px-[1px]">

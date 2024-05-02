@@ -39,10 +39,10 @@ export function Sidenav({ directories, selectedId, setMenuStatus, setDialogStatu
             </Button>
             {menuOpen &&
                 <div className="absolute mx-2 top-[124px] w-[175px] rounded border-gray-400 border">
-                    <span onClick={() => toggleDialog("folder")} className="flex w-full bg-white hover:bg-gray-100 items-center p-2 cursor-pointer">
+                    <span onClick={() => toggleDialog("folder")} className="menu-item">
                         Create a Folder
                     </span>
-                    <span onClick={() => toggleDialog("file")} className="flex w-full bg-white hover:bg-gray-100 items-center p-2 cursor-pointer">
+                    <span onClick={() => toggleDialog("file")} className="menu-item">
                         Upload a File
                     </span>
                 </div>

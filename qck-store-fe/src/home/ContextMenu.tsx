@@ -58,7 +58,7 @@ function getPosY(point: number, size: number, screenSize: number) {
 
 export function MenuItem ({ children, className = "", onClick }: MenuItemProps) {
     return (
-        <span className={`flex w-full bg-white hover:bg-gray-100 items-center p-2 cursor-pointer ${className}`} onClick={onClick}>
+        <span className={`menu-item ${className}`} onClick={onClick}>
             {children}
         </span>
     );

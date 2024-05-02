@@ -21,3 +21,7 @@
 .scrollbar::-webkit-scrollbar-thumb:hover {
     background: #6b7280;
 }
+
+.menu-item {
+    @apply flex w-full bg-white hover:bg-gray-100 items-center p-2 cursor-pointer first:rounded-t last:rounded-b;
+}

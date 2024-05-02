@@ -1,6 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from "react-router-dom";
-import { MouseEvent, useState } from 'react';
+import { MouseEvent } from 'react';
 import { Directory } from "../api/responses/Directory";
 import { Button } from "../shared/Button";
 import { ContextMenuStatus } from '../home/ContextMenu';
@@ -10,12 +10,13 @@ import { Tracker } from './Tracker';
 type SidenavProps = {
     directories: Directory[];
     selectedId: number | null;
+    addOpen: boolean;
+    setAddOpen: (open: boolean) => void;
     setMenuStatus: (status: ContextMenuStatus) => void;
     setDialogStatus: (status: ItemType | null) => void;
 }
 
-export function Sidenav({ directories, selectedId, setMenuStatus, setDialogStatus }: SidenavProps) {
-    const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
+export function Sidenav({ directories, selectedId, addOpen, setAddOpen, setMenuStatus, setDialogStatus }: SidenavProps) {
     const colorRegular = "hover:bg-gray-200";
     const colorSelected = "bg-purple-100 text-purple-800";
 
@@ -26,18 +27,18 @@ export function Sidenav({ directories, selectedId, setMenuStatus, setDialogStatu
 
     function toggleDialog(type: ItemType) {
         setDialogStatus(type);
-        setMenuOpen(false);
+        setAddOpen(false);
     }
 
     return (
         <div className="flex flex-col h-full w-48 pt-4">
-            <Button onClick={() => setMenuOpen(!menuOpen)} color="accent" width="w-[175px]" className="mx-2 mb-4 min-h-10">
+            <Button onClick={(event) => { setAddOpen(!addOpen); event?.stopPropagation(); }} color="accent" width="w-[175px]" className="mx-2 mb-4 min-h-10">
                 <span className='flex items-center justify-start mr-4'>
                     <AddIcon className="mr-1" />
                     New
                 </span>
             </Button>
-            {menuOpen &&
+            {addOpen &&
                 <div className="absolute mx-2 top-[124px] w-[175px] rounded border-gray-400 border">
                     <span onClick={() => toggleDialog("folder")} className="menu-item">
                         Create a Folder

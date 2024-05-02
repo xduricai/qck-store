@@ -15,7 +15,3 @@ div:has( > :hover.moveto-toggle) ~ .moveto-section {
 .moveto-section:has( + div > :hover.moveto-toggle) {
     display: flex;
 }
-
-.menu-item {
-    @apply flex w-full bg-white hover:bg-gray-100 items-center p-2 cursor-pointer rounded;
-}

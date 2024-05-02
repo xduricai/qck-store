@@ -18,6 +18,8 @@ export type ItemType = "folder" | "file";
 export function Home() {
     const location = useLocation();
     const { folderId, query } = useParams();
+    const [ sortOpen, setSortOpen ] = useState<boolean>(false);
+    const [ addOpen, setAddOpen ] = useState<boolean>(false);
     const [ menuStatus, setMenuStatus ] = useState<ContextMenuStatus | null>(null);
     const [ detailsOpen, setDetailsOpen ] = useState(false);
     const [ renameOpen, setRenameOpen ] = useState(false);
@@ -58,7 +60,13 @@ export function Home() {
         if (query) {
             return `Results for "${query}"`;
         }
-        return null;
+        return "Home";
+    }
+
+    function closeMenus() {
+        setMenuStatus(null);
+        setSortOpen(false);
+        setAddOpen(false);
     }
 
     useEffect(() => {
@@ -71,14 +79,28 @@ export function Home() {
 
     return (
         <>
-        <div className="flex h-[calc(100%-4rem)] w-full bg-gray-100" onClick={() => setMenuStatus(null)}>
+        <div className="flex h-[calc(100%-4rem)] w-full bg-gray-100" onClick={() => closeMenus()}>
             <section className="h-full flex">
-                <Sidenav directories={rootDirs} selectedId={parseId(folderId)} setMenuStatus={setMenuStatus} setDialogStatus={setItemDialogStatus} />
+                <Sidenav directories={rootDirs} selectedId={parseId(folderId)} addOpen={addOpen} setAddOpen={setAddOpen} setMenuStatus={setMenuStatus} setDialogStatus={setItemDialogStatus} />
                 <NewItemDialog dirs={[...dirs || []]} folderId={folderId} status={itemDialogStatus} setStatus={setItemDialogStatus} />
             </section>
 
             <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">
-                {title && <h1 className="text-xl font-semibold mb-4">{title}</h1>}
+                <div className="w-full h-10 flex justify-between mb-4 overflow-x-visible">
+                    <h1 className="text-xl font-semibold">{title}</h1>
+                    <div className="h-fit w-28" onClick={(event) => {setSortOpen(!sortOpen); event.stopPropagation()}}>
+                        {!sortOpen && 
+                            <span className="menu-item border-gray-400 border rounded">Name: A-Z</span>
+                        }
+                        {sortOpen && <ul className="relative border-gray-400 border rounded">
+                            <li className="menu-item">Name: A-Z</li>
+                            <li className="menu-item">Name: Z-A</li>
+                            <li className="menu-item">Newest</li>
+                            <li className="menu-item">Oldest</li>
+                        </ul>}
+                    </div>
+                </div>
+
                 {contentDirs.length > 0 && 
                     <div className="dynamic-grid-sm gap-4 mb-8">
                         {contentDirs.map(dir => <DirectoryChip key={dir.id} setMenuStatus={setMenuStatus} data={dir} />)}

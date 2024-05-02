@@ -1,8 +1,8 @@
-import { ReactNode } from "react";
+import { MouseEvent, ReactNode } from "react";
 
 type ButtonProps = {
     children?: ReactNode;
-    onClick?: () => unknown;
+    onClick?: (event: MouseEvent) => unknown;
     color?: "plain" | "outlined" | "accent" | "warning";
     className?: string
     form?: string

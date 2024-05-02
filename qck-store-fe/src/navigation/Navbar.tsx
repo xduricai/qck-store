@@ -2,17 +2,21 @@ import { Searchbar } from "./Searchbar";
 import { Logo } from "./Logo";
 import { IconButton } from "../shared/IconButton";
 import { useUserContext } from "../global/UserContext";
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import "./navigation.css";
  
 export function Navbar() {
     const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
     const userContext = useUserContext();
-    const toggleMenu = () => setMenuOpen(!menuOpen);
+    
+    function toggleMenu (event: MouseEvent) {
+        event.stopPropagation();
+        setMenuOpen(!menuOpen);
+    }
 
     return (
-        <nav className="navbar items-center w-full align-items-center text-xl font-medium bg-gray-100 h-16">
+        <nav onClick={() => setMenuOpen(false)} className="navbar items-center w-full align-items-center text-xl font-medium bg-gray-100 h-16">
             <Logo />
             {!!userContext.user &&
             <>
@@ -28,10 +32,10 @@ export function Navbar() {
 
                 {menuOpen &&
                     <div className="absolute mx-2 top-14 right-1 w-28 rounded border-gray-400 border">
-                        <span onClick={() => {}} className="flex w-full text-base bg-white hover:bg-gray-100 items-center p-2 cursor-pointer">
+                        <span onClick={() => {}} className="menu-item text-base">
                             Settings
                         </span>
-                        <span onClick={() => {}} className="flex w-full text-base text-red-600 font-semibold bg-white hover:bg-gray-100 items-center p-2 cursor-pointer">
+                        <span onClick={() => {}} className="menu-item text-base text-red-600 font-semibold">
                             Log Out
                         </span>
                     </div>

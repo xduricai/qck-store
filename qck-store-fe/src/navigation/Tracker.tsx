@@ -7,21 +7,25 @@ type TrackerInput = {
     percentage: string;
 }
 
+const onePow = 1024;
+const twoPow = Math.pow(1024, 2);
+const threePow = Math.pow(1024, 3);
+
 function getTrackerInput(used: number, total: number) {
     let coef: number;
     let unit: string;
 
-    if (total < 1000) {
+    if (total < onePow) {
         coef = 1;
         unit = "B";
-    } else if (total < 1000000) {
-        coef = 1000;
+    } else if (total < twoPow) {
+        coef = onePow;
         unit = "KB";
-    } else if (total < 1000000000) {
-        coef = 1000000;
+    } else if (total < threePow) {
+        coef = twoPow;
         unit = "MB";
     } else {
-        coef = 1000000000;
+        coef = threePow;
         unit = "GB";
     }
 

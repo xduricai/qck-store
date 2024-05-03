@@ -3,7 +3,7 @@ INSERT INTO Users (Role, UserName, Email, FirstName, LastName, Password, Created
 VALUES ('Admin', 'admin1', 'example2@email.com', 'Admin', 'One', '4dc145a87d58d8f99c43d0237f4f5aa481bd583f8c8d22288d2f40dbf5fe0a9b74d7dacd3df1a4d2bad6ceeb3a18f78ba26de072ea4b6587000f2091da95e824', '2024-01-21 12:34:56');
 
 INSERT INTO Users (Role, UserName, Email, FirstName, LastName, Password, Created, TotalBytesUsed, Quota)
-VALUES ('User', 'user1', 'example@email.com', 'John', 'Doe', 'a5ee08f8e3abe7d592f6de77f1d3298a1149eba68b97f091c90b7736a1be63ab2d425f94c5346cac64807f20f654c5ad9063a4d12902c5e45533491215754883', '2024-01-21 12:34:56', 0, 1000000000);
+VALUES ('User', 'user1', 'example@email.com', 'John', 'Doe', 'a5ee08f8e3abe7d592f6de77f1d3298a1149eba68b97f091c90b7736a1be63ab2d425f94c5346cac64807f20f654c5ad9063a4d12902c5e45533491215754883', '2024-01-21 12:34:56', 0, 1073741824);
 
 -- Directories
 INSERT INTO Directories (UserId, Name, LastModified, Created, Path)

@@ -11,6 +11,9 @@ import { DetailsDialog } from "./dialogs/DetailsDialog";
 import { RenameDialog } from "./dialogs/RenameDialog";
 import { DeleteDialog } from "./dialogs/DeleteDialog";
 import { NewItemDialog } from "./dialogs/NewItemDialog";
+import { ItemCompareFn, SortOption, getSortOptions } from "./Sorting";
+import { File } from "../api/responses/File";
+import { Directory } from "../api/responses/Directory";
 import './home.css';
 
 export type ItemType = "folder" | "file";
@@ -18,6 +21,8 @@ export type ItemType = "folder" | "file";
 export function Home() {
     const location = useLocation();
     const { folderId, query } = useParams();
+    const sortOptions = getSortOptions();
+    const [ sortOption, setSortOption ] = useState<SortOption>(sortOptions[0]);
     const [ sortOpen, setSortOpen ] = useState<boolean>(false);
     const [ addOpen, setAddOpen ] = useState<boolean>(false);
     const [ menuStatus, setMenuStatus ] = useState<ContextMenuStatus | null>(null);
@@ -36,8 +41,8 @@ export function Home() {
     });
 
     const rootDirs = dirs?.filter(dir => dir.isRoot) || [];
-    const contentDirs = getContentDirs(); 
-    const files = content?.files || [];  
+    const contentDirs = getContentDirs(sortOption.compareFn, content?.directories); 
+    const files = getFiles(sortOption.compareFn, content?.files);  
     const title = getTitle();
 
     function parseId(id: string | undefined) {
@@ -47,10 +52,15 @@ export function Home() {
         return res;
     }
 
-    function getContentDirs() {
-        if (folderId) return content?.directories || [];
-        if (query) return content?.directories || [];
-        return rootDirs;
+    function getContentDirs(compareFn: ItemCompareFn, dirs?: Directory[]) {
+        if (!dirs) return [];
+        if (folderId || query) return [...dirs].sort(compareFn);
+        return [...rootDirs].sort(compareFn);
+    }
+
+    function getFiles(compareFn: ItemCompareFn, files?: File[]) {
+        if (!files) return [];
+        return [...files].sort(compareFn);
     }
 
     function getTitle() {
@@ -88,16 +98,15 @@ export function Home() {
             <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">
                 <div className="w-full h-10 flex justify-between mb-4 overflow-x-visible">
                     <h1 className="text-xl font-semibold">{title}</h1>
-                    <div className="h-fit w-28" onClick={(event) => {setSortOpen(!sortOpen); event.stopPropagation()}}>
-                        {!sortOpen && 
-                            <span className="menu-item border-gray-400 border rounded">Name: A-Z</span>
-                        }
-                        {sortOpen && <ul className="relative border-gray-400 border rounded">
-                            <li className="menu-item">Name: A-Z</li>
-                            <li className="menu-item">Name: Z-A</li>
-                            <li className="menu-item">Newest</li>
-                            <li className="menu-item">Oldest</li>
-                        </ul>}
+                    <div className="h-fit w-28 relative border-gray-400 border rounded" onClick={(event) => {setSortOpen(!sortOpen); event.stopPropagation()}}>
+                        <li className="menu-item">{sortOption.name}</li>
+                        {sortOpen && sortOptions
+                            .filter(opt => opt.name !== sortOption.name)
+                            .map(opt => 
+                                <li key={opt.name} className="menu-item" onClick={() => setSortOption(opt)}>
+                                    {opt.name}
+                                </li>
+                        )}
                     </div>
                 </div>
 

@@ -7,42 +7,42 @@ VALUES ('User', 'user1', 'example@email.com', 'John', 'Doe', 'a5ee08f8e3abe7d592
 
 -- Directories
 INSERT INTO Directories (UserId, Name, LastModified, Created, Path)
-VALUES (4, 'Folder 1', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 'Folder 1', '2024-01-21 12:34:56', '2024-01-21 12:34:56', currval('directories_id_seq'::regclass) || '/');
 
 INSERT INTO Directories (UserId, Name, LastModified, Created, Path)
-VALUES (4, 'Folder 2', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 'Folder 2', '2024-01-21 12:34:56', '2024-01-21 12:34:56', currval('directories_id_seq'::regclass) || '/');
 
 INSERT INTO Directories (UserId, Name, LastModified, Created, Path)
-VALUES (4, 'Folder 3', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 'Folder 3', '2024-01-21 12:34:56', '2024-01-21 12:34:56', currval('directories_id_seq'::regclass) || '/');
 
 INSERT INTO Directories (UserId, Name, LastModified, Created, Path)
-VALUES (4, 'Folder 4', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 'Folder 4', '2024-01-21 12:34:56', '2024-01-21 12:34:56', currval('directories_id_seq'::regclass) || '/');
 
 INSERT INTO Directories (UserId, Name, LastModified, Created, Path)
-VALUES (4, 'Folder 5', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 'Folder 5', '2024-01-21 12:34:56', '2024-01-21 12:34:56', currval('directories_id_seq'::regclass) || '/');
 
 INSERT INTO Directories (UserId, Name, LastModified, Created, Path)
-VALUES (4, 'Folder 6', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 'Folder 6', '2024-01-21 12:34:56', '2024-01-21 12:34:56', currval('directories_id_seq'::regclass) || '/');
 
 -- Nested Directories
 INSERT INTO Directories (UserId, ParentId, Name, LastModified, Created, Path)
-VALUES (4, 4, 'Nested Folder 1', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/4/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 24, 'Nested Folder 1', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '24/' || currval('directories_id_seq'::regclass) || '/');
 
 INSERT INTO Directories (UserId, ParentId, Name, LastModified, Created, Path)
-VALUES (4, 4, 'Nested Folder 2', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/4/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 24, 'Nested Folder 2', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '24/' || currval('directories_id_seq'::regclass) || '/');
 
 --Doubly Nested Directories
 INSERT INTO Directories (UserId, ParentId, Name, LastModified, Created, Path)
-VALUES (4, 9, 'Doubly Nested Folder 1', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/4/9/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 33, 'Doubly Nested Folder 1', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '24/33/' || currval('directories_id_seq'::regclass) || '/');
 
 INSERT INTO Directories (UserId, ParentId, Name, LastModified, Created, Path)
-VALUES (4, 9, 'Doubly Nested Folder 2', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/4/9/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 33, 'Doubly Nested Folder 2', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '24/33/' || currval('directories_id_seq'::regclass) || '/');
 
 INSERT INTO Directories (UserId, ParentId, Name, LastModified, Created, Path)
-VALUES (4, 9, 'Doubly Nested Folder 3', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/4/9/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 33, 'Doubly Nested Folder 3', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '24/33/' || currval('directories_id_seq'::regclass) || '/');
 
 INSERT INTO Directories (UserId, ParentId, Name, LastModified, Created, Path)
-VALUES (4, 10, 'Doubly Nested Folder 4', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/4/10/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 34, 'Doubly Nested Folder 4', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '24/34/' || currval('directories_id_seq'::regclass) || '/');
 
 INSERT INTO Directories (UserId, ParentId, Name, LastModified, Created, Path)
-VALUES (4, 10, 'Doubly Nested Folder 5', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '/4/10/' || currval('directories_id_seq'::regclass) || '/');
+VALUES (4, 34, 'Doubly Nested Folder 5', '2024-01-21 12:34:56', '2024-01-21 12:34:56', '24/34/' || currval('directories_id_seq'::regclass) || '/');

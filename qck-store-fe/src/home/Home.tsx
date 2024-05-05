@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Sidenav } from "../navigation/Sidenav";
 import { GetFolderContent, GetRootDirectories, GetSearchResults } from "../api/DirectoryClient";
-import { Loading } from "./Loading";
 import { useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
@@ -14,6 +13,8 @@ import { NewItemDialog } from "./dialogs/NewItemDialog";
 import { ItemCompareFn, SortOption, getSortOptions } from "./Sorting";
 import { File } from "../api/responses/File";
 import { Directory } from "../api/responses/Directory";
+import { ErrorPage } from "../shared/ErrorPage";
+import { LoadingPage } from "../shared/Loading";
 import './home.css';
 
 export type ItemType = "folder" | "file";
@@ -22,27 +23,35 @@ export function Home() {
     const location = useLocation();
     const { folderId, query } = useParams();
     const sortOptions = getSortOptions();
+
     const [ sortOption, setSortOption ] = useState<SortOption>(sortOptions[0]);
-    const [ sortOpen, setSortOpen ] = useState<boolean>(false);
-    const [ addOpen, setAddOpen ] = useState<boolean>(false);
-    const [ menuStatus, setMenuStatus ] = useState<ContextMenuStatus | null>(null);
+    const [ addOpen, setAddOpen ] = useState(false);
+    const [ sortOpen, setSortOpen ] = useState(false);
     const [ detailsOpen, setDetailsOpen ] = useState(false);
     const [ renameOpen, setRenameOpen ] = useState(false);
     const [ deleteOpen, setDeleteOpen ] = useState(false);
     const [ itemDialogStatus, setItemDialogStatus ] = useState<ItemType | null>(null);
+    const [ menuStatus, setMenuStatus ] = useState<ContextMenuStatus | null>(null);
     
-    const { data: dirs, isLoading: dirsLoading } = useQuery({
+    const { data: dirs, isLoading: dirsLoading, isError: dirsError} = useQuery({
         queryKey: ["dirs"],
         queryFn: GetRootDirectories
     });
-    const { data: content, isLoading: contentLoading } = useQuery({
+    const { data: content, isLoading: contentLoading, isError: contentError } = useQuery({
         queryKey: ["content", folderId || query ],
         queryFn: () => folderId ? GetFolderContent(folderId) : GetSearchResults(query)
     });
 
-    const rootDirs = dirs?.filter(dir => dir.isRoot) || [];
-    const contentDirs = getContentDirs(sortOption.compareFn, content?.directories); 
-    const files = getFiles(sortOption.compareFn, content?.files);  
+    if (dirsLoading || contentLoading) {
+        return <LoadingPage />;
+    }
+    if (!dirs || dirsError || !content || contentError) {
+        return <ErrorPage />;
+    }
+
+    const rootDirs = dirs.filter(dir => dir.isRoot) || [];
+    const contentDirs = getContentDirs(sortOption.compareFn, content.directories); 
+    const files = getFiles(sortOption.compareFn, content.files);  
     const title = getTitle();
 
     function parseId(id: string | undefined) {
@@ -82,10 +91,6 @@ export function Home() {
     useEffect(() => {
         setMenuStatus(null);
     }, [location]);
-    
-    if (dirsLoading || contentLoading) {
-        return <Loading />;
-    }
 
     return (
         <>

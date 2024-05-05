@@ -12,7 +12,7 @@ import { Registration } from './registration/Registration';
 import { Snackbar, SnackbarProps, SnackbarStyle } from './global/Snackbar';
 import { SnackbarContext } from './global/SnackbarContext';
 import { authenticate } from './api/UserClient';
-import { Loading } from './home/Loading';
+import { LoadingPage } from './shared/Loading';
 
 function App() {
   const queryClient = new QueryClient();
@@ -39,7 +39,7 @@ function App() {
       <SnackbarContext.Provider value={showSnackbar}>
         <CurrentUserContext.Provider value={{ user, setUser }}>
           <Navbar />
-          {loading ? <Loading /> :
+          {loading ? <LoadingPage /> :
             <Routes>
               <Route path="/" element={user ? <Home /> : <Initial />} />
               <Route path="/folder/:folderId" element={user ? <Home /> : <Navigate replace to="/" />} />

@@ -50,7 +50,7 @@ func (c *DirectoryController) GetFolderContentForUser(ctx *gin.Context) {
 		return
 	}
 
-	if res, status := c.directoryCommandHandler.GetFolderContentForUser(id, folderId); status != http.StatusOK {
+	if res, status := c.directoryQueryHandler.GetFolderContentForUser(id, folderId); status != http.StatusOK {
 		ctx.Status(status)
 	} else {
 		ctx.JSON(status, res)

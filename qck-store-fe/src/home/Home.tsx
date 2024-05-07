@@ -20,10 +20,13 @@ import './home.css';
 export type ItemType = "folder" | "file";
 
 export function Home() {
-    const location = useLocation();
     const { folderId, query } = useParams();
+    const location = useLocation();
+    useEffect(() => {
+        setMenuStatus(null);
+    }, [location]);
+    
     const sortOptions = getSortOptions();
-
     const [ sortOption, setSortOption ] = useState<SortOption>(sortOptions[0]);
     const [ addOpen, setAddOpen ] = useState(false);
     const [ sortOpen, setSortOpen ] = useState(false);
@@ -87,10 +90,6 @@ export function Home() {
         setSortOpen(false);
         setAddOpen(false);
     }
-
-    useEffect(() => {
-        setMenuStatus(null);
-    }, [location]);
 
     return (
         <>

@@ -20,12 +20,18 @@ function namesDesc<T extends File | Directory>(a: T, b: T): number {
 }
 
 function datesAsc<T extends File | Directory>(a: T, b: T): number {
-    //TODO implement
+    if (a.modified === b.modified) return 0;
+    const dateA = new Date(a.modified);
+    const dateB = new Date(b.modified);
+    if (dateA < dateB) return -1;
     return 1;
 }
 
 function datesDesc<T extends File | Directory>(a: T, b: T): number {
-    //TODO implement
+    if (a.modified === b.modified) return 0;
+    const dateA = new Date(a.modified);
+    const dateB = new Date(b.modified);
+    if (dateA > dateB) return -1;
     return 1;
 }
 

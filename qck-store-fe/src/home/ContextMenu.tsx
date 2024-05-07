@@ -82,7 +82,7 @@ export function ContextMenu({ dirs, menuStatus, setDetails, setRename, setDelete
         return true;
     });
     if (menuStatus.type === "folder" && !isNaN(currentId)) {
-        filteredDirs.unshift({ id: -1, name: "Root Folder", isRoot: false });
+        filteredDirs.unshift({ id: -1, name: "Root Folder", modified: "", created: "", isRoot: false });
     }
 
     const rem = parseInt(getComputedStyle(document.documentElement).fontSize) || 16;

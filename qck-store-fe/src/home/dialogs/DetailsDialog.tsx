@@ -32,11 +32,11 @@ export function DetailsDialog({ open, setOpen, item }: DetailsDialogProps) {
                 }
                 <div>
                     <span className="text-sm">Created</span>
-                    <p>{"TODO add date"}</p>
+                    <p>{item.created}</p>
                 </div>
                 <div>
                     <span className="text-sm">Last Modified</span>
-                    <p>{"TODO add date"}</p>
+                    <p>{item.modified}</p>
                 </div>
             </div>
             <div className="flex mt-4 gap-4 w-full justify-end">

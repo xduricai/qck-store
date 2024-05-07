@@ -3,8 +3,8 @@ package handlers
 import "time"
 
 func FormatDate(inputDate string) (string, error) {
-	layout := "2006-01-02T15:04:05Z"
-	t, err := time.Parse(layout, inputDate)
+	format := "2006-01-02T15:04:05Z"
+	t, err := time.Parse(format, inputDate)
 	if err != nil {
 		return "", err
 	}

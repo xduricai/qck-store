@@ -4,9 +4,9 @@ import "time"
 
 func FormatDate(inputDate string) (string, error) {
 	format := "2006-01-02T15:04:05Z"
-	t, err := time.Parse(format, inputDate)
-	if err != nil {
+	if t, err := time.Parse(format, inputDate); err != nil {
 		return "", err
+	} else {
+		return t.Format("02/01/2006 15:04:05"), nil
 	}
-	return t.Format("02/01/2006 15:04:05"), nil
 }

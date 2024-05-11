@@ -31,6 +31,7 @@ func main() {
 
 	controllers.RegisterUserController(DB, server)
 	controllers.RegisterDirectoryController(DB, server)
+	controllers.RegisterFileController(DB, server)
 
 	// TODO remove
 	server.GET("/ping", func(c *gin.Context) {

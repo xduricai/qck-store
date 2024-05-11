@@ -11,6 +11,7 @@ import (
 type IUserQueryHandler interface {
 	GetAll() ([]UserResponse, int)
 	GetUserDetails(string) (UserResponse, int)
+	FileFits(fileSize int64, userId string) bool
 }
 
 type UserQueryHandler struct {
@@ -75,4 +76,15 @@ func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
 		return res, http.StatusInternalServerError
 	}
 	return res, http.StatusOK
+}
+
+func (h *UserQueryHandler) FileFits(fileSize int64, userId string) bool {
+	var spaceRemaining int64
+	query := "SELECT Quota - TotalBytesUsed FROM Users WHERE Id = $1"
+
+	if err := h.db.QueryRow(query, userId).Scan(&spaceRemaining); err != nil {
+		log.Println(err)
+		return false
+	}
+	return fileSize <= spaceRemaining
 }

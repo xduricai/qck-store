@@ -24,7 +24,7 @@ func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryContr
 	routes.Use(mw.Authenticate)
 	{
 		routes.GET("/all", controller.GetAllForUser)
-		routes.GET("/content/:folderid", controller.GetFolderContentForUser)
+		routes.GET("/content/:folderId", controller.GetFolderContentForUser)
 	}
 
 	return controller
@@ -43,7 +43,7 @@ func (c *DirectoryController) GetAllForUser(ctx *gin.Context) {
 
 func (c *DirectoryController) GetFolderContentForUser(ctx *gin.Context) {
 	id, ok := GetUserId(ctx)
-	folderId := ctx.Param("folderid")
+	folderId := ctx.Param("folderId")
 
 	if !ok {
 		ctx.Status(http.StatusInternalServerError)

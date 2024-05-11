@@ -2,9 +2,10 @@ import { ReactNode } from "react";
 import { Directory } from "../api/responses/Directory";
 import { ItemType } from "./Home";
 import { useParams } from "react-router-dom";
+import { File } from "../api/responses/File";
+import { BaseUrl } from "../api/BaseUrl";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import './home.css';
-import { File } from "../api/responses/File";
 
 export type ContextMenuStatus = {
     type: ItemType;
@@ -106,8 +107,14 @@ export function ContextMenu({ dirs, menuStatus, setDetails, setRename, setDelete
         left, right, top
     }
 
-    function downloadFile() {
-
+    function downloadItem() {
+        if (menuStatus.type === "file") {
+            window.open(`${BaseUrl}/files/download/${menuStatus.item.id}`, '_self');
+        }
+        else if (menuStatus.type === "folder") {
+            // window.open(`${BaseUrl}/folders/download/${menuStatus.item.id}`, '_self');
+            // TODO (maybe)
+        }
     }
 
     return (
@@ -120,7 +127,7 @@ export function ContextMenu({ dirs, menuStatus, setDetails, setRename, setDelete
             }
             <div className="flex flex-col w-48 h-fit rounded outline outline-gray-400 outline-[1px]">
                 <MenuItem onClick={() => setDetails(true)}>Details</MenuItem>
-                <MenuItem onClick={() => downloadFile()}>Download</MenuItem>
+                <MenuItem onClick={() => downloadItem()}>Download</MenuItem>
                 <MenuItem onClick={() => setRename(true)}>Rename</MenuItem>
                 <MenuItem className="moveto-toggle cursor-default justify-between pr-2">
                     Move To <ChevronRightIcon />

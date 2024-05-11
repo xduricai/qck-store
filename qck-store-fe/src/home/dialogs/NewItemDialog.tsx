@@ -3,6 +3,7 @@ import { Button } from "../../shared/Button";
 import { Input } from "../../shared/Input";
 import { ItemType } from "../Home";
 import { Directory } from "../../api/responses/Directory";
+import { uploadFile } from "../../api/FileClient";
 
 type NewItemDialogProps = {
     status: ItemType | null;
@@ -13,16 +14,16 @@ type NewItemDialogProps = {
 
 export function NewItemDialog({status, setStatus, dirs, folderId}: NewItemDialogProps) {
     const [ name, setName ] = useState<string>("");
+    const [ folder, setFolder ] = useState<string>("");
     const [ file, setFile ] = useState<File | null>(null);
-    const [ folder, setFolder ] = useState<number | undefined>(-1);
     const ref = useRef<HTMLDialogElement>(null);
 
     useEffect(() => {
         const id = parseInt(folderId || "");
 
-        if (id > 0) setFolder(id);
-        else if (status === "folder") setFolder(-1);
-        else setFolder(dirs[0]?.id || undefined);
+        if (id > 0) setFolder(id.toString());
+        else if (status === "folder") setFolder("");
+        else setFolder(dirs[0]?.id.toString() || "");
     }, [status, folderId]);    
 
     if (status) ref.current?.showModal();
@@ -44,17 +45,21 @@ export function NewItemDialog({status, setStatus, dirs, folderId}: NewItemDialog
         handleSubmit();
     }
     
-    function handleSubmit() {
+    async function handleSubmit() {
+        if (!name || !folder) return;
         // TODO implement
+
+        if (status === "file" && file != null) {
+            const test = await uploadFile(name, folderId?.toString() || "", file);
+            console.log(test);
+        }
+
         console.log(name, file, folder);
         close();
     }
 
     function handleSelectChange(event: ChangeEvent<HTMLSelectElement>) {
-        const val = event.target.value;
-        const id = parseInt(val);
-        if (isNaN(id)) setFolder(undefined);
-        else setFolder(id);
+        setFolder(event.target.value);
     }
 
     function handleUpload(event: ChangeEvent<HTMLInputElement>) {
@@ -84,7 +89,7 @@ export function NewItemDialog({status, setStatus, dirs, folderId}: NewItemDialog
                     </label>
                     <select id="folder-select" value={folder} onChange={handleSelectChange} className="w-full rounded h-[38px] px-3 py-1.5 text-base placeholder:text-gray-600 box-border focus:border-2 border-gray-400 focus:border-purple-800 focus:px-[11px] border-[1.5px] outline-none">
                         {status === "folder" &&
-                            <option value={-1}>Root Folder</option>
+                            <option value={""}>Root Folder</option>
                         }
                         {dirs.map(dir => 
                             <option value={dir.id} key={dir.id}>

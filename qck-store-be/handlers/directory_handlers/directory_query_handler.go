@@ -7,8 +7,8 @@ import (
 )
 
 type IDirectoryQueryHandler interface {
-	GetAllForUser(string) ([]DirectoryResponse, int)
-	GetFolderContentForUser(string, string) (DirectoryContentResponse, int)
+	GetAll(string) ([]DirectoryResponse, int)
+	GetFolderContent(string, string) (DirectoryContentResponse, int)
 }
 
 type DirectoryQueryHandler struct {
@@ -21,7 +21,7 @@ func NewDirectoryQueryHandler(db *sql.DB) *DirectoryQueryHandler {
 	}
 }
 
-func (h *DirectoryQueryHandler) GetAllForUser(id string) ([]DirectoryResponse, int) {
+func (h *DirectoryQueryHandler) GetAll(id string) ([]DirectoryResponse, int) {
 	var rows *sql.Rows
 	query := "SELECT Id, Name, LastModified, Created, CASE WHEN ParentId IS NULL THEN 1 ELSE 0 END AS IsRoot FROM Directories WHERE UserId = $1"
 
@@ -50,7 +50,7 @@ func (h *DirectoryQueryHandler) GetAllForUser(id string) ([]DirectoryResponse, i
 	return directories, http.StatusOK
 }
 
-func (h *DirectoryQueryHandler) GetFolderContentForUser(id, folderId string) (DirectoryContentResponse, int) {
+func (h *DirectoryQueryHandler) GetFolderContent(id, folderId string) (DirectoryContentResponse, int) {
 	var res DirectoryContentResponse
 
 	var rows *sql.Rows

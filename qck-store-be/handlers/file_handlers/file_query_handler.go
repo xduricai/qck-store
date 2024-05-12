@@ -25,7 +25,7 @@ func (h *FileQueryHandler) GetFileName(fileId, userId string) string {
 
 	if err := h.db.QueryRow(query, fileId, userId).
 		Scan(&res); err != nil {
-		log.Println(err)
+		log.Println("Could not retrieve file name", err)
 		return ""
 	}
 	return res

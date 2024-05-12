@@ -23,25 +23,25 @@ func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryContr
 	var routes = server.Group("/directories")
 	routes.Use(mw.Authenticate)
 	{
-		routes.GET("/all", controller.GetAllForUser)
-		routes.GET("/content/:folderId", controller.GetFolderContentForUser)
+		routes.GET("/all", controller.GetAll)
+		routes.GET("/content/:folderId", controller.GetFolderContent)
 	}
 
 	return controller
 }
 
-func (c *DirectoryController) GetAllForUser(ctx *gin.Context) {
+func (c *DirectoryController) GetAll(ctx *gin.Context) {
 	id, ok := GetUserId(ctx)
 	if !ok {
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
 
-	dirs, status := c.directoryQueryHandler.GetAllForUser(id)
+	dirs, status := c.directoryQueryHandler.GetAll(id)
 	ctx.JSON(status, dirs)
 }
 
-func (c *DirectoryController) GetFolderContentForUser(ctx *gin.Context) {
+func (c *DirectoryController) GetFolderContent(ctx *gin.Context) {
 	id, ok := GetUserId(ctx)
 	folderId := ctx.Param("folderId")
 
@@ -50,7 +50,7 @@ func (c *DirectoryController) GetFolderContentForUser(ctx *gin.Context) {
 		return
 	}
 
-	if res, status := c.directoryQueryHandler.GetFolderContentForUser(id, folderId); status != http.StatusOK {
+	if res, status := c.directoryQueryHandler.GetFolderContent(id, folderId); status != http.StatusOK {
 		ctx.Status(status)
 	} else {
 		ctx.JSON(status, res)

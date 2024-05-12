@@ -72,7 +72,7 @@ func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
 			&res.BytesUsed,
 			&res.BytesTotal,
 		); err != nil {
-		log.Println(err)
+		log.Println("An error occurred while retrieving user information", err)
 		return res, http.StatusInternalServerError
 	}
 	return res, http.StatusOK
@@ -83,7 +83,7 @@ func (h *UserQueryHandler) FileFits(fileSize int64, userId string) bool {
 	query := "SELECT Quota - TotalBytesUsed FROM Users WHERE Id = $1"
 
 	if err := h.db.QueryRow(query, userId).Scan(&spaceRemaining); err != nil {
-		log.Println(err)
+		log.Println("An error occurred while retrieving available space", err)
 		return false
 	}
 	return fileSize <= spaceRemaining

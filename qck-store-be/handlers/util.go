@@ -10,3 +10,8 @@ func FormatDate(inputDate string) (string, error) {
 		return t.Format("02/01/2006 15:04:05"), nil
 	}
 }
+
+func GetUTCTime() string {
+	currentTime := time.Now().UTC()
+	return currentTime.Format("2006-01-02 15:04:05")
+}

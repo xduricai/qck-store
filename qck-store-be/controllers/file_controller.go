@@ -75,18 +75,27 @@ func (c *FileController) UploadFile(ctx *gin.Context) {
 		return
 	}
 
-	//TODO finish
 	name := ctx.PostForm("name")
 	folderId := ctx.PostForm("folderId")
-	fileId, status := c.fileCommandHandler.UploadFile(name, folderId, id)
-	ctx.JSON(status, fileId)
+	log.Println(name, folderId)
+	log.Println(ctx.Request.Body)
+	ctx.Status(http.StatusTeapot)
 
-	filePath := fmt.Sprintf("%s%d", c.fileSrc, fileId)
+	res, status := c.fileCommandHandler.UploadFile(name, folderId, id, file.Size)
+	if status != 200 {
+		ctx.Status(status)
+		return
+	}
+
+	filePath := fmt.Sprintf("%s%d", c.fileSrc, res.Id)
 	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
 		log.Println(err)
+		c.fileCommandHandler.DeleteFile(fmt.Sprint(res.Id), id)
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
+
+	ctx.JSON(status, file)
 }
 
 func (c *FileController) DeleteFile(ctx *gin.Context) {

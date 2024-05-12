@@ -50,7 +50,7 @@ export function NewItemDialog({status, setStatus, dirs, folderId}: NewItemDialog
         // TODO implement
 
         if (status === "file" && file != null) {
-            const test = await uploadFile(name, folderId?.toString() || "", file);
+            const test = await uploadFile(name, folder.toString(), file);
             console.log(test);
         }
 

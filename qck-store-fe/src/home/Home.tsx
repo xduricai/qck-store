@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Sidenav } from "../navigation/Sidenav";
 import { GetFolderContent, GetRootDirectories, GetSearchResults } from "../api/DirectoryClient";
 import { useLocation, useParams } from "react-router-dom";
@@ -15,6 +15,9 @@ import { File } from "../api/responses/File";
 import { Directory } from "../api/responses/Directory";
 import { ErrorPage } from "../shared/ErrorPage";
 import { LoadingPage } from "../shared/Loading";
+import { uploadFile } from "../api/FileClient";
+import { FolderContentResponse } from "../api/responses/FolderContentResponse";
+import { useSnackbarContext } from "../global/SnackbarContext";
 import './home.css';
 
 export type ItemType = "folder" | "file";
@@ -26,6 +29,9 @@ export function Home() {
         setMenuStatus(null);
     }, [location]);
     
+    const queryClient = useQueryClient();
+    const showSnackbar = useSnackbarContext();
+
     const sortOptions = getSortOptions();
     const [ sortOption, setSortOption ] = useState<SortOption>(sortOptions[0]);
     const [ addOpen, setAddOpen ] = useState(false);
@@ -43,6 +49,21 @@ export function Home() {
     const { data: content, isLoading: contentLoading, isError: contentError } = useQuery({
         queryKey: ["content", folderId || query ],
         queryFn: () => folderId ? GetFolderContent(folderId) : GetSearchResults(query)
+    });
+
+    const { mutate: uploadFileMutation } = useMutation({
+        mutationFn: uploadFile,
+        onSuccess: (file) => {
+            queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => {
+                if (!content) return null;
+                return {
+                    ...content,
+                    files: [...content.files, file]
+                }
+            });
+            showSnackbar("File uploaded successfully", "success", 3000);
+        },
+        onError: () => showSnackbar("An error occurreed")
     });
 
     if (dirsLoading || contentLoading) {

@@ -114,7 +114,9 @@ export function Registration() {
             id: res.id,
             role: "user",
             firstName: formData.firstName,
-            lastName: formData.lastName
+            lastName: formData.lastName,
+            bytesUsed: 0,
+            bytesTotal: 1073741824
         });
     }
     

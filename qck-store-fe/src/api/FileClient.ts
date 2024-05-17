@@ -1,4 +1,5 @@
 import { BaseUrl } from "./BaseUrl";
+import { FileUploadCommand } from "./commands/FIleUploadCommand";
 import { File as FileResponse } from "./responses/File";
 
 export async function downloadFile(id: number) {
@@ -8,11 +9,11 @@ export async function downloadFile(id: number) {
     }
 }
 
-export async function uploadFile(name: string, folderId: string, file: File) {
+export async function uploadFile(command: FileUploadCommand) {
     const data = new FormData();
-    data.append('name', name);
-    data.append('folderId', folderId.toString());
-    data.append('file', file);
+    data.append('name', command.name);
+    data.append('folderId', command.folderId);
+    data.append('file', command.file);
     
     const res = await fetch(`${BaseUrl}/files/upload`, {
         method: "POST",

@@ -25,11 +25,7 @@ export type ItemType = "folder" | "file";
 
 export function Home() {
     const { folderId, query } = useParams();
-    const location = useLocation();
-    useEffect(() => {
-        setMenuStatus(null);
-    }, [location]);
-    
+    const location = useLocation();    
     const queryClient = useQueryClient();
     const showSnackbar = useSnackbarContext();
     const userContext = useUserContext();
@@ -43,7 +39,18 @@ export function Home() {
     const [ deleteOpen, setDeleteOpen ] = useState(false);
     const [ itemDialogStatus, setItemDialogStatus ] = useState<ItemType | null>(null);
     const [ menuStatus, setMenuStatus ] = useState<ContextMenuStatus | null>(null);
+
+    useEffect(() => {
+        setMenuStatus(null);
+    }, [location]);
     
+    // closes context menu when a dialog is closed
+    useEffect(() => {
+        if (!detailsOpen && !renameOpen && !deleteOpen) {
+            setMenuStatus(null);
+        }
+    }, [detailsOpen, renameOpen, deleteOpen]);
+
     const { data: dirs, isLoading: dirsLoading, isError: dirsError} = useQuery({
         queryKey: ["dirs"],
         queryFn: GetRootDirectories
@@ -72,7 +79,12 @@ export function Home() {
                 }
             });
         },
-        onError: () => showSnackbar("An error occurreed while uploading file", "error")
+        onError: (err) => showSnackbar(err.toString(), "error")
+    });
+
+    //TODO 
+    const { mutate: renameFileMutation } = useMutation({
+
     });
 
     const { mutate: deleteFileMutation } = useMutation({
@@ -92,7 +104,7 @@ export function Home() {
                 }
             });
         },
-        onError: () => showSnackbar("An error occurreed while deleting file", "error")
+        onError: (err) => showSnackbar(err.toString(), "error")
     });  
 
     if (dirsLoading || contentLoading) {

@@ -3,6 +3,7 @@ import { FileUploadCommand } from "./commands/FIleUploadCommand";
 import { File as FileResponse } from "./responses/File";
 
 export type FileUploadResult = FileResponse & { parentId: string };
+export type FileRenameResult = { id: number, name: string };
 export type FileDeleteResult = { id: number, size: number };
 
 export async function downloadFile(id: number) {
@@ -33,6 +34,19 @@ export async function uploadFile(command: FileUploadCommand) {
 
     const fileRes: FileResponse = await res.json();
     return { ...fileRes, parentId: command.folderId } as FileUploadResult;
+}
+
+export async function renameFile(id: number, name: string) {
+    const res = await fetch(`${BaseUrl}/files/rename/${id}`, {
+        method: "PATCH",
+        body: name,
+        credentials: "include"
+    });
+
+    if (res.status !== 200) {
+        throw "An error occurred while renaming file";
+    }
+    return { id, name } as FileRenameResult;
 }
 
 export async function deleteFile(id: number) {

@@ -120,7 +120,7 @@ export function ContextMenu({ dirs, menuStatus, setDetails, setRename, setDelete
     return (
         <section className="flex flex-row absolute w-fit" style={style} >
             {x < 0 &&
-            <div className={`moveto-section w-48 h-fit max-h-64 rounded-r border-gray-400 border bg-white flex-col overflow-y-auto scrollbar hidden hover:flex ${dirsMargin}`}>
+            <div className={`moveto-section w-48 h-fit max-h-64 rounded-l border-gray-400 border bg-white flex-col overflow-y-auto scrollbar hidden hover:flex ${dirsMargin}`}>
                 { filteredDirs!.map(dir => <MenuItem key={dir.id}>{dir.name}</MenuItem>) }
                 { !filteredDirs.length && <span className="w-full bg-white items-center p-2">No folders available</span> }
             </div>

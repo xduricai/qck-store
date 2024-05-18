@@ -2,6 +2,9 @@ import { BaseUrl } from "./BaseUrl";
 import { FileUploadCommand } from "./commands/FIleUploadCommand";
 import { File as FileResponse } from "./responses/File";
 
+export type FileUploadResult = FileResponse & { parentId: string };
+export type FileDeleteResult = { id: number, size: number };
+
 export async function downloadFile(id: number) {
     const res = await fetch(`${BaseUrl}/files/download/${id}`, { credentials: 'include' });
     if (res.status !== 200) {
@@ -29,7 +32,7 @@ export async function uploadFile(command: FileUploadCommand) {
     }
 
     const fileRes: FileResponse = await res.json();
-    return fileRes;
+    return { ...fileRes, parentId: command.folderId } as FileUploadResult;
 }
 
 export async function deleteFile(id: number) {
@@ -41,4 +44,7 @@ export async function deleteFile(id: number) {
     if (res.status !== 200) {
         throw "An error has occurred while attempting to delete file"
     }
+
+    const size: number = await res.json();
+    return { id, size } as FileDeleteResult;
 }

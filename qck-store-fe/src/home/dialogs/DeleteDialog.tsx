@@ -1,12 +1,16 @@
 import { useRef } from "react";
 import { Button } from "../../shared/Button";
+import { ItemType } from "../Home";
 
 type DeleteDialogProps = {
+    id: number;
+    type: ItemType;
     open: boolean;
     setOpen: (open: boolean) => void;
+    deleteFile: (id: number) => any;
 }
 
-export function DeleteDialog({open, setOpen}: DeleteDialogProps) {
+export function DeleteDialog({id, type, open, setOpen, deleteFile}: DeleteDialogProps) {
     const ref = useRef<HTMLDialogElement>(null);
 
     if (open) ref.current?.showModal();
@@ -14,7 +18,9 @@ export function DeleteDialog({open, setOpen}: DeleteDialogProps) {
 
     const close = () => setOpen(false);
     function handleDelete() {
-        // TODO implement
+        if (type === "file") {
+            deleteFile(id);
+        }
         close();
     }
 

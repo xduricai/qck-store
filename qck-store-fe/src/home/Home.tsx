@@ -15,9 +15,10 @@ import { File } from "../api/responses/File";
 import { Directory } from "../api/responses/Directory";
 import { ErrorPage } from "../shared/ErrorPage";
 import { LoadingPage } from "../shared/Loading";
-import { uploadFile } from "../api/FileClient";
+import { deleteFile, uploadFile } from "../api/FileClient";
 import { FolderContentResponse } from "../api/responses/FolderContentResponse";
 import { useSnackbarContext } from "../global/SnackbarContext";
+import { useUserContext } from "../global/UserContext";
 import './home.css';
 
 export type ItemType = "folder" | "file";
@@ -31,6 +32,7 @@ export function Home() {
     
     const queryClient = useQueryClient();
     const showSnackbar = useSnackbarContext();
+    const userContext = useUserContext();
 
     const sortOptions = getSortOptions();
     const [ sortOption, setSortOption ] = useState<SortOption>(sortOptions[0]);
@@ -54,17 +56,44 @@ export function Home() {
     const { mutate: uploadFileMutation } = useMutation({
         mutationFn: uploadFile,
         onSuccess: (file) => {
-            queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => {
+            showSnackbar("File uploaded successfully", "success");
+
+            const user = {...userContext.user!};
+            user.bytesUsed += file.size;
+            userContext.setUser(user);
+
+            if (folderId !== file.parentId) return;
+
+            queryClient.setQueryData(["content", folderId], (content: FolderContentResponse) => {
                 if (!content) return null;
                 return {
                     ...content,
                     files: [...content.files, file]
                 }
             });
-            showSnackbar("File uploaded successfully", "success", 3000);
         },
-        onError: () => showSnackbar("An error occurreed")
+        onError: () => showSnackbar("An error occurreed while uploading file", "error")
     });
+
+    const { mutate: deleteFileMutation } = useMutation({
+        mutationFn: deleteFile,
+        onSuccess: (res) => {
+            showSnackbar("File deleted successfully", "success");
+
+            const user = {...userContext.user!};
+            user.bytesUsed -= res.size;
+            userContext.setUser(user);
+
+            queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => {
+                if (!content) return null;
+                return {
+                    ...content,
+                    files: content.files.filter(file => file.id !== res.id)
+                }
+            });
+        },
+        onError: () => showSnackbar("An error occurreed while deleting file", "error")
+    });  
 
     if (dirsLoading || contentLoading) {
         return <LoadingPage />;
@@ -117,7 +146,7 @@ export function Home() {
         <div className="flex h-[calc(100%-4rem)] w-full bg-gray-100" onClick={() => closeMenus()}>
             <section className="h-full flex">
                 <Sidenav directories={rootDirs} selectedId={parseId(folderId)} addOpen={addOpen} setAddOpen={setAddOpen} setMenuStatus={setMenuStatus} setDialogStatus={setItemDialogStatus} />
-                <NewItemDialog dirs={[...dirs || []]} folderId={folderId} status={itemDialogStatus} setStatus={setItemDialogStatus} />
+                <NewItemDialog dirs={[...dirs || []]} folderId={folderId} status={itemDialogStatus} setStatus={setItemDialogStatus} uploadFile={uploadFileMutation} />
             </section>
 
             <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">
@@ -149,7 +178,7 @@ export function Home() {
             <ContextMenu dirs={dirs || []} menuStatus={menuStatus} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} />
             <DetailsDialog open={detailsOpen} setOpen={setDetailsOpen} item={menuStatus.item} />
             <RenameDialog open={renameOpen} setOpen={setRenameOpen} />
-            <DeleteDialog open={deleteOpen} setOpen={setDeleteOpen} />
+            <DeleteDialog open={deleteOpen} setOpen={setDeleteOpen} type={menuStatus.type} id={menuStatus.item.id} deleteFile={deleteFileMutation} />
         </>}
         </>
     );

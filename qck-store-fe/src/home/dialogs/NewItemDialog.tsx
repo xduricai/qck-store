@@ -3,16 +3,17 @@ import { Button } from "../../shared/Button";
 import { Input } from "../../shared/Input";
 import { ItemType } from "../Home";
 import { Directory } from "../../api/responses/Directory";
-import { uploadFile } from "../../api/FileClient";
+import { FileUploadCommand } from "../../api/commands/FIleUploadCommand";
 
 type NewItemDialogProps = {
     status: ItemType | null;
     setStatus: (status: ItemType | null) => void;
     dirs: Directory[];
     folderId?: string;
+    uploadFile: (command: FileUploadCommand) => any;
 }
 
-export function NewItemDialog({status, setStatus, dirs, folderId}: NewItemDialogProps) {
+export function NewItemDialog({status, setStatus, dirs, folderId, uploadFile}: NewItemDialogProps) {
     const [ name, setName ] = useState<string>("");
     const [ folder, setFolder ] = useState<string>("");
     const [ file, setFile ] = useState<File | null>(null);
@@ -50,8 +51,7 @@ export function NewItemDialog({status, setStatus, dirs, folderId}: NewItemDialog
         // TODO implement
 
         if (status === "file" && file != null) {
-            const test = await uploadFile(name, folder.toString(), file);
-            console.log(test);
+            uploadFile({name, folderId: folder, file});
         }
 
         console.log(name, file, folder);

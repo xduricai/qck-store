@@ -11,7 +11,7 @@ import (
 
 type IFileCommandHandler interface {
 	UploadFile(fileName, folderId, userId string, size int64) (dirh.FileResponse, int)
-	DeleteFile(fileId, userId string) int
+	DeleteFile(fileId, userId string) (int, int)
 }
 
 type FileCommandHandler struct {
@@ -49,26 +49,26 @@ func (h *FileCommandHandler) UploadFile(fileName, folderId, userId string, size 
 	}
 
 	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed + $1 WHERE Id = $2;"
-	if err := h.db.QueryRow(query, size, userId); err != nil {
-		log.Println("An error occurred while adjusting total number of bytes used for user")
+	if err := h.db.QueryRow(query, size, userId).Scan(); err != nil && err != sql.ErrNoRows {
+		log.Println("An error occurred while adjusting total number of bytes used for user", err)
 	}
 
 	return file, http.StatusOK
 }
 
-func (h *FileCommandHandler) DeleteFile(fileId, userId string) int {
+func (h *FileCommandHandler) DeleteFile(fileId, userId string) (int, int) {
 	var size int
 
 	query := "DELETE FROM Files WHERE Id = $1 AND UserId = $2 RETURNING Size"
 	if err := h.db.QueryRow(query, fileId, userId).Scan(&size); err != nil {
-		log.Println("Failed while attempting to delete file", err)
-		return http.StatusInternalServerError
+		log.Println("Failed while attempting to delete file", err.Error())
+		return size, http.StatusInternalServerError
 	}
 
-	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed - $1 WHERE Id = $2;"
-	if err := h.db.QueryRow(query, size, userId); err != nil {
-		log.Println("An error occurred while adjusting total number of bytes used for user")
+	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed - $1 WHERE Id = $2"
+	if err := h.db.QueryRow(query, size, userId).Scan(); err != nil && err != sql.ErrNoRows {
+		log.Println("An error occurred while adjusting total number of bytes used for user", err)
 	}
 
-	return http.StatusOK
+	return size, http.StatusOK
 }

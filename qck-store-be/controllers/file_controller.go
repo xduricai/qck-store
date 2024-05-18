@@ -77,8 +77,6 @@ func (c *FileController) UploadFile(ctx *gin.Context) {
 
 	name := ctx.PostForm("name")
 	folderId := ctx.PostForm("folderId")
-	log.Println(name, folderId)
-	log.Println(ctx.Request.Body)
 	ctx.Status(http.StatusTeapot)
 
 	res, status := c.fileCommandHandler.UploadFile(name, folderId, id, file.Size)
@@ -95,7 +93,7 @@ func (c *FileController) UploadFile(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(status, file)
+	ctx.JSON(status, res)
 }
 
 func (c *FileController) DeleteFile(ctx *gin.Context) {
@@ -106,8 +104,16 @@ func (c *FileController) DeleteFile(ctx *gin.Context) {
 		return
 	}
 
-	status := c.fileCommandHandler.DeleteFile(fileId, id)
-	ctx.Status(status)
+	size, status := c.fileCommandHandler.DeleteFile(fileId, id)
+	if status != http.StatusOK {
+		ctx.Status(status)
+	}
+
+	filePath := fmt.Sprintf("%s%s", c.fileSrc, fileId)
+	if err := os.Remove(filePath); err != nil {
+		log.Println("An error occurred while deleting file from storage")
+	}
+	ctx.JSON(status, size)
 }
 
 /*

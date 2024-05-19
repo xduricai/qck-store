@@ -11,6 +11,8 @@ import (
 
 type IFileCommandHandler interface {
 	UploadFile(fileName, folderId, userId string, size int64) (dirh.FileResponse, int)
+	RenameFile(fileName, fileId, userId string) int
+	MoveFile(fileName, folderId, userId string) int
 	DeleteFile(fileId, userId string) (int, int)
 }
 
@@ -54,6 +56,20 @@ func (h *FileCommandHandler) UploadFile(fileName, folderId, userId string, size 
 	}
 
 	return file, http.StatusOK
+}
+
+func (h *FileCommandHandler) RenameFile(fileName, fileId, userId string) int {
+	query := "UPDATE Files SET Name = $1 WHERE Id = $2 AND UserId = $3"
+	if err := h.db.QueryRow(query, fileName, fileId, userId).Scan(); err != nil && err != sql.ErrNoRows {
+		log.Println("An error occurred while renaming file", err)
+		return http.StatusInternalServerError
+	}
+	return http.StatusOK
+}
+
+func (h *FileCommandHandler) MoveFile(fileId, folderId, userId string) int {
+
+	return http.StatusOK
 }
 
 func (h *FileCommandHandler) DeleteFile(fileId, userId string) (int, int) {

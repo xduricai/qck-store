@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"log"
@@ -33,6 +34,7 @@ func RegisterFileController(db *sql.DB, server *gin.Engine) *FileController {
 	{
 		routes.GET("/download/:fileId", controller.DownloadFile)
 		routes.POST("/upload", controller.UploadFile)
+		routes.PATCH("/rename/:fileId", controller.RenameFile)
 		routes.DELETE("/delete/:fileId", controller.DeleteFile)
 	}
 
@@ -94,6 +96,25 @@ func (c *FileController) UploadFile(ctx *gin.Context) {
 	}
 
 	ctx.JSON(status, res)
+}
+
+func (c *FileController) RenameFile(ctx *gin.Context) {
+	id, ok := GetUserId(ctx)
+	fileId := ctx.Param("fileId")
+	if !ok {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+	if _, err := buf.ReadFrom(ctx.Request.Body); err != nil {
+		log.Println(err)
+		ctx.Status(http.StatusBadRequest)
+	}
+	name := buf.String()
+
+	status := c.fileCommandHandler.RenameFile(name, fileId, id)
+	ctx.Status(status)
 }
 
 func (c *FileController) DeleteFile(ctx *gin.Context) {

@@ -15,7 +15,7 @@ import { File } from "../api/responses/File";
 import { Directory } from "../api/responses/Directory";
 import { ErrorPage } from "../shared/ErrorPage";
 import { LoadingPage } from "../shared/Loading";
-import { deleteFile, renameFile, uploadFile } from "../api/FileClient";
+import { deleteFile, moveFile, renameFile, uploadFile } from "../api/FileClient";
 import { FolderContentResponse } from "../api/responses/FolderContentResponse";
 import { useSnackbarContext } from "../global/SnackbarContext";
 import { useUserContext } from "../global/UserContext";
@@ -88,6 +88,24 @@ export function Home() {
                     files: content.files.map(file => 
                         (file.id === variables.id) ? { ...file, name: variables.name } : file
                     )
+                }
+            });
+        },
+        onError: (err) => showSnackbar(err.toString(), "error")
+    });
+
+    const { mutate: moveFileMutation } = useMutation({
+        mutationFn: moveFile,
+        onSuccess: (_, variables) => {
+            showSnackbar("File moved successfully", "success");
+            if (!folderId) return;
+
+            queryClient.setQueryData(["content", folderId], (content: FolderContentResponse) => {
+                if (!content) return null;
+
+                return {
+                    ...content,
+                    files: content.files.filter(file => file.id !== variables.id)
                 }
             });
         },

@@ -1,11 +1,8 @@
 import { BaseUrl } from "./BaseUrl";
 import { FileUploadCommand } from "./commands/FIleUploadCommand";
+import { FileMoveCommand } from "./commands/FileMoveCommand";
 import { FileRenameCommand } from "./commands/FileRenameCommand";
 import { File as FileResponse } from "./responses/File";
-
-export type FileUploadResult = FileResponse & { parentId: string };
-export type FileRenameResult = FileRenameCommand;
-export type FileDeleteResult = { id: number, size: number };
 
 export async function downloadFile(id: number) {
     const res = await fetch(`${BaseUrl}/files/download/${id}`, { credentials: 'include' });
@@ -46,6 +43,18 @@ export async function renameFile(command: FileRenameCommand) {
 
     if (res.status !== 200) {
         throw "An error occurred while renaming file";
+    }
+}
+
+export async function moveFile(command: FileMoveCommand) {
+    const res = await fetch(`${BaseUrl}/files/move/${command.id}`, {
+        method: "PUT",
+        body: command.folderId,
+        credentials: "include"
+    });
+
+    if (res.status !== 200) {
+        throw "An error occurred while moving file";
     }
 }
 

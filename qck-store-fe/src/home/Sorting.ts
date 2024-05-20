@@ -16,14 +16,14 @@ function getDate(input: string) {
 }
 
 function namesAsc<T extends File | Directory>(a: T, b: T): number {
-    if (a.name === b.name) return 0;
-    if (a.name < b.name) return -1;
+    if (a.name.toLocaleLowerCase() === b.name.toLocaleLowerCase()) return 0;
+    if (a.name.toLocaleLowerCase() < b.name.toLocaleLowerCase()) return -1;
     return 1;
 }
 
 function namesDesc<T extends File | Directory>(a: T, b: T): number {
-    if (a.name === b.name) return 0;
-    if (a.name > b.name) return -1;
+    if (a.name.toLocaleLowerCase() === b.name.toLocaleLowerCase()) return 0;
+    if (a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase()) return -1;
     return 1;
 }
 

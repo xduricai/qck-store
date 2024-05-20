@@ -1,4 +1,3 @@
-import './App.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Navbar } from './navigation/Navbar';
 import { useEffect, useRef, useState } from 'react';
@@ -13,9 +12,11 @@ import { Snackbar, SnackbarProps, SnackbarStyle } from './global/Snackbar';
 import { SnackbarContext } from './global/SnackbarContext';
 import { authenticate } from './api/UserClient';
 import { LoadingPage } from './shared/Loading';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import './App.css'
 
 function App() {
-  const queryClient = new QueryClient();
+  const queryClient = useRef(new QueryClient());
   const [loading, setLoading] = useState(true);
   const [user, setUser]  = useState<User>();
   const [snackbarData, setSnackbarData] = useState<SnackbarProps | null>();
@@ -35,7 +36,8 @@ function App() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient.current}>
+      <ReactQueryDevtools initialIsOpen={false} />
       <SnackbarContext.Provider value={showSnackbar}>
         <CurrentUserContext.Provider value={{ user, setUser }}>
           <Navbar />

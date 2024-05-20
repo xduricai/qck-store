@@ -1,13 +1,18 @@
 import { KeyboardEvent, useRef, useState } from "react";
 import { Button } from "../../shared/Button";
 import { Input } from "../../shared/Input";
+import { ItemType } from "../Home";
+import { FileRenameCommand } from "../../api/commands/FileRenameCommand";
 
 type RenameDialogProps = {
     open: boolean;
     setOpen: (open: boolean) => void;
+    id: number;
+    type: ItemType;
+    renameFile: (command: FileRenameCommand) => unknown;
 }
 
-export function RenameDialog({open, setOpen}: RenameDialogProps) {
+export function RenameDialog({open, setOpen, id, type, renameFile}: RenameDialogProps) {
     const [ name, setName ] = useState<string>("");
     const ref = useRef<HTMLDialogElement>(null);
 
@@ -23,7 +28,8 @@ export function RenameDialog({open, setOpen}: RenameDialogProps) {
     
     function handleSubmit() {
         // TODO implement
-        console.log(name);
+        if (type === "file") renameFile({id, name});
+
         setName("");
         close();
     }

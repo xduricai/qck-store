@@ -15,7 +15,7 @@ import { File } from "../api/responses/File";
 import { Directory } from "../api/responses/Directory";
 import { ErrorPage } from "../shared/ErrorPage";
 import { LoadingPage } from "../shared/Loading";
-import { deleteFile, uploadFile } from "../api/FileClient";
+import { deleteFile, renameFile, uploadFile } from "../api/FileClient";
 import { FolderContentResponse } from "../api/responses/FolderContentResponse";
 import { useSnackbarContext } from "../global/SnackbarContext";
 import { useUserContext } from "../global/UserContext";
@@ -62,14 +62,14 @@ export function Home() {
 
     const { mutate: uploadFileMutation } = useMutation({
         mutationFn: uploadFile,
-        onSuccess: (file) => {
+        onSuccess: (file, variables) => {
             showSnackbar("File uploaded successfully", "success");
 
             const user = {...userContext.user!};
             user.bytesUsed += file.size;
             userContext.setUser(user);
 
-            if (folderId !== file.parentId) return;
+            if (folderId !== variables.folderId) return;
 
             queryClient.setQueryData(["content", folderId], (content: FolderContentResponse) => {
                 if (!content) return null;
@@ -82,25 +82,40 @@ export function Home() {
         onError: (err) => showSnackbar(err.toString(), "error")
     });
 
-    //TODO 
     const { mutate: renameFileMutation } = useMutation({
+        mutationFn: renameFile,
+        throwOnError: true,
+        onSuccess: (_, variables) => {
+            showSnackbar("File renamed successfully", "success");
 
+            queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => {
+                if (!content) return null;
+
+                return {
+                    ...content,
+                    files: content.files.map(file => 
+                        (file.id === variables.id) ? { ...file, name: variables.name } : file
+                    )
+                }
+            });
+        },
+        onError: (err) => showSnackbar(err.toString(), "error")
     });
 
     const { mutate: deleteFileMutation } = useMutation({
         mutationFn: deleteFile,
-        onSuccess: (res) => {
+        onSuccess: (size, deletedId) => {
             showSnackbar("File deleted successfully", "success");
 
             const user = {...userContext.user!};
-            user.bytesUsed -= res.size;
+            user.bytesUsed -= size;
             userContext.setUser(user);
 
             queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => {
                 if (!content) return null;
                 return {
                     ...content,
-                    files: content.files.filter(file => file.id !== res.id)
+                    files: content.files.filter(file => file.id !== deletedId)
                 }
             });
         },
@@ -189,7 +204,7 @@ export function Home() {
         {!!menuStatus && <>
             <ContextMenu dirs={dirs || []} menuStatus={menuStatus} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} />
             <DetailsDialog open={detailsOpen} setOpen={setDetailsOpen} item={menuStatus.item} />
-            <RenameDialog open={renameOpen} setOpen={setRenameOpen} />
+            <RenameDialog open={renameOpen} setOpen={setRenameOpen} type={menuStatus.type} id={menuStatus.item.id} renameFile={renameFileMutation} />
             <DeleteDialog open={deleteOpen} setOpen={setDeleteOpen} type={menuStatus.type} id={menuStatus.item.id} deleteFile={deleteFileMutation} />
         </>}
         </>

@@ -25,6 +25,8 @@ export async function GetFolderContent(folderId?: string) {
     }
     
     const content: FolderContentResponse = await res.json();
+    content.directories ||= [];
+    content.files ||= [];
     return content;
 }
 

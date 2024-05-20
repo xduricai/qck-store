@@ -1,9 +1,10 @@
 import { BaseUrl } from "./BaseUrl";
 import { FileUploadCommand } from "./commands/FIleUploadCommand";
+import { FileRenameCommand } from "./commands/FileRenameCommand";
 import { File as FileResponse } from "./responses/File";
 
 export type FileUploadResult = FileResponse & { parentId: string };
-export type FileRenameResult = { id: number, name: string };
+export type FileRenameResult = FileRenameCommand;
 export type FileDeleteResult = { id: number, size: number };
 
 export async function downloadFile(id: number) {
@@ -33,20 +34,19 @@ export async function uploadFile(command: FileUploadCommand) {
     }
 
     const fileRes: FileResponse = await res.json();
-    return { ...fileRes, parentId: command.folderId } as FileUploadResult;
+    return fileRes;
 }
 
-export async function renameFile(id: number, name: string) {
-    const res = await fetch(`${BaseUrl}/files/rename/${id}`, {
+export async function renameFile(command: FileRenameCommand) {
+    const res = await fetch(`${BaseUrl}/files/rename/${command.id}`, {
         method: "PATCH",
-        body: name,
+        body: command.name,
         credentials: "include"
     });
 
     if (res.status !== 200) {
         throw "An error occurred while renaming file";
     }
-    return { id, name } as FileRenameResult;
 }
 
 export async function deleteFile(id: number) {
@@ -60,5 +60,5 @@ export async function deleteFile(id: number) {
     }
 
     const size: number = await res.json();
-    return { id, size } as FileDeleteResult;
+    return size;
 }

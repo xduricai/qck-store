@@ -1,9 +1,9 @@
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { Button } from "../../shared/Button";
 import { Input } from "../../shared/Input";
-import { ItemType } from "../Home";
 import { Directory } from "../../api/responses/Directory";
 import { FileUploadCommand } from "../../api/commands/FIleUploadCommand";
+import { ItemType } from "../../global/MenuContext";
 
 type NewItemDialogProps = {
     status: ItemType | null;
@@ -39,7 +39,7 @@ export function NewItemDialog({status, setStatus, dirs, folderId, uploadFile}: N
         setName("");
         setFile(null);
         setStatus(null);
-    };
+    }
 
     function handleKeyDown(event: KeyboardEvent) {
         if (event.code !== "Enter" || !name) return;

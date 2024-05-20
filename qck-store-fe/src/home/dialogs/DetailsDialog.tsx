@@ -1,20 +1,24 @@
 import { useRef } from "react";
 import { Button } from "../../shared/Button";
-import { File } from "../../api/responses/File";
-import { Directory } from "../../api/responses/Directory";
+import { useMenuContext } from "../../global/MenuContext";
 
 type DetailsDialogProps = {
     open: boolean;
     setOpen: (open: boolean) => void;
-    item: File | Directory;
 }
 
-export function DetailsDialog({ open, setOpen, item }: DetailsDialogProps) {
+export function DetailsDialog({ open, setOpen }: DetailsDialogProps) {
     const ref = useRef<HTMLDialogElement>(null);
+    const { menuStatus, setMenuStatus } = useMenuContext(); 
+    const item = menuStatus!.item;
 
     if (open) ref.current?.showModal();
     else ref.current?.close();
-    const close = () => setOpen(false);
+    
+    function close() {
+        setOpen(false);
+        setMenuStatus(null);
+    }
 
     return (
         <dialog onCancel={close} ref={ref} className="w-[340px] px-8 py-4 rounded outline outline-[1px] outline-gray-400">

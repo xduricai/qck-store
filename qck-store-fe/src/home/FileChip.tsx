@@ -1,15 +1,14 @@
 import { File } from "../api/responses/File";
 import { MouseEvent } from "react";
-import { ContextMenuStatus } from "./ContextMenu";
+import { useMenuContext } from "../global/MenuContext";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 
-type FileChipProps = {
-    data: File;
-    setMenuStatus: (status: ContextMenuStatus) => void;
-}
+type FileChipProps = { data: File; }
 
-export function FileChip({ data, setMenuStatus }: FileChipProps) {  
+export function FileChip({ data }: FileChipProps) {  
+    const { setMenuStatus } = useMenuContext();
+    
     function handleRightClick(event: MouseEvent) {
         event.stopPropagation();
         event.preventDefault();

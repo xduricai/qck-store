@@ -1,22 +1,22 @@
-import AddIcon from '@mui/icons-material/Add';
 import { Link } from "react-router-dom";
 import { MouseEvent } from 'react';
 import { Directory } from "../api/responses/Directory";
 import { Button } from "../shared/Button";
-import { ContextMenuStatus } from '../home/ContextMenu';
-import { ItemType } from '../home/Home';
 import { Tracker } from './Tracker';
+import { ItemType, useMenuContext } from '../global/MenuContext';
+import AddIcon from '@mui/icons-material/Add';
 
 type SidenavProps = {
     directories: Directory[];
     selectedId: number | null;
     addOpen: boolean;
     setAddOpen: (open: boolean) => void;
-    setMenuStatus: (status: ContextMenuStatus) => void;
     setDialogStatus: (status: ItemType | null) => void;
 }
 
-export function Sidenav({ directories, selectedId, addOpen, setAddOpen, setMenuStatus, setDialogStatus }: SidenavProps) {
+export function Sidenav({ directories, selectedId, addOpen, setAddOpen, setDialogStatus }: SidenavProps) {  
+    const { setMenuStatus } = useMenuContext();
+
     const colorRegular = "hover:bg-gray-200";
     const colorSelected = "bg-purple-100 text-purple-800";
 

@@ -1,15 +1,13 @@
 import { Directory } from '../api/responses/Directory';
 import { useNavigate } from 'react-router-dom';
 import { MouseEvent } from 'react';
-import { ContextMenuStatus } from './ContextMenu';
+import { useMenuContext } from '../global/MenuContext';
 import FolderIcon from '@mui/icons-material/Folder';
 
-type DirectoryChipProps = {
-    data: Directory;
-    setMenuStatus: (status: ContextMenuStatus) => void;
-}
+type DirectoryChipProps = { data: Directory; }
 
-export function DirectoryChip({ data, setMenuStatus }: DirectoryChipProps) {
+export function DirectoryChip({ data }: DirectoryChipProps) {
+    const { setMenuStatus } = useMenuContext();
     const navigate = useNavigate();
     const toFolder = (id: number) => navigate(`/folder/${id}`);
     

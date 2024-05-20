@@ -1,25 +1,25 @@
 import { KeyboardEvent, useRef, useState } from "react";
 import { Button } from "../../shared/Button";
 import { Input } from "../../shared/Input";
-import { ItemType } from "../Home";
 import { FileRenameCommand } from "../../api/commands/FileRenameCommand";
+import { useMenuContext } from "../../global/MenuContext";
 
 type RenameDialogProps = {
     open: boolean;
     setOpen: (open: boolean) => void;
-    id: number;
-    type: ItemType;
     renameFile: (command: FileRenameCommand) => unknown;
 }
 
-export function RenameDialog({open, setOpen, id, type, renameFile}: RenameDialogProps) {
+export function RenameDialog({open, setOpen, renameFile}: RenameDialogProps) {
     const [ name, setName ] = useState<string>("");
     const ref = useRef<HTMLDialogElement>(null);
 
+    const { menuStatus, setMenuStatus } = useMenuContext();
+    const type = menuStatus!.type;
+    const id = menuStatus!.item.id;
+
     if (open) ref.current?.showModal();
     else ref.current?.close();
-
-    const close = () => setOpen(false);
 
     function handleKeyDown(event: KeyboardEvent) {
         if (event.code !== "Enter" || !name) return;
@@ -32,6 +32,11 @@ export function RenameDialog({open, setOpen, id, type, renameFile}: RenameDialog
 
         setName("");
         close();
+    }
+
+    function close() {
+        setOpen(false);
+        setMenuStatus(null);
     }
 
     return (

@@ -5,7 +5,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
 import { useEffect, useState } from "react";
-import { ContextMenu, ContextMenuStatus } from "./ContextMenu";
+import { ContextMenu } from "./ContextMenu";
 import { DetailsDialog } from "./dialogs/DetailsDialog";
 import { RenameDialog } from "./dialogs/RenameDialog";
 import { DeleteDialog } from "./dialogs/DeleteDialog";
@@ -19,9 +19,8 @@ import { deleteFile, renameFile, uploadFile } from "../api/FileClient";
 import { FolderContentResponse } from "../api/responses/FolderContentResponse";
 import { useSnackbarContext } from "../global/SnackbarContext";
 import { useUserContext } from "../global/UserContext";
+import { ContextMenuContext, ContextMenuStatus, ItemType } from "../global/MenuContext";
 import './home.css';
-
-export type ItemType = "folder" | "file";
 
 export function Home() {
     const { folderId, query } = useParams();
@@ -43,13 +42,6 @@ export function Home() {
     useEffect(() => {
         setMenuStatus(null);
     }, [location]);
-    
-    // closes context menu when a dialog is closed
-    useEffect(() => {
-        if (!detailsOpen && !renameOpen && !deleteOpen) {
-            setMenuStatus(null);
-        }
-    }, [detailsOpen, renameOpen, deleteOpen]);
 
     const { data: dirs, isLoading: dirsLoading, isError: dirsError} = useQuery({
         queryKey: ["dirs"],
@@ -169,10 +161,10 @@ export function Home() {
     }
 
     return (
-        <>
+        <ContextMenuContext.Provider value={{menuStatus, setMenuStatus}}>
         <div className="flex h-[calc(100%-4rem)] w-full bg-gray-100" onClick={() => closeMenus()}>
             <section className="h-full flex">
-                <Sidenav directories={rootDirs} selectedId={parseId(folderId)} addOpen={addOpen} setAddOpen={setAddOpen} setMenuStatus={setMenuStatus} setDialogStatus={setItemDialogStatus} />
+                <Sidenav directories={rootDirs} selectedId={parseId(folderId)} addOpen={addOpen} setAddOpen={setAddOpen} setDialogStatus={setItemDialogStatus} />
                 <NewItemDialog dirs={[...dirs || []]} folderId={folderId} status={itemDialogStatus} setStatus={setItemDialogStatus} uploadFile={uploadFileMutation} />
             </section>
 
@@ -193,20 +185,20 @@ export function Home() {
 
                 {contentDirs.length > 0 && 
                     <div className="dynamic-grid-sm gap-4 mb-8">
-                        {contentDirs.map(dir => <DirectoryChip key={dir.id} setMenuStatus={setMenuStatus} data={dir} />)}
+                        {contentDirs.map(dir => <DirectoryChip key={dir.id} data={dir} />)}
                     </div>
                 }
                 <div className="dynamic-grid-lg gap-4">
-                    {files.map(file => <FileChip key={file.id} setMenuStatus={setMenuStatus} data={file} />)}
+                    {files.map(file => <FileChip key={file.id} data={file} />)}
                 </div>
             </section>
         </div>
         {!!menuStatus && <>
-            <ContextMenu dirs={dirs || []} menuStatus={menuStatus} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} />
-            <DetailsDialog open={detailsOpen} setOpen={setDetailsOpen} item={menuStatus.item} />
-            <RenameDialog open={renameOpen} setOpen={setRenameOpen} type={menuStatus.type} id={menuStatus.item.id} renameFile={renameFileMutation} />
-            <DeleteDialog open={deleteOpen} setOpen={setDeleteOpen} type={menuStatus.type} id={menuStatus.item.id} deleteFile={deleteFileMutation} />
+            <ContextMenu dirs={dirs || []} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} />
+            <DetailsDialog open={detailsOpen} setOpen={setDetailsOpen} />
+            <RenameDialog open={renameOpen} setOpen={setRenameOpen} renameFile={renameFileMutation} />
+            <DeleteDialog open={deleteOpen} setOpen={setDeleteOpen} deleteFile={deleteFileMutation} />
         </>}
-        </>
+        </ContextMenuContext.Provider>
     );
 }

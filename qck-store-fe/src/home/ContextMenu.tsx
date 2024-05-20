@@ -1,18 +1,10 @@
 import { ReactNode } from "react";
 import { Directory } from "../api/responses/Directory";
-import { ItemType } from "./Home";
 import { useParams } from "react-router-dom";
-import { File } from "../api/responses/File";
 import { BaseUrl } from "../api/BaseUrl";
+import { ContextMenuStatus, useMenuContext } from "../global/MenuContext";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import './home.css';
-
-export type ContextMenuStatus = {
-    type: ItemType;
-    item: Directory | File;
-    x: number;
-    y: number;
-}
 
 type MenuItemProps = {
     children: ReactNode;
@@ -67,16 +59,16 @@ export function MenuItem ({ children, className = "", onClick }: MenuItemProps) 
 
 type ContextMenuProps = {
     dirs: Directory[];
-    menuStatus: ContextMenuStatus;
     setDetails: (open: boolean) => void;
     setRename: (open: boolean) => void;
     setDelete: (open: boolean) => void;
 }
 
-export function ContextMenu({ dirs, menuStatus, setDetails, setRename, setDelete }: ContextMenuProps) {   
+export function ContextMenu({ dirs, setDetails, setRename, setDelete }: ContextMenuProps) {   
     const { folderId } = useParams();
     const currentId = parseInt(folderId || "");
-    
+    const { menuStatus } = useMenuContext() as { menuStatus: ContextMenuStatus };
+
     const filteredDirs = dirs.filter(dir => {
         if (dir.id == currentId) return false;
         if (dir.isRoot && isNaN(currentId)) return false;

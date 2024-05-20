@@ -1,27 +1,32 @@
 import { useRef } from "react";
 import { Button } from "../../shared/Button";
-import { ItemType } from "../Home";
+import { useMenuContext } from "../../global/MenuContext";
 
 type DeleteDialogProps = {
-    id: number;
-    type: ItemType;
     open: boolean;
     setOpen: (open: boolean) => void;
     deleteFile: (id: number) => any;
 }
 
-export function DeleteDialog({id, type, open, setOpen, deleteFile}: DeleteDialogProps) {
+export function DeleteDialog({open, setOpen, deleteFile}: DeleteDialogProps) {
     const ref = useRef<HTMLDialogElement>(null);
+    const { menuStatus, setMenuStatus } = useMenuContext();
+    const type = menuStatus!.type;
+    const id = menuStatus!.item.id;
 
     if (open) ref.current?.showModal();
     else ref.current?.close();
 
-    const close = () => setOpen(false);
     function handleDelete() {
         if (type === "file") {
             deleteFile(id);
         }
         close();
+    }
+
+    function close() {
+        setOpen(false);
+        setMenuStatus(null);
     }
 
     return (

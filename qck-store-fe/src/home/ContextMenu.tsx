@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Directory } from "../api/responses/Directory";
 import { useParams } from "react-router-dom";
 import { BaseUrl } from "../api/BaseUrl";
+import { FileMoveCommand } from "../api/commands/FileMoveCommand";
 import { ContextMenuStatus, useMenuContext } from "../global/MenuContext";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import './home.css';
@@ -62,12 +63,13 @@ type ContextMenuProps = {
     setDetails: (open: boolean) => void;
     setRename: (open: boolean) => void;
     setDelete: (open: boolean) => void;
+    moveFile: (command: FileMoveCommand) => void;
 }
 
-export function ContextMenu({ dirs, setDetails, setRename, setDelete }: ContextMenuProps) {   
+export function ContextMenu({ dirs, setDetails, setRename, setDelete, moveFile }: ContextMenuProps) {   
     const { folderId } = useParams();
     const currentId = parseInt(folderId || "");
-    const { menuStatus } = useMenuContext() as { menuStatus: ContextMenuStatus };
+    const { menuStatus, setMenuStatus } = useMenuContext() as { menuStatus: ContextMenuStatus, setMenuStatus };
 
     const filteredDirs = dirs.filter(dir => {
         if (dir.id == currentId) return false;
@@ -99,6 +101,13 @@ export function ContextMenu({ dirs, setDetails, setRename, setDelete }: ContextM
         left, right, top
     }
 
+    function moveItem(folderId: number) {
+        if (menuStatus.type === "file") moveFile({ id: menuStatus.item.id, folderId });
+        // TODO
+        // if (menuStatus.type === "folder") moveFolder({ id: menuStatus.item.id, folderId });
+        setMenuStatus(null);
+    }
+
     function downloadItem() {
         if (menuStatus.type === "file") {
             window.open(`${BaseUrl}/files/download/${menuStatus.item.id}`, '_self');
@@ -113,7 +122,11 @@ export function ContextMenu({ dirs, setDetails, setRename, setDelete }: ContextM
         <section className="flex flex-row absolute w-fit" style={style} >
             {x < 0 &&
             <div className={`moveto-section w-48 h-fit max-h-64 rounded-l border-gray-400 border bg-white flex-col overflow-y-auto scrollbar hidden hover:flex ${dirsMargin}`}>
-                { filteredDirs!.map(dir => <MenuItem key={dir.id}>{dir.name}</MenuItem>) }
+                {filteredDirs!.map(dir => 
+                    <MenuItem key={dir.id} onClick={() => moveItem(dir.id)}>
+                        {dir.name}
+                    </MenuItem>
+                )}
                 { !filteredDirs.length && <span className="w-full bg-white items-center p-2">No folders available</span> }
             </div>
             }
@@ -130,7 +143,11 @@ export function ContextMenu({ dirs, setDetails, setRename, setDelete }: ContextM
             </div>
             {x >= 0 &&
             <div className={`moveto-section w-48 h-fit max-h-64 rounded-r border-gray-400 border bg-white flex-col overflow-y-auto scrollbar hidden hover:flex ${dirsMargin}`}>
-                { filteredDirs!.map(dir => <MenuItem key={dir.id}>{dir.name}</MenuItem>) }
+                {filteredDirs!.map(dir => 
+                    <MenuItem key={dir.id} onClick={() => moveItem(dir.id)}>
+                        {dir.name}
+                    </MenuItem>
+                )}
                 { !filteredDirs.length && <span className="w-full bg-white items-center p-2">No folders available</span> }
             </div>
             }

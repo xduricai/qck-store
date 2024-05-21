@@ -212,7 +212,7 @@ export function Home() {
             </section>
         </div>
         {!!menuStatus && <>
-            <ContextMenu dirs={dirs || []} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} />
+            <ContextMenu dirs={dirs || []} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} moveFile={moveFileMutation} />
             <DetailsDialog open={detailsOpen} setOpen={setDetailsOpen} />
             <RenameDialog open={renameOpen} setOpen={setRenameOpen} renameFile={renameFileMutation} />
             <DeleteDialog open={deleteOpen} setOpen={setDeleteOpen} deleteFile={deleteFileMutation} />

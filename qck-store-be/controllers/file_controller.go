@@ -34,6 +34,7 @@ func RegisterFileController(db *sql.DB, server *gin.Engine) *FileController {
 	{
 		routes.GET("/download/:fileId", controller.DownloadFile)
 		routes.POST("/upload", controller.UploadFile)
+		routes.PUT("/move/:fileId", controller.MoveFile)
 		routes.PATCH("/rename/:fileId", controller.RenameFile)
 		routes.DELETE("/delete/:fileId", controller.DeleteFile)
 	}
@@ -79,7 +80,6 @@ func (c *FileController) UploadFile(ctx *gin.Context) {
 
 	name := ctx.PostForm("name")
 	folderId := ctx.PostForm("folderId")
-	ctx.Status(http.StatusTeapot)
 
 	res, status := c.fileCommandHandler.UploadFile(name, folderId, id, file.Size)
 	if status != 200 {
@@ -110,10 +110,31 @@ func (c *FileController) RenameFile(ctx *gin.Context) {
 	if _, err := buf.ReadFrom(ctx.Request.Body); err != nil {
 		log.Println(err)
 		ctx.Status(http.StatusBadRequest)
+		return
 	}
 	name := buf.String()
 
 	status := c.fileCommandHandler.RenameFile(name, fileId, id)
+	ctx.Status(status)
+}
+
+func (c *FileController) MoveFile(ctx *gin.Context) {
+	id, ok := GetUserId(ctx)
+	fileId := ctx.Param("fileId")
+	if !ok {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+	if _, err := buf.ReadFrom(ctx.Request.Body); err != nil {
+		log.Println(err)
+		ctx.Status(http.StatusBadRequest)
+		return
+	}
+	folderId := buf.String()
+
+	status := c.fileCommandHandler.MoveFile(folderId, fileId, id)
 	ctx.Status(status)
 }
 
@@ -128,6 +149,7 @@ func (c *FileController) DeleteFile(ctx *gin.Context) {
 	size, status := c.fileCommandHandler.DeleteFile(fileId, id)
 	if status != http.StatusOK {
 		ctx.Status(status)
+		return
 	}
 
 	filePath := fmt.Sprintf("%s%s", c.fileSrc, fileId)

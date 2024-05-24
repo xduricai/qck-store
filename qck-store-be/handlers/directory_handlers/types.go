@@ -8,8 +8,9 @@ import (
 
 type DirectoryResponse struct {
 	Id       int    `json:"id"`
-	Name     string `json:"name"`
 	IsRoot   bool   `json:"isRoot"`
+	Name     string `json:"name"`
+	Path     string `json:"path"`
 	Modified string `json:"modified"`
 	Created  string `json:"created"`
 }

@@ -72,12 +72,12 @@ export function ContextMenu({ dirs, setDetails, setRename, setDelete, moveFile }
     const { menuStatus, setMenuStatus } = useMenuContext() as { menuStatus: ContextMenuStatus, setMenuStatus };
 
     const filteredDirs = dirs.filter(dir => {
-        if (dir.id == currentId) return false;
-        if (dir.isRoot && isNaN(currentId)) return false;
-        return true;
+        if (dir.id === currentId) return false;
+        if (!("path" in menuStatus.item)) return true;
+        return !dir.path.startsWith(menuStatus.item.path);
     });
     if (menuStatus.type === "folder" && !isNaN(currentId)) {
-        filteredDirs.unshift({ id: -1, name: "Root Folder", modified: "", created: "", isRoot: false });
+        filteredDirs.unshift({ id: -1, name: "Root Folder", path: "", modified: "", created: "", isRoot: false });
     }
 
     const rem = parseInt(getComputedStyle(document.documentElement).fontSize) || 16;

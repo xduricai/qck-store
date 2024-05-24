@@ -23,7 +23,7 @@ func NewDirectoryQueryHandler(db *sql.DB) *DirectoryQueryHandler {
 
 func (h *DirectoryQueryHandler) GetAll(id string) ([]DirectoryResponse, int) {
 	var rows *sql.Rows
-	query := "SELECT Id, Name, LastModified, Created, CASE WHEN ParentId IS NULL THEN 1 ELSE 0 END AS IsRoot FROM Directories WHERE UserId = $1"
+	query := "SELECT Id, Name, Path, LastModified, Created, CASE WHEN ParentId IS NULL THEN 1 ELSE 0 END AS IsRoot FROM Directories WHERE UserId = $1"
 
 	if data, err := h.db.Query(query, id); err == nil {
 		rows = data
@@ -34,9 +34,9 @@ func (h *DirectoryQueryHandler) GetAll(id string) ([]DirectoryResponse, int) {
 	directories := []DirectoryResponse{}
 
 	for rows.Next() {
-		var res = *new(DirectoryResponse)
+		var res DirectoryResponse
 
-		if err := rows.Scan(&res.Id, &res.Name, &res.Modified, &res.Created, &res.IsRoot); err != nil {
+		if err := rows.Scan(&res.Id, &res.Name, &res.Path, &res.Modified, &res.Created, &res.IsRoot); err != nil {
 			log.Println(err)
 			continue
 		}
@@ -74,7 +74,7 @@ func (h *DirectoryQueryHandler) GetFolderContent(id, folderId string) (Directory
 		res.Files = append(res.Files, file)
 	}
 
-	query = "SELECT Id, Name, LastModified, Created FROM Directories WHERE UserId = $1 AND ParentId = $2"
+	query = "SELECT Id, Name, Path, LastModified, Created FROM Directories WHERE UserId = $1 AND ParentId = $2"
 	if data, err := h.db.Query(query, id, folderId); err == nil {
 		rows = data
 	} else {
@@ -85,7 +85,7 @@ func (h *DirectoryQueryHandler) GetFolderContent(id, folderId string) (Directory
 	for rows.Next() {
 		var dir DirectoryResponse
 
-		if err := rows.Scan(&dir.Id, &dir.Name, &dir.Modified, &dir.Created); err != nil {
+		if err := rows.Scan(&dir.Id, &dir.Name, &dir.Path, &dir.Modified, &dir.Created); err != nil {
 			log.Println(err)
 			continue
 		}

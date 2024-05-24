@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Sidenav } from "../navigation/Sidenav";
 import { GetFolderContent, GetRootDirectories, GetSearchResults } from "../api/DirectoryClient";
 import { useLocation, useParams } from "react-router-dom";
@@ -10,9 +10,7 @@ import { DetailsDialog } from "./dialogs/DetailsDialog";
 import { RenameDialog } from "./dialogs/RenameDialog";
 import { DeleteDialog } from "./dialogs/DeleteDialog";
 import { NewItemDialog } from "./dialogs/NewItemDialog";
-import { ItemCompareFn, SortOption, getSortOptions } from "./Sorting";
-import { File } from "../api/responses/File";
-import { Directory } from "../api/responses/Directory";
+import { SortOption, getSortOptions } from "./Sorting";
 import { ErrorPage } from "../shared/ErrorPage";
 import { LoadingPage } from "../shared/Loading";
 import { deleteFile, moveFile, renameFile, uploadFile } from "../api/FileClient";
@@ -43,13 +41,14 @@ export function Home() {
         setMenuStatus(null);
     }, [location]);
 
-    const { data: dirs, isLoading: dirsLoading, isError: dirsError} = useQuery({
-        queryKey: ["dirs"],
-        queryFn: GetRootDirectories
-    });
-    const { data: content, isLoading: contentLoading, isError: contentError } = useQuery({
-        queryKey: ["content", folderId || query ],
-        queryFn: () => folderId ? GetFolderContent(folderId) : GetSearchResults(query)
+    const [dirs, content] = useQueries({
+        queries: [
+            { queryKey: ["dirs"], queryFn: GetRootDirectories },
+            {
+                queryKey: ["content", folderId || query || "home" ],
+                queryFn: () => query ? GetSearchResults(query) : GetFolderContent(folderId)
+            }
+        ]
     });
 
     const { mutate: uploadFileMutation } = useMutation({
@@ -132,16 +131,18 @@ export function Home() {
         onError: (err) => showSnackbar(err.toString(), "error")
     });  
 
-    if (dirsLoading || contentLoading) {
+    if (dirs.isLoading || content.isLoading) {
         return <LoadingPage />;
     }
-    if (!dirs || dirsError || !content || contentError) {
+    if (dirs.isError || content.isError || !dirs.data) {
         return <ErrorPage />;
     }
 
-    const rootDirs = dirs.filter(dir => dir.isRoot) || [];
-    const contentDirs = getContentDirs(sortOption.compareFn, content.directories); 
-    const files = getFiles(sortOption.compareFn, content.files);  
+    const rootDirs = dirs.data.filter(dir => dir.isRoot).sort(sortOption.compareFn);
+    const contentDirs = content.data?.directories 
+        ? [...content.data.directories].sort(sortOption.compareFn)
+        : [...rootDirs];
+    const files = [...content.data?.files || []].sort(sortOption.compareFn); 
     const title = getTitle();
 
     function parseId(id: string | undefined) {
@@ -151,20 +152,9 @@ export function Home() {
         return res;
     }
 
-    function getContentDirs(compareFn: ItemCompareFn, dirs?: Directory[]) {
-        if (!dirs) return [];
-        if (folderId || query) return [...dirs].sort(compareFn);
-        return [...rootDirs].sort(compareFn);
-    }
-
-    function getFiles(compareFn: ItemCompareFn, files?: File[]) {
-        if (!files) return [];
-        return [...files].sort(compareFn);
-    }
-
     function getTitle() {
         if (folderId) {
-            return dirs?.find(dir => dir.id.toString() === folderId)?.name || "";
+            return dirs.data?.find(dir => dir.id.toString() === folderId)?.name || "";
         }
         if (query) {
             return `Results for "${query}"`;
@@ -183,7 +173,7 @@ export function Home() {
         <div className="flex h-[calc(100%-4rem)] w-full bg-gray-100" onClick={() => closeMenus()}>
             <section className="h-full flex">
                 <Sidenav directories={rootDirs} selectedId={parseId(folderId)} addOpen={addOpen} setAddOpen={setAddOpen} setDialogStatus={setItemDialogStatus} />
-                <NewItemDialog dirs={[...dirs || []]} folderId={folderId} status={itemDialogStatus} setStatus={setItemDialogStatus} uploadFile={uploadFileMutation} />
+                <NewItemDialog dirs={[...dirs.data || []]} folderId={folderId} status={itemDialogStatus} setStatus={setItemDialogStatus} uploadFile={uploadFileMutation} />
             </section>
 
             <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">
@@ -212,7 +202,7 @@ export function Home() {
             </section>
         </div>
         {!!menuStatus && <>
-            <ContextMenu dirs={dirs || []} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} moveFile={moveFileMutation} />
+            <ContextMenu dirs={dirs.data || []} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} moveFile={moveFileMutation} />
             <DetailsDialog open={detailsOpen} setOpen={setDetailsOpen} />
             <RenameDialog open={renameOpen} setOpen={setRenameOpen} renameFile={renameFileMutation} />
             <DeleteDialog open={deleteOpen} setOpen={setDeleteOpen} deleteFile={deleteFileMutation} />

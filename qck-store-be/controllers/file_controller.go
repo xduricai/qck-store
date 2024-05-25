@@ -89,7 +89,7 @@ func (c *FileController) UploadFile(ctx *gin.Context) {
 
 	filePath := fmt.Sprintf("%s%d", c.fileSrc, res.Id)
 	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
-		log.Println(err)
+		log.Println("An error occurred while saving file", err)
 		c.fileCommandHandler.DeleteFile(fmt.Sprint(res.Id), id)
 		ctx.Status(http.StatusInternalServerError)
 		return
@@ -108,7 +108,7 @@ func (c *FileController) RenameFile(ctx *gin.Context) {
 
 	buf := new(bytes.Buffer)
 	if _, err := buf.ReadFrom(ctx.Request.Body); err != nil {
-		log.Println(err)
+		log.Println("An error occurred while reading the request body", err)
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
@@ -128,7 +128,7 @@ func (c *FileController) MoveFile(ctx *gin.Context) {
 
 	buf := new(bytes.Buffer)
 	if _, err := buf.ReadFrom(ctx.Request.Body); err != nil {
-		log.Println(err)
+		log.Println("An error occurred while reading the request body", err)
 		ctx.Status(http.StatusBadRequest)
 		return
 	}

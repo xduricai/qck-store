@@ -5,19 +5,23 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/xduricai/qck-store/qck-store-be/handlers"
 	dirh "github.com/xduricai/qck-store/qck-store-be/handlers/directory_handlers"
+	fileh "github.com/xduricai/qck-store/qck-store-be/handlers/file_handlers"
 	mw "github.com/xduricai/qck-store/qck-store-be/middleware"
 )
 
 type DirectoryController struct {
 	directoryQueryHandler   dirh.IDirectoryQueryHandler
 	directoryCommandHandler dirh.IDirectoryCommandHandler
+	fileQueryHandler        fileh.IFileQueryHandler
 }
 
 func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryController {
 	var controller = &DirectoryController{
 		directoryQueryHandler:   dirh.NewDirectoryQueryHandler(db),
 		directoryCommandHandler: dirh.NewDirectoryCommandHandler(db),
+		fileQueryHandler:        fileh.NewFileQueryHandler(db),
 	}
 
 	var routes = server.Group("/directories")
@@ -50,9 +54,21 @@ func (c *DirectoryController) GetFolderContent(ctx *gin.Context) {
 		return
 	}
 
-	if res, status := c.directoryQueryHandler.GetFolderContent(id, folderId); status != http.StatusOK {
+	var res handlers.DirectoryContentResponse
+
+	if dirs, status := c.directoryQueryHandler.GetForDirectory(folderId, id); status != http.StatusOK {
 		ctx.Status(status)
+		return
 	} else {
-		ctx.JSON(status, res)
+		res.Directories = dirs
 	}
+
+	if files, status := c.fileQueryHandler.GetForDirectory(folderId, id); status != http.StatusOK {
+		ctx.Status(status)
+		return
+	} else {
+		res.Files = files
+	}
+
+	ctx.JSON(http.StatusOK, res)
 }

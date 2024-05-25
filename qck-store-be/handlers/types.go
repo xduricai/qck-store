@@ -1,9 +1,7 @@
-package directory_handlers
+package handlers
 
 import (
 	"log"
-
-	"github.com/xduricai/qck-store/qck-store-be/handlers"
 )
 
 type DirectoryResponse struct {
@@ -29,14 +27,14 @@ type DirectoryContentResponse struct {
 }
 
 func (dir *DirectoryResponse) FormatDates() {
-	if modified, err := handlers.FormatDate(dir.Modified); err == nil {
+	if modified, err := FormatDate(dir.Modified); err == nil {
 		dir.Modified = modified
 	} else {
 		dir.Modified = ""
 		log.Println(err)
 	}
 
-	if created, err := handlers.FormatDate(dir.Created); err == nil {
+	if created, err := FormatDate(dir.Created); err == nil {
 		dir.Created = created
 	} else {
 		dir.Created = ""
@@ -45,14 +43,14 @@ func (dir *DirectoryResponse) FormatDates() {
 }
 
 func (file *FileResponse) FormatDates() {
-	if modified, err := handlers.FormatDate(file.Modified); err == nil {
+	if modified, err := FormatDate(file.Modified); err == nil {
 		file.Modified = modified
 	} else {
 		file.Modified = ""
 		log.Println(err)
 	}
 
-	if created, err := handlers.FormatDate(file.Created); err == nil {
+	if created, err := FormatDate(file.Created); err == nil {
 		file.Created = created
 	} else {
 		file.Created = ""

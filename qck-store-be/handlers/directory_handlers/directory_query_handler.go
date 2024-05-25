@@ -2,13 +2,17 @@ package directory_handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/xduricai/qck-store/qck-store-be/handlers"
 )
 
 type IDirectoryQueryHandler interface {
-	GetAll(string) ([]DirectoryResponse, int)
-	GetFolderContent(string, string) (DirectoryContentResponse, int)
+	GetAll(userId string) ([]handlers.DirectoryResponse, int)
+	GetForDirectory(folderId, userId string) ([]handlers.DirectoryResponse, int)
+	GetByName(folderId, userId string) ([]handlers.DirectoryResponse, int)
 }
 
 type DirectoryQueryHandler struct {
@@ -21,23 +25,23 @@ func NewDirectoryQueryHandler(db *sql.DB) *DirectoryQueryHandler {
 	}
 }
 
-func (h *DirectoryQueryHandler) GetAll(id string) ([]DirectoryResponse, int) {
+func (h *DirectoryQueryHandler) GetAll(id string) ([]handlers.DirectoryResponse, int) {
 	var rows *sql.Rows
 	query := "SELECT Id, Name, Path, LastModified, Created, CASE WHEN ParentId IS NULL THEN 1 ELSE 0 END AS IsRoot FROM Directories WHERE UserId = $1"
 
 	if data, err := h.db.Query(query, id); err == nil {
 		rows = data
 	} else {
-		log.Println(err)
-		return []DirectoryResponse{}, http.StatusInternalServerError
+		log.Println("An error occurred while attempting to retrieve directories", err)
+		return []handlers.DirectoryResponse{}, http.StatusInternalServerError
 	}
-	directories := []DirectoryResponse{}
+	directories := []handlers.DirectoryResponse{}
 
 	for rows.Next() {
-		var res DirectoryResponse
+		var res handlers.DirectoryResponse
 
 		if err := rows.Scan(&res.Id, &res.Name, &res.Path, &res.Modified, &res.Created, &res.IsRoot); err != nil {
-			log.Println(err)
+			log.Println("An error occurred while parsing a directory", err)
 			continue
 		}
 		res.FormatDates()
@@ -45,52 +49,65 @@ func (h *DirectoryQueryHandler) GetAll(id string) ([]DirectoryResponse, int) {
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Println(err)
+		log.Println("An unknown error occurred", err)
 	}
 	return directories, http.StatusOK
 }
 
-func (h *DirectoryQueryHandler) GetFolderContent(id, folderId string) (DirectoryContentResponse, int) {
-	var res DirectoryContentResponse
-
+func (h *DirectoryQueryHandler) GetForDirectory(folderId, userId string) ([]handlers.DirectoryResponse, int) {
+	var res []handlers.DirectoryResponse
 	var rows *sql.Rows
 
-	query := "SELECT Id, Name, Size, LastModified, Created FROM Files WHERE UserId = $1 AND DirectoryId = $2"
-	if data, err := h.db.Query(query, id, folderId); err == nil {
+	query := "SELECT Id, Name, Path, LastModified, Created FROM Directories WHERE UserId = $1 AND ParentId = $2"
+	if data, err := h.db.Query(query, userId, folderId); err == nil {
 		rows = data
 	} else {
-		log.Println(err)
+		log.Println("An error occurred while attempting to retrieve directories", err)
 		return res, http.StatusInternalServerError
 	}
 
 	for rows.Next() {
-		var file FileResponse
-
-		if err := rows.Scan(&file.Id, &file.Name, &file.Size, &file.Modified, &file.Created); err != nil {
-			log.Println(err)
-			continue
-		}
-		file.FormatDates()
-		res.Files = append(res.Files, file)
-	}
-
-	query = "SELECT Id, Name, Path, LastModified, Created FROM Directories WHERE UserId = $1 AND ParentId = $2"
-	if data, err := h.db.Query(query, id, folderId); err == nil {
-		rows = data
-	} else {
-		log.Println(err)
-		return res, http.StatusInternalServerError
-	}
-
-	for rows.Next() {
-		var dir DirectoryResponse
+		var dir handlers.DirectoryResponse
 
 		if err := rows.Scan(&dir.Id, &dir.Name, &dir.Path, &dir.Modified, &dir.Created); err != nil {
-			log.Println(err)
+			log.Println("An error occurred while parsing a directory", err)
 			continue
 		}
 		dir.FormatDates()
-		res.Directories = append(res.Directories, dir)
+		res = append(res, dir)
+	}
+	if err := rows.Err(); err != nil {
+		log.Println("An unknown error occurred", err)
+	}
+
+	return res, http.StatusOK
+}
+
+func (h *DirectoryQueryHandler) GetByName(searchTerm, userId string) ([]handlers.DirectoryResponse, int) {
+	var res []handlers.DirectoryResponse
+	var rows *sql.Rows
+	searchTerm = fmt.Sprint("%", searchTerm, "%")
+
+	query := "SELECT Id, Name, Path, LastModified, Created FROM Directories WHERE UserId = $1 AND LOWER(Name) LIKE	$2"
+	if data, err := h.db.Query(query, userId, searchTerm); err == nil {
+		rows = data
+	} else {
+		log.Println("An error occurred while attempting to retrieve directories", err)
+		return res, http.StatusInternalServerError
+	}
+
+	for rows.Next() {
+		var dir handlers.DirectoryResponse
+
+		if err := rows.Scan(&dir.Id, &dir.Name, &dir.Path, &dir.Modified, &dir.Created); err != nil {
+			log.Println("An error occurred while parsing a directory", err)
+			continue
+		}
+		dir.FormatDates()
+		res = append(res, dir)
+	}
+	if err := rows.Err(); err != nil {
+		log.Println("An unknown error occurred", err)
 	}
 
 	return res, http.StatusOK

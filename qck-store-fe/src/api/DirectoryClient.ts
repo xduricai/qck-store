@@ -31,32 +31,29 @@ export async function GetFolderContent(folderId?: string) {
 }
 
 export async function GetSearchResults(query?: string) {
-    //TODO finish
+    if (!query) return null;
     
-    // if (!query) return null;
-    
-    // const res = await fetch(`${BaseUrl}/search/${query}`, {
-    //     credentials: "include"
-    // });
-    // if (res.status !== 200) {
-    //     throw new Error();
-    // }
+    const res = await fetch(`${BaseUrl}/search/${query}`, {
+        credentials: "include"
+    });
+    if (res.status !== 200) {
+        throw new Error();
+    }
 
-    // const content: FolderContentResponse = await res.json();
-    //TODO remove 
-    const content = { directories: [], files: tempData() };
-    content.files = tempData();
+    const content: FolderContentResponse = await res.json();
+    content.directories ||= [];
+    content.files ||= [];
     return content;
 }
 
 //TODO remove
-function tempData() {
-    return [
-        { id: 100001, name: "file name 1", size: 130450, modified: "10/10/2020 19:29:35", created: "10/10/2020 19:29:35"  },
-        { id: 100002, name: "file name 2", size: 130450, modified: "10/10/2020 09:29:34", created: "10/10/2020 19:29:34"  },
-        { id: 100003, name: "file name 3", size: 130450, modified: "10/10/2020 19:29:33", created: "10/10/2020 19:29:33"  },
-        { id: 100004, name: "file name 4", size: 130450, modified: "10/10/2020 19:29:32", created: "10/10/2020 19:29:32"  },
-        { id: 100005, name: "file name 5", size: 130450, modified: "10/10/2020 19:29:31", created: "10/10/2020 19:29:31"  },
-        { id: 100006, name: "file name 6", size: 130450, modified: "10/10/2020 19:29:30", created: "10/10/2020 19:29:47"  },
-    ]
-}
+// function tempData() {
+//     return [
+//         { id: 100001, name: "file name 1", size: 130450, modified: "10/10/2020 19:29:35", created: "10/10/2020 19:29:35"  },
+//         { id: 100002, name: "file name 2", size: 130450, modified: "10/10/2020 09:29:34", created: "10/10/2020 19:29:34"  },
+//         { id: 100003, name: "file name 3", size: 130450, modified: "10/10/2020 19:29:33", created: "10/10/2020 19:29:33"  },
+//         { id: 100004, name: "file name 4", size: 130450, modified: "10/10/2020 19:29:32", created: "10/10/2020 19:29:32"  },
+//         { id: 100005, name: "file name 5", size: 130450, modified: "10/10/2020 19:29:31", created: "10/10/2020 19:29:31"  },
+//         { id: 100006, name: "file name 6", size: 130450, modified: "10/10/2020 19:29:30", created: "10/10/2020 19:29:47"  },
+//     ]
+// }

@@ -6,11 +6,10 @@ import (
 	"net/http"
 
 	"github.com/xduricai/qck-store/qck-store-be/handlers"
-	dirh "github.com/xduricai/qck-store/qck-store-be/handlers/directory_handlers"
 )
 
 type IFileCommandHandler interface {
-	UploadFile(fileName, folderId, userId string, size int64) (dirh.FileResponse, int)
+	UploadFile(fileName, folderId, userId string, size int64) (handlers.FileResponse, int)
 	RenameFile(fileName, fileId, userId string) int
 	MoveFile(folderId, fileId, userId string) int
 	DeleteFile(fileId, userId string) (int, int)
@@ -26,8 +25,8 @@ func NewFileCommandHandler(db *sql.DB) *FileCommandHandler {
 	}
 }
 
-func (h *FileCommandHandler) UploadFile(fileName, folderId, userId string, size int64) (dirh.FileResponse, int) {
-	var file dirh.FileResponse
+func (h *FileCommandHandler) UploadFile(fileName, folderId, userId string, size int64) (handlers.FileResponse, int) {
+	var file handlers.FileResponse
 	var folderPath string
 
 	currentTime := handlers.GetUTCTime()

@@ -26,6 +26,11 @@ type DirectoryContentResponse struct {
 	Directories []DirectoryResponse `json:"directories"`
 }
 
+type DirectoryDeletionResponse struct {
+	Size int    `json:"size"`
+	Path string `json:"path"`
+}
+
 func (dir *DirectoryResponse) FormatDates() {
 	if modified, err := FormatDate(dir.Modified); err == nil {
 		dir.Modified = modified

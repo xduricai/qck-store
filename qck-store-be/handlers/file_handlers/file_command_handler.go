@@ -2,6 +2,7 @@ package file_handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -13,6 +14,7 @@ type IFileCommandHandler interface {
 	RenameFile(fileName, fileId, userId string) int
 	MoveFile(folderId, fileId, userId string) int
 	DeleteFile(fileId, userId string) (int, int)
+	DeleteDirectoryChildren(folderId, userId string) ([]int, int, int)
 }
 
 type FileCommandHandler struct {
@@ -103,4 +105,47 @@ func (h *FileCommandHandler) DeleteFile(fileId, userId string) (int, int) {
 	}
 
 	return size, http.StatusOK
+}
+
+func (h *FileCommandHandler) DeleteDirectoryChildren(folderId, userId string) ([]int, int, int) {
+	var rows *sql.Rows
+	var path string
+	var totalSize int
+	ids := []int{}
+
+	query := "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
+	if err := h.db.QueryRow(query, folderId, userId).Scan(&path); err != nil {
+		log.Println("Could not retrieve directory for deletion", err)
+		return ids, totalSize, http.StatusNotFound
+	}
+	path = fmt.Sprint(path, "%")
+
+	query = "DELETE FROM Files WHERE UserId = $1 AND Path LIKE $2 RETURNING Id, Size"
+	if data, err := h.db.Query(query, userId, path); err == nil {
+		rows = data
+	} else {
+		log.Println("An error occurred while deleting file descendants of folder", err)
+	}
+
+	for rows.Next() {
+		var id int
+		var size int
+
+		if err := rows.Scan(&id, &size); err != nil {
+			log.Println("An error occurred while parsing deleted row", err)
+			continue
+		}
+		ids = append(ids, id)
+		totalSize += size
+	}
+	if err := rows.Err(); err != nil {
+		log.Println("An unknown error occurred", err)
+	}
+
+	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed - $1 WHERE Id = $2"
+	if err := h.db.QueryRow(query, totalSize, userId).Scan(); err != nil && err != sql.ErrNoRows {
+		log.Println("An error occurred while adjusting total number of bytes used for user", err)
+	}
+
+	return ids, totalSize, http.StatusOK
 }

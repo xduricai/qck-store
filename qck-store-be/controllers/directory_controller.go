@@ -2,7 +2,10 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/xduricai/qck-store/qck-store-be/handlers"
@@ -15,6 +18,8 @@ type DirectoryController struct {
 	directoryQueryHandler   dirh.IDirectoryQueryHandler
 	directoryCommandHandler dirh.IDirectoryCommandHandler
 	fileQueryHandler        fileh.IFileQueryHandler
+	fileCommandHandler      fileh.IFileCommandHandler
+	fileSrc                 string
 }
 
 func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryController {
@@ -22,6 +27,8 @@ func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryContr
 		directoryQueryHandler:   dirh.NewDirectoryQueryHandler(db),
 		directoryCommandHandler: dirh.NewDirectoryCommandHandler(db),
 		fileQueryHandler:        fileh.NewFileQueryHandler(db),
+		fileCommandHandler:      fileh.NewFileCommandHandler(db),
+		fileSrc:                 os.Getenv("FILESRC"),
 	}
 
 	var routes = server.Group("/directories")
@@ -119,17 +126,28 @@ func (c *DirectoryController) DeleteDirectory(ctx *gin.Context) {
 		return
 	}
 
-	status := c.directoryCommandHandler.DeleteDirectory(folderId, id)
+	ids, size, status := c.fileCommandHandler.DeleteDirectoryChildren(folderId, id)
 	if status != http.StatusOK {
 		ctx.Status(status)
 		return
 	}
-	// update size, delete folders, delete files
 
-	// filePath := fmt.Sprintf("%s%s", c.fileSrc, fileId)
-	// if err := os.Remove(filePath); err != nil {
-	// 	log.Println("An error occurred while deleting file from storage")
-	// }
+	path, status := c.directoryCommandHandler.DeleteDirectory(folderId, id)
+	if status != http.StatusOK {
+		ctx.Status(status)
+		return
+	}
 
-	ctx.Status(status)
+	for _, id := range ids {
+		filePath := fmt.Sprint(c.fileSrc, id)
+		if err := os.Remove(filePath); err != nil {
+			log.Println("An error occurred while deleting file from storage", err)
+		}
+	}
+
+	res := &handlers.DirectoryDeletionResponse{
+		Size: size,
+		Path: path,
+	}
+	ctx.JSON(status, res)
 }

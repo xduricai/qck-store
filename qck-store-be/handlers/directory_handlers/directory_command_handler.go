@@ -2,6 +2,7 @@ package directory_handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -11,7 +12,7 @@ import (
 type IDirectoryCommandHandler interface {
 	CreateDirectory(folderName, parentId, userId string) (handlers.DirectoryResponse, int)
 	RenameDirectory(folderName, folderId, userId string) int
-	DeleteDirectory(folderId, userId string) int
+	DeleteDirectory(folderId, userId string) (string, int)
 }
 
 type DirectoryCommandHandler struct {
@@ -73,6 +74,21 @@ func (h *DirectoryCommandHandler) RenameDirectory(folderName, folderId, userId s
 	return http.StatusOK
 }
 
-func (h *DirectoryCommandHandler) DeleteDirectory(folderId, userId string) int {
-	return http.StatusOK
+func (h *DirectoryCommandHandler) DeleteDirectory(folderId, userId string) (string, int) {
+	var path string
+
+	query := "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
+	if err := h.db.QueryRow(query, folderId, userId).Scan(&path); err != nil {
+		log.Println("Could not retrieve directory for deletion", err)
+		return "", http.StatusNotFound
+	}
+	formattedPath := fmt.Sprint(path, "%")
+
+	query = "DELETE FROM Directories WHERE UserId = $1 AND Path LIKE $2"
+	if err := h.db.QueryRow(query, userId, formattedPath).Scan(); err != nil && err != sql.ErrNoRows {
+		log.Println("An error occurred while deleting directory descendants of directory", err)
+		return "", http.StatusInternalServerError
+	}
+
+	return path, http.StatusOK
 }

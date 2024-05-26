@@ -55,7 +55,7 @@ func (c *FileController) DownloadFile(ctx *gin.Context) {
 		return
 	}
 
-	filePath := fmt.Sprintf("%s%s", c.fileSrc, fileId)
+	filePath := fmt.Sprint(c.fileSrc, fileId)
 	ctx.FileAttachment(filePath, fileName)
 }
 
@@ -86,7 +86,7 @@ func (c *FileController) UploadFile(ctx *gin.Context) {
 		return
 	}
 
-	filePath := fmt.Sprintf("%s%d", c.fileSrc, res.Id)
+	filePath := fmt.Sprint(c.fileSrc, res.Id)
 	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
 		log.Println("An error occurred while saving file", err)
 		c.fileCommandHandler.DeleteFile(fmt.Sprint(res.Id), id)
@@ -145,14 +145,14 @@ func (c *FileController) DeleteFile(ctx *gin.Context) {
 		return
 	}
 
-	filePath := fmt.Sprintf("%s%s", c.fileSrc, fileId)
+	filePath := fmt.Sprint(c.fileSrc, fileId)
 	if err := os.Remove(filePath); err != nil {
 		log.Println("An error occurred while deleting file from storage")
 	}
 	ctx.JSON(status, size)
 }
 
-/*
+/* TODO remove
 UPDATE Cars
 SET Name = REPLACE(Name, 'train', 'plane')
 WHERE name LIKE 'train%';

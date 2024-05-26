@@ -1,6 +1,6 @@
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Sidenav } from "../navigation/Sidenav";
-import { GetDirectoryContent, GetRootDirectories, GetSearchResults, createDirectory } from "../api/DirectoryClient";
+import { getDirectoryContent, getRootDirectories, getSearchResults, createDirectory } from "../api/DirectoryClient";
 import { useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
@@ -44,10 +44,10 @@ export function Home() {
 
     const [dirs, content] = useQueries({
         queries: [
-            { queryKey: ["dirs"], queryFn: GetRootDirectories },
+            { queryKey: ["dirs"], queryFn: getRootDirectories },
             {
                 queryKey: ["content", folderId || query || "home" ],
-                queryFn: () => query ? GetSearchResults(query) : GetDirectoryContent(folderId)
+                queryFn: () => query ? getSearchResults(query) : getDirectoryContent(folderId)
             }
         ]
     });

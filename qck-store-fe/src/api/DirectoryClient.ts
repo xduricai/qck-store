@@ -3,7 +3,7 @@ import { DirectoryCreationCommand } from "./commands/DirectoryCreationCommand";
 import { Directory } from "./responses/Directory";
 import { FolderContentResponse } from "./responses/FolderContentResponse";
 
-export async function GetRootDirectories() {
+export async function getRootDirectories() {
     const res = await fetch(`${BaseUrl}/directories/all`, {
         credentials: "include"
     });
@@ -15,7 +15,7 @@ export async function GetRootDirectories() {
     return directories;
 }
 
-export async function GetDirectoryContent(folderId?: string) {
+export async function getDirectoryContent(folderId?: string) {
     if (!folderId) return null;
     
     const res = await fetch(`${BaseUrl}/directories/content/${folderId}`, {
@@ -31,7 +31,7 @@ export async function GetDirectoryContent(folderId?: string) {
     return content;
 }
 
-export async function GetSearchResults(query?: string) {
+export async function getSearchResults(query?: string) {
     if (!query) return null;
     
     const res = await fetch(`${BaseUrl}/search/${query}`, {

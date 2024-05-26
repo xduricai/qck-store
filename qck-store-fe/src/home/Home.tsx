@@ -1,6 +1,6 @@
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Sidenav } from "../navigation/Sidenav";
-import { GetFolderContent, GetRootDirectories, GetSearchResults } from "../api/DirectoryClient";
+import { GetDirectoryContent, GetRootDirectories, GetSearchResults, createDirectory } from "../api/DirectoryClient";
 import { useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
@@ -18,6 +18,7 @@ import { FolderContentResponse } from "../api/responses/FolderContentResponse";
 import { useSnackbarContext } from "../global/SnackbarContext";
 import { useUserContext } from "../global/UserContext";
 import { ContextMenuContext, ContextMenuStatus, ItemType } from "../global/MenuContext";
+import { Directory } from "../api/responses/Directory";
 import './home.css';
 
 export function Home() {
@@ -46,7 +47,7 @@ export function Home() {
             { queryKey: ["dirs"], queryFn: GetRootDirectories },
             {
                 queryKey: ["content", folderId || query || "home" ],
-                queryFn: () => query ? GetSearchResults(query) : GetFolderContent(folderId)
+                queryFn: () => query ? GetSearchResults(query) : GetDirectoryContent(folderId)
             }
         ]
     });
@@ -131,6 +132,28 @@ export function Home() {
         onError: (err) => showSnackbar(err.toString(), "error")
     });  
 
+
+    const { mutate: createDirectoryMutation } = useMutation({
+        mutationFn: createDirectory,
+        onSuccess: (dir, variables) => {
+            showSnackbar("Directory created successfully", "success");
+            queryClient.setQueryData(["dirs"], (dirs: Directory[]) => dirs ? [...dirs, dir] : null);
+
+            const current = folderId === variables.parentId;
+            const home = dir.isRoot && !folderId && !query;
+            if (!current && !home) return;
+
+            queryClient.setQueryData(["content", folderId || "home"], (content: FolderContentResponse) => {
+                if (!content) return null;
+                return {
+                    ...content,
+                    directories: [...content.directories, dir]
+                }
+            });
+        },
+        onError: (err) => showSnackbar(err.toString(), "error")
+    });
+
     if (dirs.isLoading || content.isLoading) {
         return <LoadingPage />;
     }
@@ -173,7 +196,7 @@ export function Home() {
         <div className="flex h-[calc(100%-4rem)] w-full bg-gray-100" onClick={() => closeMenus()}>
             <section className="h-full flex">
                 <Sidenav directories={rootDirs} selectedId={parseId(folderId)} addOpen={addOpen} setAddOpen={setAddOpen} setDialogStatus={setItemDialogStatus} />
-                <NewItemDialog dirs={[...dirs.data || []]} folderId={folderId} status={itemDialogStatus} setStatus={setItemDialogStatus} uploadFile={uploadFileMutation} />
+                <NewItemDialog dirs={[...dirs.data || []]} folderId={folderId} status={itemDialogStatus} setStatus={setItemDialogStatus} uploadFile={uploadFileMutation} createDirectory={createDirectoryMutation} />
             </section>
 
             <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">

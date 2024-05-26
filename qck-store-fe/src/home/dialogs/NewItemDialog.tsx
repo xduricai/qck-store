@@ -4,6 +4,7 @@ import { Input } from "../../shared/Input";
 import { Directory } from "../../api/responses/Directory";
 import { FileUploadCommand } from "../../api/commands/FIleUploadCommand";
 import { ItemType } from "../../global/MenuContext";
+import { DirectoryCreationCommand } from "../../api/commands/DirectoryCreationCommand";
 
 type NewItemDialogProps = {
     status: ItemType | null;
@@ -11,9 +12,10 @@ type NewItemDialogProps = {
     dirs: Directory[];
     folderId?: string;
     uploadFile: (command: FileUploadCommand) => any;
+    createDirectory: (command: DirectoryCreationCommand) => any;
 }
 
-export function NewItemDialog({status, setStatus, dirs, folderId, uploadFile}: NewItemDialogProps) {
+export function NewItemDialog({status, setStatus, dirs, folderId, uploadFile, createDirectory}: NewItemDialogProps) {
     const [ name, setName ] = useState<string>("");
     const [ folder, setFolder ] = useState<string>("");
     const [ file, setFile ] = useState<File | null>(null);
@@ -48,13 +50,13 @@ export function NewItemDialog({status, setStatus, dirs, folderId, uploadFile}: N
     
     async function handleSubmit() {
         if (!name || !folder) return;
-        // TODO implement
 
         if (status === "file" && file != null) {
             uploadFile({name, folderId: folder, file});
         }
-
-        console.log(name, file, folder);
+        if (status === "folder") {
+            createDirectory({name, parentId: folder});
+        }
         close();
     }
 
@@ -89,7 +91,7 @@ export function NewItemDialog({status, setStatus, dirs, folderId, uploadFile}: N
                     </label>
                     <select id="folder-select" value={folder} onChange={handleSelectChange} className="w-full rounded h-[38px] px-3 py-1.5 text-base placeholder:text-gray-600 box-border focus:border-2 border-gray-400 focus:border-purple-800 focus:px-[11px] border-[1.5px] outline-none">
                         {status === "folder" &&
-                            <option value={""}>Root Folder</option>
+                            <option value={"-1"}>Root Folder</option>
                         }
                         {dirs.map(dir => 
                             <option value={dir.id} key={dir.id}>

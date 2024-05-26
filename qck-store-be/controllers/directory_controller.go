@@ -79,7 +79,6 @@ func (c *DirectoryController) GetFolderContent(ctx *gin.Context) {
 
 func (c *DirectoryController) CreateDirectory(ctx *gin.Context) {
 	parentId := ctx.Param("parentId")
-
 	id, ok := GetUserId(ctx)
 	if !ok {
 		ctx.Status(http.StatusInternalServerError)

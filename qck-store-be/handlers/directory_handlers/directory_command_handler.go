@@ -30,8 +30,20 @@ func (h *DirectoryCommandHandler) CreateDirectory(folderName, parentId, userId s
 
 	currentTime := handlers.GetUTCTime()
 	formattedTime, _ := handlers.FormatDate(currentTime)
+	folder.IsRoot = parentId == "-1"
 	folder.Created = formattedTime
 	folder.Modified = formattedTime
+
+	if parentId == "-1" {
+		query := "INSERT INTO Directories (UserId, Name, Path, LastModified, Created) VALUES ($1, $2, $3 || currval('directories_id_seq'::regclass) || '/', $4, $4) RETURNING Id, Name, Path"
+		if err := h.db.QueryRow(query, userId, folderName, folderPath, currentTime).
+			Scan(&folder.Id, &folder.Name, &folder.Path); err != nil {
+			log.Println("An error occurred during folder creation", err)
+			return folder, http.StatusInternalServerError
+		}
+
+		return folder, http.StatusOK
+	}
 
 	query := "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
 	if err := h.db.QueryRow(query, parentId, userId).
@@ -40,9 +52,9 @@ func (h *DirectoryCommandHandler) CreateDirectory(folderName, parentId, userId s
 		return folder, http.StatusNotFound
 	}
 
-	query = "INSERT INTO Directories (UserId, ParentId, Name, Path, LastModified, Created) VALUES ($1, $2, $3, $4, $5, $5) RETURNING Id, Name"
+	query = "INSERT INTO Directories (UserId, ParentId, Name, Path, LastModified, Created) VALUES ($1, $2, $3, $4 || currval('directories_id_seq'::regclass) || '/', $5, $5) RETURNING Id, Name, Path"
 	if err := h.db.QueryRow(query, userId, parentId, folderName, folderPath, currentTime).
-		Scan(&folder.Id, &folder.Name); err != nil {
+		Scan(&folder.Id, &folder.Name, &folder.Path); err != nil {
 		log.Println("An error occurred during folder creation", err)
 		return folder, http.StatusInternalServerError
 	}

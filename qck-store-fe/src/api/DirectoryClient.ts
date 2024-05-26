@@ -1,4 +1,5 @@
 import { BaseUrl } from "./BaseUrl";
+import { DirectoryCreationCommand } from "./commands/DirectoryCreationCommand";
 import { Directory } from "./responses/Directory";
 import { FolderContentResponse } from "./responses/FolderContentResponse";
 
@@ -14,7 +15,7 @@ export async function GetRootDirectories() {
     return directories;
 }
 
-export async function GetFolderContent(folderId?: string) {
+export async function GetDirectoryContent(folderId?: string) {
     if (!folderId) return null;
     
     const res = await fetch(`${BaseUrl}/directories/content/${folderId}`, {
@@ -44,6 +45,22 @@ export async function GetSearchResults(query?: string) {
     content.directories ||= [];
     content.files ||= [];
     return content;
+}
+
+export async function createDirectory(command: DirectoryCreationCommand) {  
+    if (!command.parentId) command.parentId = "-1";
+    const res = await fetch(`${BaseUrl}/directories/create/${command.parentId}`, {
+        method: "POST",
+        body: command.name,
+        credentials: "include",
+    });
+
+    if (res.status !== 200) {
+        throw "Directory creation failed, please try again"
+    }
+
+    const dir: Directory = await res.json();
+    return dir;
 }
 
 //TODO remove

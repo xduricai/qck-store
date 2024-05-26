@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"bytes"
 	"database/sql"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -81,9 +79,6 @@ func (c *DirectoryController) GetFolderContent(ctx *gin.Context) {
 
 func (c *DirectoryController) CreateDirectory(ctx *gin.Context) {
 	parentId := ctx.Param("parentId")
-	// TODO create in root if no parentId
-	log.Println(parentId)
-	ctx.Status(http.StatusOK)
 
 	id, ok := GetUserId(ctx)
 	if !ok {
@@ -91,13 +86,10 @@ func (c *DirectoryController) CreateDirectory(ctx *gin.Context) {
 		return
 	}
 
-	buf := new(bytes.Buffer)
-	if _, err := buf.ReadFrom(ctx.Request.Body); err != nil {
-		log.Println("An error occurred while reading the request body", err)
-		ctx.Status(http.StatusBadRequest)
+	folderName, ok := ParseRequestBodyString(ctx)
+	if !ok {
 		return
 	}
-	folderName := buf.String()
 
 	folder, status := c.directoryCommandHandler.CreateDirectory(folderName, parentId, id)
 	ctx.JSON(status, folder)
@@ -111,13 +103,10 @@ func (c *DirectoryController) RenameDirectory(ctx *gin.Context) {
 		return
 	}
 
-	buf := new(bytes.Buffer)
-	if _, err := buf.ReadFrom(ctx.Request.Body); err != nil {
-		log.Println("An error occurred while reading the request body", err)
-		ctx.Status(http.StatusBadRequest)
+	name, ok := ParseRequestBodyString(ctx)
+	if !ok {
 		return
 	}
-	name := buf.String()
 
 	status := c.directoryCommandHandler.RenameDirectory(name, folderId, id)
 	ctx.Status(status)

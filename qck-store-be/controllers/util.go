@@ -1,6 +1,12 @@
 package controllers
 
-import "github.com/gin-gonic/gin"
+import (
+	"bytes"
+	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func GetUserId(ctx *gin.Context) (string, bool) {
 	id, ok := ctx.Get("userId")
@@ -13,4 +19,14 @@ func GetUserId(ctx *gin.Context) (string, bool) {
 	} else {
 		return idString, ok
 	}
+}
+
+func ParseRequestBodyString(ctx *gin.Context) (string, bool) {
+	buf := new(bytes.Buffer)
+	if _, err := buf.ReadFrom(ctx.Request.Body); err != nil {
+		log.Println("An error occurred while reading the request body", err)
+		ctx.Status(http.StatusBadRequest)
+		return "", false
+	}
+	return buf.String(), true
 }

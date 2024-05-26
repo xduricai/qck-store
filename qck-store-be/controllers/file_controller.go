@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"bytes"
 	"database/sql"
 	"fmt"
 	"log"
@@ -106,13 +105,10 @@ func (c *FileController) RenameFile(ctx *gin.Context) {
 		return
 	}
 
-	buf := new(bytes.Buffer)
-	if _, err := buf.ReadFrom(ctx.Request.Body); err != nil {
-		log.Println("An error occurred while reading the request body", err)
-		ctx.Status(http.StatusBadRequest)
+	name, ok := ParseRequestBodyString(ctx)
+	if !ok {
 		return
 	}
-	name := buf.String()
 
 	status := c.fileCommandHandler.RenameFile(name, fileId, id)
 	ctx.Status(status)
@@ -126,13 +122,10 @@ func (c *FileController) MoveFile(ctx *gin.Context) {
 		return
 	}
 
-	buf := new(bytes.Buffer)
-	if _, err := buf.ReadFrom(ctx.Request.Body); err != nil {
-		log.Println("An error occurred while reading the request body", err)
-		ctx.Status(http.StatusBadRequest)
+	folderId, ok := ParseRequestBodyString(ctx)
+	if !ok {
 		return
 	}
-	folderId := buf.String()
 
 	status := c.fileCommandHandler.MoveFile(folderId, fileId, id)
 	ctx.Status(status)

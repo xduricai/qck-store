@@ -6,9 +6,10 @@ type DeleteDialogProps = {
     open: boolean;
     setOpen: (open: boolean) => void;
     deleteFile: (id: number) => unknown;
+    deleteDirectory: (id: number) => unknown;
 }
 
-export function DeleteDialog({open, setOpen, deleteFile}: DeleteDialogProps) {
+export function DeleteDialog({open, setOpen, deleteFile, deleteDirectory}: DeleteDialogProps) {
     const ref = useRef<HTMLDialogElement>(null);
     const { menuStatus, setMenuStatus } = useMenuContext();
     const type = menuStatus!.type;
@@ -18,9 +19,8 @@ export function DeleteDialog({open, setOpen, deleteFile}: DeleteDialogProps) {
     else ref.current?.close();
 
     function handleDelete() {
-        if (type === "file") {
-            deleteFile(id);
-        }
+        if (type === "file") deleteFile(id);
+        if (type === "folder") deleteDirectory(id);
         close();
     }
 

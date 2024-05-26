@@ -76,6 +76,20 @@ export async function renameDirectory(command: RenameCommand) {
     }
 }
 
+export async function deleteDirectory(id: number) {
+    const res = await fetch(`${BaseUrl}/directories/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include"
+    });
+
+    if (res.status !== 200) {
+        throw "An error has occurred while attempting to delete directory"
+    }
+
+    const size: number = await res.json();
+    return size;
+}
+
 //TODO remove
 // function tempData() {
 //     return [

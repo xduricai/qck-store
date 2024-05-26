@@ -47,7 +47,10 @@ export function Home() {
             { queryKey: ["dirs"], queryFn: getRootDirectories },
             {
                 queryKey: ["content", folderId || query || "home" ],
-                queryFn: () => query ? getSearchResults(query) : getDirectoryContent(folderId)
+                queryFn: () => {
+                    console.log(query, folderId)
+                    return query ? getSearchResults(query) : getDirectoryContent(folderId)
+                }
             }
         ]
     });
@@ -63,7 +66,7 @@ export function Home() {
 
             if (folderId !== variables.folderId) return;
 
-            queryClient.setQueryData(["content", folderId], (content: FolderContentResponse) => ({
+            queryClient.setQueryData(["content", folderId], (content: FolderContentResponse) => content && ({
                 ...content,
                 files: [...content.files, file]
             }));
@@ -76,7 +79,7 @@ export function Home() {
         onSuccess: (_, variables) => {
             showSnackbar("File renamed successfully", "success");
 
-            queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => ({
+            queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => content && ({
                 ...content,
                 files: content.files.map(file => 
                     (file.id === variables.id) ? { ...file, name: variables.name } : file
@@ -92,7 +95,7 @@ export function Home() {
             showSnackbar("File moved successfully", "success");
             if (!folderId) return;
 
-            queryClient.setQueryData(["content", folderId], (content: FolderContentResponse) => ({
+            queryClient.setQueryData(["content", folderId], (content: FolderContentResponse) => content && ({
                 ...content,
                 files: content.files.filter(file => file.id !== variables.id)
             }));
@@ -109,7 +112,7 @@ export function Home() {
             user.bytesUsed -= size;
             userContext.setUser(user);
 
-            queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => ({
+            queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => content && ({
                 ...content,
                 files: content.files.filter(file => file.id !== deletedId)
             }));
@@ -121,13 +124,13 @@ export function Home() {
         mutationFn: createDirectory,
         onSuccess: (dir, variables) => {
             showSnackbar("Directory created successfully", "success");
-            queryClient.setQueryData(["dirs"], (dirs: Directory[]) => dirs ? [...dirs, dir] : null);
+            queryClient.setQueryData(["dirs"], (dirs: Directory[]) => dirs && [...dirs, dir]);
 
             const current = folderId === variables.parentId;
             const home = dir.isRoot && !folderId && !query;
             if (!current && !home) return;
 
-            queryClient.setQueryData(["content", folderId || "home"], (content: FolderContentResponse) => ({
+            queryClient.setQueryData(["content", folderId || "home"], (content: FolderContentResponse) => content && ({
                 ...content,
                 directories: [...content.directories, dir]
             }));
@@ -140,18 +143,18 @@ export function Home() {
         onSuccess: (_, variables) => {
             showSnackbar("Directory renamed successfully", "success");
 
-            queryClient.setQueryData(["dirs"], (dirs: Directory[]) => dirs.map(dir => 
+            queryClient.setQueryData(["dirs"], (dirs: Directory[]) => dirs && dirs.map(dir => 
                     (dir.id === variables.id) ? { ...dir, name: variables.name } : dir
-                ));
-
-            queryClient.setQueryData(["content", folderId || query || "home"], (content: FolderContentResponse) => ({
+            ));
+            
+            queryClient.setQueryData(["content", folderId || query || "home"], (content: FolderContentResponse) => content && ({
                 ...content,
                 directories: content.directories.map(dir => 
                     (dir.id === variables.id) ? { ...dir, name: variables.name } : dir
                 )
             }));
         },
-        onError: (err) => showSnackbar(err.toString(), "error")
+        onError: (err) => {showSnackbar(err.toString(), "error"); console.log(err)}
     });
 
     const { mutate: deleteDirectoryMutation } = useMutation({
@@ -163,11 +166,11 @@ export function Home() {
             user.bytesUsed -= size;
             userContext.setUser(user);
 
-            queryClient.setQueryData(["dirs"], (dirs: Directory[]) => 
+            queryClient.setQueryData(["dirs"], (dirs: Directory[]) => dirs &&
                 dirs.filter(dir => dir.id !== deletedId)
             );
 
-            queryClient.setQueryData(["content", folderId || query || "home"], (content: FolderContentResponse) => ({
+            queryClient.setQueryData(["content", folderId || query || "home"], (content: FolderContentResponse) => content && ({
                 ...content,
                 directories: content.directories.filter(dir => dir.id !== deletedId)
             }));

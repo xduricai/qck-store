@@ -11,6 +11,7 @@ import (
 
 type IDirectoryCommandHandler interface {
 	CreateDirectory(folderName, parentId, userId string) (handlers.DirectoryResponse, int)
+	MoveDirectory(folderId, parentId, userId string) int
 	RenameDirectory(folderName, folderId, userId string) int
 	DeleteDirectory(folderId, userId string) (string, int)
 }
@@ -61,6 +62,10 @@ func (h *DirectoryCommandHandler) CreateDirectory(folderName, parentId, userId s
 	}
 
 	return folder, http.StatusOK
+}
+
+func (h *DirectoryCommandHandler) MoveDirectory(folderId, parentId, userId string) int {
+	return http.StatusOK
 }
 
 func (h *DirectoryCommandHandler) RenameDirectory(folderName, folderId, userId string) int {

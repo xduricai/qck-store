@@ -1,5 +1,6 @@
 import { BaseUrl } from "./BaseUrl";
 import { DirectoryCreationCommand } from "./commands/DirectoryCreationCommand";
+import { MoveCommand } from "./commands/MoveCommand";
 import { RenameCommand } from "./commands/RenameCommand";
 import { Directory } from "./responses/Directory";
 import { FolderContentResponse } from "./responses/FolderContentResponse";
@@ -73,7 +74,19 @@ export async function renameDirectory(command: RenameCommand) {
     });
 
     if (res.status !== 200) {
-        throw "An error occurred while renaming file";
+        throw "An error occurred while renaming directory";
+    }
+}
+
+export async function moveDirectory(command: MoveCommand) {
+    const res = await fetch(`${BaseUrl}/directories/move/${command.id}`, {
+        method: "PUT",
+        body: command.folderId.toString(),
+        credentials: "include"
+    });
+
+    if (res.status !== 200) {
+        throw "An error occurred while moving directory";
     }
 }
 

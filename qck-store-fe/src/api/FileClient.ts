@@ -1,6 +1,6 @@
 import { BaseUrl } from "./BaseUrl";
 import { FileUploadCommand } from "./commands/FIleUploadCommand";
-import { FileMoveCommand } from "./commands/FileMoveCommand";
+import { MoveCommand } from "./commands/MoveCommand";
 import { RenameCommand } from "./commands/RenameCommand";
 import { File as FileResponse } from "./responses/File";
 
@@ -46,7 +46,7 @@ export async function renameFile(command: RenameCommand) {
     }
 }
 
-export async function moveFile(command: FileMoveCommand) {
+export async function moveFile(command: MoveCommand) {
     const res = await fetch(`${BaseUrl}/files/move/${command.id}`, {
         method: "PUT",
         body: command.folderId.toString(),

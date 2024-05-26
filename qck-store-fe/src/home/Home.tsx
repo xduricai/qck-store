@@ -1,6 +1,6 @@
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Sidenav } from "../navigation/Sidenav";
-import { getDirectoryContent, getRootDirectories, getSearchResults, createDirectory, renameDirectory, deleteDirectory } from "../api/DirectoryClient";
+import { getDirectoryContent, getRootDirectories, getSearchResults, createDirectory, renameDirectory, deleteDirectory, moveDirectory } from "../api/DirectoryClient";
 import { useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
@@ -154,6 +154,20 @@ export function Home() {
         onError: (err) => showSnackbar(err.toString(), "error")
     });
 
+    const { mutate: moveDirectoryMutation } = useMutation({
+        mutationFn: moveDirectory,
+        onSuccess: (_, variables) => {
+            showSnackbar("Directory moved successfully", "success");
+            //UPDATE ALL PATHS
+
+            // queryClient.setQueryData(["content", folderId], (content: FolderContentResponse) => content && ({
+            //     ...content,
+            //     files: content.files.filter(file => file.id !== variables.id)
+            // }));
+        },
+        onError: (err) => showSnackbar(err.toString(), "error")
+    });
+
     const { mutate: deleteDirectoryMutation } = useMutation({
         mutationFn: deleteDirectory,
         onSuccess: (res) => {
@@ -246,7 +260,7 @@ export function Home() {
             </section>
         </div>
         {!!menuStatus && <>
-            <ContextMenu dirs={dirs.data || []} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} moveFile={moveFileMutation} />
+            <ContextMenu dirs={dirs.data || []} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} moveFile={moveFileMutation} moveDirectory={moveDirectoryMutation} />
             <DetailsDialog open={detailsOpen} setOpen={setDetailsOpen} />
             <RenameDialog open={renameOpen} setOpen={setRenameOpen} renameFile={renameFileMutation} renameDirectory={renameDirectoryMutation} />
             <DeleteDialog open={deleteOpen} setOpen={setDeleteOpen} deleteFile={deleteFileMutation} deleteDirectory={deleteDirectoryMutation} />

@@ -37,7 +37,7 @@ func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryContr
 		routes.GET("/all", controller.GetAll)
 		routes.GET("/content/:folderId", controller.GetFolderContent)
 		routes.POST("create/:parentId", controller.CreateDirectory)
-		routes.PUT("/move/:folderId")
+		routes.PUT("/move/:folderId", controller.MoveDirectory)
 		routes.PATCH("/rename/:folderId", controller.RenameDirectory)
 		routes.DELETE("/delete/:folderId", controller.DeleteDirectory)
 	}
@@ -99,6 +99,23 @@ func (c *DirectoryController) CreateDirectory(ctx *gin.Context) {
 
 	folder, status := c.directoryCommandHandler.CreateDirectory(folderName, parentId, id)
 	ctx.JSON(status, folder)
+}
+
+func (c *DirectoryController) MoveDirectory(ctx *gin.Context) {
+	folderId := ctx.Param("folderId")
+	id, ok := GetUserId(ctx)
+	if !ok {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	parentId, ok := ParseRequestBodyString(ctx)
+	if !ok {
+		return
+	}
+
+	status := c.directoryCommandHandler.MoveDirectory(folderId, parentId, id)
+	ctx.Status(status)
 }
 
 func (c *DirectoryController) RenameDirectory(ctx *gin.Context) {

@@ -1,4 +1,4 @@
-export type FileMoveCommand = {
+export type MoveCommand = {
     id: number;
     folderId: number;
 }

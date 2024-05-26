@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Directory } from "../api/responses/Directory";
 import { useParams } from "react-router-dom";
 import { BaseUrl } from "../api/BaseUrl";
-import { FileMoveCommand } from "../api/commands/FileMoveCommand";
+import { MoveCommand } from "../api/commands/MoveCommand";
 import { ContextMenuStatus, useMenuContext } from "../global/MenuContext";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import './home.css';
@@ -63,10 +63,11 @@ type ContextMenuProps = {
     setDetails: (open: boolean) => void;
     setRename: (open: boolean) => void;
     setDelete: (open: boolean) => void;
-    moveFile: (command: FileMoveCommand) => void;
+    moveFile: (command: MoveCommand) => unknown;
+    moveDirectory: (command: MoveCommand) => unknown;
 }
 
-export function ContextMenu({ dirs, setDetails, setRename, setDelete, moveFile }: ContextMenuProps) {   
+export function ContextMenu({ dirs, setDetails, setRename, setDelete, moveFile, moveDirectory }: ContextMenuProps) {   
     const { folderId } = useParams();
     const currentId = parseInt(folderId || "");
     const { menuStatus, setMenuStatus } = useMenuContext() as { menuStatus: ContextMenuStatus, setMenuStatus };
@@ -103,8 +104,7 @@ export function ContextMenu({ dirs, setDetails, setRename, setDelete, moveFile }
 
     function moveItem(folderId: number) {
         if (menuStatus.type === "file") moveFile({ id: menuStatus.item.id, folderId });
-        // TODO
-        // if (menuStatus.type === "folder") moveFolder({ id: menuStatus.item.id, folderId });
+        if (menuStatus.type === "folder") moveDirectory({ id: menuStatus.item.id, folderId });
         setMenuStatus(null);
     }
 

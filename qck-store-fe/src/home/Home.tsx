@@ -47,10 +47,7 @@ export function Home() {
             { queryKey: ["dirs"], queryFn: getRootDirectories },
             {
                 queryKey: ["content", folderId || query || "home" ],
-                queryFn: () => {
-                    console.log(query, folderId)
-                    return query ? getSearchResults(query) : getDirectoryContent(folderId)
-                }
+                queryFn: () => query ? getSearchResults(query) : getDirectoryContent(folderId)
             }
         ]
     });
@@ -154,25 +151,25 @@ export function Home() {
                 )
             }));
         },
-        onError: (err) => {showSnackbar(err.toString(), "error"); console.log(err)}
+        onError: (err) => showSnackbar(err.toString(), "error")
     });
 
     const { mutate: deleteDirectoryMutation } = useMutation({
         mutationFn: deleteDirectory,
-        onSuccess: (size, deletedId) => {
+        onSuccess: (res) => {
             showSnackbar("Directory deleted successfully", "success");
 
             const user = {...userContext.user!};
-            user.bytesUsed -= size;
+            user.bytesUsed -= res.size;
             userContext.setUser(user);
 
             queryClient.setQueryData(["dirs"], (dirs: Directory[]) => dirs &&
-                dirs.filter(dir => dir.id !== deletedId)
+                dirs.filter(dir => !dir.path.startsWith(res.path))
             );
 
             queryClient.setQueryData(["content", folderId || query || "home"], (content: FolderContentResponse) => content && ({
                 ...content,
-                directories: content.directories.filter(dir => dir.id !== deletedId)
+                directories: content.directories.filter(dir => !dir.path.startsWith(res.path))
             }));
         },
         onError: (err) => showSnackbar(err.toString(), "error")
@@ -220,7 +217,7 @@ export function Home() {
         <div className="flex h-[calc(100%-4rem)] w-full bg-gray-100" onClick={() => closeMenus()}>
             <section className="h-full flex">
                 <Sidenav directories={rootDirs} selectedId={parseId(folderId)} addOpen={addOpen} setAddOpen={setAddOpen} setDialogStatus={setItemDialogStatus} />
-                <NewItemDialog dirs={[...dirs.data || []]} folderId={folderId} status={itemDialogStatus} setStatus={setItemDialogStatus} uploadFile={uploadFileMutation} createDirectory={createDirectoryMutation} />
+                <NewItemDialog dirs={[...dirs.data || []]} status={itemDialogStatus} setStatus={setItemDialogStatus} uploadFile={uploadFileMutation} createDirectory={createDirectoryMutation} />
             </section>
 
             <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">

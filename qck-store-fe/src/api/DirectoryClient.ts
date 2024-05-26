@@ -3,6 +3,7 @@ import { DirectoryCreationCommand } from "./commands/DirectoryCreationCommand";
 import { RenameCommand } from "./commands/RenameCommand";
 import { Directory } from "./responses/Directory";
 import { FolderContentResponse } from "./responses/FolderContentResponse";
+import { FolderDeletionResponse } from "./responses/FolderDeletionResponse";
 
 export async function getRootDirectories() {
     const res = await fetch(`${BaseUrl}/directories/all`, {
@@ -86,8 +87,8 @@ export async function deleteDirectory(id: number) {
         throw "An error has occurred while attempting to delete directory"
     }
 
-    const size: number = await res.json();
-    return size;
+    const deletionRes: FolderDeletionResponse = await res.json();
+    return deletionRes;
 }
 
 //TODO remove

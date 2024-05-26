@@ -5,29 +5,28 @@ import { Directory } from "../../api/responses/Directory";
 import { FileUploadCommand } from "../../api/commands/FIleUploadCommand";
 import { ItemType } from "../../global/MenuContext";
 import { DirectoryCreationCommand } from "../../api/commands/DirectoryCreationCommand";
+import { useParams } from "react-router-dom";
 
 type NewItemDialogProps = {
     status: ItemType | null;
     setStatus: (status: ItemType | null) => void;
     dirs: Directory[];
-    folderId?: string;
     uploadFile: (command: FileUploadCommand) => unknown;
     createDirectory: (command: DirectoryCreationCommand) => unknown;
 }
 
-export function NewItemDialog({status, setStatus, dirs, folderId, uploadFile, createDirectory}: NewItemDialogProps) {
+export function NewItemDialog({status, setStatus, dirs, uploadFile, createDirectory}: NewItemDialogProps) {
+    const { folderId } = useParams();
     const [ name, setName ] = useState<string>("");
     const [ folder, setFolder ] = useState<string>("");
     const [ file, setFile ] = useState<File | null>(null);
     const ref = useRef<HTMLDialogElement>(null);
 
     useEffect(() => {
-        const id = parseInt(folderId || "");
-
-        if (id > 0) setFolder(id.toString());
-        else if (status === "folder") setFolder("");
+        if (folderId) setFolder(folderId);
+        else if (status === "folder") setFolder("-1");
         else setFolder(dirs[0]?.id.toString() || "");
-    }, [status, folderId]);    
+    }, [status, folderId, dirs]);    
 
     if (status) ref.current?.showModal();
     else ref.current?.close();

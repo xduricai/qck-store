@@ -1,4 +1,4 @@
-export type FileRenameCommand = {
+export type RenameCommand = {
     id: number;
     name: string;
 }

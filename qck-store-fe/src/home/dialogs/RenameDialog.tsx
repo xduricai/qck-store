@@ -1,16 +1,17 @@
 import { KeyboardEvent, useRef, useState } from "react";
 import { Button } from "../../shared/Button";
 import { Input } from "../../shared/Input";
-import { FileRenameCommand } from "../../api/commands/FileRenameCommand";
+import { RenameCommand } from "../../api/commands/RenameCommand";
 import { useMenuContext } from "../../global/MenuContext";
 
 type RenameDialogProps = {
     open: boolean;
     setOpen: (open: boolean) => void;
-    renameFile: (command: FileRenameCommand) => unknown;
+    renameFile: (command: RenameCommand) => unknown;
+    renameDirectory: (command: RenameCommand) => unknown;
 }
 
-export function RenameDialog({open, setOpen, renameFile}: RenameDialogProps) {
+export function RenameDialog({open, setOpen, renameFile, renameDirectory}: RenameDialogProps) {
     const [ name, setName ] = useState<string>("");
     const ref = useRef<HTMLDialogElement>(null);
 
@@ -27,9 +28,8 @@ export function RenameDialog({open, setOpen, renameFile}: RenameDialogProps) {
     }
     
     function handleSubmit() {
-        // TODO implement
         if (type === "file") renameFile({id, name});
-
+        if (type === "folder") renameDirectory({id, name});
         setName("");
         close();
     }

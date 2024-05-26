@@ -1,5 +1,6 @@
 import { BaseUrl } from "./BaseUrl";
 import { DirectoryCreationCommand } from "./commands/DirectoryCreationCommand";
+import { RenameCommand } from "./commands/RenameCommand";
 import { Directory } from "./responses/Directory";
 import { FolderContentResponse } from "./responses/FolderContentResponse";
 
@@ -61,6 +62,18 @@ export async function createDirectory(command: DirectoryCreationCommand) {
 
     const dir: Directory = await res.json();
     return dir;
+}
+
+export async function renameDirectory(command: RenameCommand) {
+    const res = await fetch(`${BaseUrl}/directories/rename/${command.id}`, {
+        method: "PATCH",
+        body: command.name,
+        credentials: "include"
+    });
+
+    if (res.status !== 200) {
+        throw "An error occurred while renaming file";
+    }
 }
 
 //TODO remove

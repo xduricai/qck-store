@@ -1,6 +1,6 @@
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Sidenav } from "../navigation/Sidenav";
-import { getDirectoryContent, getRootDirectories, getSearchResults, createDirectory } from "../api/DirectoryClient";
+import { getDirectoryContent, getRootDirectories, getSearchResults, createDirectory, renameDirectory } from "../api/DirectoryClient";
 import { useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
@@ -68,7 +68,7 @@ export function Home() {
                 return {
                     ...content,
                     files: [...content.files, file]
-                }
+                };
             });
         },
         onError: (err) => showSnackbar(err.toString(), "error")
@@ -76,7 +76,6 @@ export function Home() {
 
     const { mutate: renameFileMutation } = useMutation({
         mutationFn: renameFile,
-        throwOnError: true,
         onSuccess: (_, variables) => {
             showSnackbar("File renamed successfully", "success");
 
@@ -88,7 +87,7 @@ export function Home() {
                     files: content.files.map(file => 
                         (file.id === variables.id) ? { ...file, name: variables.name } : file
                     )
-                }
+                };
             });
         },
         onError: (err) => showSnackbar(err.toString(), "error")
@@ -106,7 +105,7 @@ export function Home() {
                 return {
                     ...content,
                     files: content.files.filter(file => file.id !== variables.id)
-                }
+                };
             });
         },
         onError: (err) => showSnackbar(err.toString(), "error")
@@ -126,13 +125,11 @@ export function Home() {
                 return {
                     ...content,
                     files: content.files.filter(file => file.id !== deletedId)
-                }
+                };
             });
         },
         onError: (err) => showSnackbar(err.toString(), "error")
     });  
-
-
     const { mutate: createDirectoryMutation } = useMutation({
         mutationFn: createDirectory,
         onSuccess: (dir, variables) => {
@@ -148,7 +145,34 @@ export function Home() {
                 return {
                     ...content,
                     directories: [...content.directories, dir]
-                }
+                };
+            });
+        },
+        onError: (err) => showSnackbar(err.toString(), "error")
+    });
+
+    const { mutate: renameDirectoryMutation } = useMutation({
+        mutationFn: renameDirectory,
+        onSuccess: (_, variables) => {
+            showSnackbar("Directory renamed successfully", "success");
+
+            queryClient.setQueryData(["dirs"], (dirs: Directory[]) => {
+                if (!dirs) return null;
+
+                return dirs.map(dir => 
+                        (dir.id === variables.id) ? { ...dir, name: variables.name } : dir
+                    );
+            });
+
+            queryClient.setQueryData(["content", folderId || query || "home"], (content: FolderContentResponse) => {
+                if (!content) return null;
+
+                return {
+                    ...content,
+                    directories: content.directories.map(dir => 
+                        (dir.id === variables.id) ? { ...dir, name: variables.name } : dir
+                    )
+                };
             });
         },
         onError: (err) => showSnackbar(err.toString(), "error")
@@ -227,7 +251,7 @@ export function Home() {
         {!!menuStatus && <>
             <ContextMenu dirs={dirs.data || []} setDetails={setDetailsOpen} setRename={setRenameOpen} setDelete={setDeleteOpen} moveFile={moveFileMutation} />
             <DetailsDialog open={detailsOpen} setOpen={setDetailsOpen} />
-            <RenameDialog open={renameOpen} setOpen={setRenameOpen} renameFile={renameFileMutation} />
+            <RenameDialog open={renameOpen} setOpen={setRenameOpen} renameFile={renameFileMutation} renameDirectory={renameDirectoryMutation} />
             <DeleteDialog open={deleteOpen} setOpen={setDeleteOpen} deleteFile={deleteFileMutation} />
         </>}
         </ContextMenuContext.Provider>

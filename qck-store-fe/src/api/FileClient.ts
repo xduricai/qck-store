@@ -1,7 +1,7 @@
 import { BaseUrl } from "./BaseUrl";
 import { FileUploadCommand } from "./commands/FIleUploadCommand";
 import { FileMoveCommand } from "./commands/FileMoveCommand";
-import { FileRenameCommand } from "./commands/FileRenameCommand";
+import { RenameCommand } from "./commands/RenameCommand";
 import { File as FileResponse } from "./responses/File";
 
 export async function downloadFile(id: number) {
@@ -34,7 +34,7 @@ export async function uploadFile(command: FileUploadCommand) {
     return fileRes;
 }
 
-export async function renameFile(command: FileRenameCommand) {
+export async function renameFile(command: RenameCommand) {
     const res = await fetch(`${BaseUrl}/files/rename/${command.id}`, {
         method: "PATCH",
         body: command.name,

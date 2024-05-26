@@ -11,8 +11,8 @@ type NewItemDialogProps = {
     setStatus: (status: ItemType | null) => void;
     dirs: Directory[];
     folderId?: string;
-    uploadFile: (command: FileUploadCommand) => any;
-    createDirectory: (command: DirectoryCreationCommand) => any;
+    uploadFile: (command: FileUploadCommand) => unknown;
+    createDirectory: (command: DirectoryCreationCommand) => unknown;
 }
 
 export function NewItemDialog({status, setStatus, dirs, folderId, uploadFile, createDirectory}: NewItemDialogProps) {

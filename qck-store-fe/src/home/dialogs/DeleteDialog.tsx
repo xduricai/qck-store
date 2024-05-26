@@ -5,7 +5,7 @@ import { useMenuContext } from "../../global/MenuContext";
 type DeleteDialogProps = {
     open: boolean;
     setOpen: (open: boolean) => void;
-    deleteFile: (id: number) => any;
+    deleteFile: (id: number) => unknown;
 }
 
 export function DeleteDialog({open, setOpen, deleteFile}: DeleteDialogProps) {

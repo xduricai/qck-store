@@ -10,7 +10,7 @@ import './home.css';
 type MenuItemProps = {
     children: ReactNode;
     className?: string;
-    onClick?: () => any;
+    onClick?: () => unknown;
 }
 
 function getPosX(point: number, size: number, screenSize: number) {

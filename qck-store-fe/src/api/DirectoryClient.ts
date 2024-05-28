@@ -80,7 +80,7 @@ export async function renameDirectory(command: RenameCommand) {
 }
 
 export async function moveDirectory(command: MoveCommand) {
-    const res = await fetch(`${BaseUrl}/directories/move/${command.id}`, {
+    const res = await fetch(`${BaseUrl}/directories/move/${command.itemId}`, {
         method: "PUT",
         body: command.folderId.toString(),
         credentials: "include"

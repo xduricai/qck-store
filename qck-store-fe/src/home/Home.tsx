@@ -94,7 +94,7 @@ export function Home() {
 
             queryClient.setQueryData(["content", folderId], (content: FolderContentResponse) => content && ({
                 ...content,
-                files: content.files.filter(file => file.id !== variables.id)
+                files: content.files.filter(file => file.id !== variables.itemId)
             }));
         },
         onError: (err) => showSnackbar(err.toString(), "error")
@@ -153,17 +153,32 @@ export function Home() {
         },
         onError: (err) => showSnackbar(err.toString(), "error")
     });
-
+    // TODO update modified on all mutations
     const { mutate: moveDirectoryMutation } = useMutation({
         mutationFn: moveDirectory,
-        onSuccess: (_, variables) => {
+        onSuccess: (res, variables) => {
             showSnackbar("Directory moved successfully", "success");
-            //UPDATE ALL PATHS
 
-            // queryClient.setQueryData(["content", folderId], (content: FolderContentResponse) => content && ({
-            //     ...content,
-            //     files: content.files.filter(file => file.id !== variables.id)
-            // }));
+            queryClient.setQueryData(["dirs"], (dirs: Directory[]) => dirs && dirs.map(
+                dir => {
+                    if (!dir.path.startsWith(res.oldPath)) return dir;
+ 
+                    const path = dir.path.replace(res.oldPath, res.newPath);
+                    const isRoot = path.split("/").length === 2;
+                    
+                    return {
+                        ...dir,
+                        path,
+                        isRoot
+                    };
+                }
+            ));
+            if (query) return;
+            
+            queryClient.setQueryData(["content", folderId || "home"], (content: FolderContentResponse) => content && ({
+                ...content,
+                directories: content.directories.filter(file => file.id !== variables.itemId)
+            }));
         },
         onError: (err) => showSnackbar(err.toString(), "error")
     });

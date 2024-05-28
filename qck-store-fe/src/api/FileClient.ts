@@ -47,7 +47,7 @@ export async function renameFile(command: RenameCommand) {
 }
 
 export async function moveFile(command: MoveCommand) {
-    const res = await fetch(`${BaseUrl}/files/move/${command.id}`, {
+    const res = await fetch(`${BaseUrl}/files/move/${command.itemId}`, {
         method: "PUT",
         body: command.folderId.toString(),
         credentials: "include"

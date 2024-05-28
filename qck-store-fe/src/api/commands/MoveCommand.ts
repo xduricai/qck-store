@@ -1,4 +1,4 @@
 export type MoveCommand = {
-    id: number;
+    itemId: number;
     folderId: number;
 }

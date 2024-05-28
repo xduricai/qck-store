@@ -103,8 +103,8 @@ export function ContextMenu({ dirs, setDetails, setRename, setDelete, moveFile, 
     }
 
     function moveItem(folderId: number) {
-        if (menuStatus.type === "file") moveFile({ id: menuStatus.item.id, folderId });
-        if (menuStatus.type === "folder") moveDirectory({ id: menuStatus.item.id, folderId });
+        if (menuStatus.type === "file") moveFile({ itemId: menuStatus.item.id, folderId });
+        if (menuStatus.type === "folder") moveDirectory({ itemId: menuStatus.item.id, folderId });
         setMenuStatus(null);
     }
 

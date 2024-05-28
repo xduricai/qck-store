@@ -11,7 +11,7 @@ import (
 
 type IDirectoryCommandHandler interface {
 	CreateDirectory(folderName, parentId, userId string) (handlers.DirectoryResponse, int)
-	MoveDirectory(folderId, parentId, userId string) int
+	MoveDirectory(folderId, parentId, userId string) (handlers.DirectoryMoveResponse, int)
 	RenameDirectory(folderName, folderId, userId string) int
 	DeleteDirectory(folderId, userId string) (string, int)
 }
@@ -64,8 +64,42 @@ func (h *DirectoryCommandHandler) CreateDirectory(folderName, parentId, userId s
 	return folder, http.StatusOK
 }
 
-func (h *DirectoryCommandHandler) MoveDirectory(folderId, parentId, userId string) int {
-	return http.StatusOK
+func (h *DirectoryCommandHandler) MoveDirectory(folderId, parentId, userId string) (handlers.DirectoryMoveResponse, int) {
+	var res handlers.DirectoryMoveResponse
+	var oldPath string
+	var parentPath string
+
+	query := "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
+	if err := h.db.QueryRow(query, folderId, userId).Scan(&oldPath); err != nil {
+		log.Println("Could not retrieve the folder chosen to be moved", err)
+		return res, http.StatusNotFound
+	}
+
+	query = "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
+	if err := h.db.QueryRow(query, parentId, userId).Scan(&parentPath); err != nil {
+		log.Println("Could not retrieve the destination folder while attempting to move folder", err)
+		return res, http.StatusNotFound
+	}
+
+	formattedPath := fmt.Sprint(oldPath, "%")
+	newPath := fmt.Sprint(parentPath, folderId, "/")
+	currentTime := handlers.GetUTCTime()
+
+	query = "UPDATE Directories SET Path = REPLACE(Path, $1, $2), ParentId = $3, LastModified = $4, WHERE UserId = $5 AND Path LIKE $6"
+	if _, err := h.db.Query(query, oldPath, newPath, parentId, currentTime, userId, formattedPath); err != nil {
+		log.Println("An error occurred while attempting to move directories", err)
+		return res, http.StatusInternalServerError
+	}
+
+	query = "UPDATE Files SET Path = REPLACE(Path, $1, $2), LastModified = $3, WHERE UserId = $4 AND Path LIKE $5"
+	if _, err := h.db.Query(query, oldPath, newPath, currentTime, userId, formattedPath); err != nil {
+		log.Println("An error occurred while attempting to move files", err)
+		return res, http.StatusInternalServerError
+	}
+
+	res.OldPath = oldPath
+	res.NewPath = newPath
+	return res, http.StatusOK
 }
 
 func (h *DirectoryCommandHandler) RenameDirectory(folderName, folderId, userId string) int {

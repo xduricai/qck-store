@@ -3,6 +3,7 @@ import { DirectoryCreationCommand } from "./commands/DirectoryCreationCommand";
 import { MoveCommand } from "./commands/MoveCommand";
 import { RenameCommand } from "./commands/RenameCommand";
 import { Directory } from "./responses/Directory";
+import { DirectoryMoveResponse } from "./responses/DirectoryMoveResponse";
 import { FolderContentResponse } from "./responses/FolderContentResponse";
 import { FolderDeletionResponse } from "./responses/FolderDeletionResponse";
 
@@ -85,9 +86,15 @@ export async function moveDirectory(command: MoveCommand) {
         credentials: "include"
     });
 
+    if (res.status === 404) {
+        throw "Unable to find target directory";
+    }
     if (res.status !== 200) {
         throw "An error occurred while moving directory";
     }
+
+    const moveRes: DirectoryMoveResponse = await res.json();
+    return moveRes;
 }
 
 export async function deleteDirectory(id: number) {

@@ -151,11 +151,3 @@ func (c *FileController) DeleteFile(ctx *gin.Context) {
 	}
 	ctx.JSON(status, size)
 }
-
-/* TODO remove
-UPDATE Cars
-SET Name = REPLACE(Name, 'train', 'plane')
-WHERE name LIKE 'train%';
-
-SELECT * FROM Cars;
-*/

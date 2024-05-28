@@ -26,6 +26,11 @@ type DirectoryContentResponse struct {
 	Directories []DirectoryResponse `json:"directories"`
 }
 
+type DirectoryMoveResponse struct {
+	OldPath string `json:"oldPath"`
+	NewPath string `json:"newPath"`
+}
+
 type DirectoryDeletionResponse struct {
 	Size int    `json:"size"`
 	Path string `json:"path"`

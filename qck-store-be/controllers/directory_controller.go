@@ -114,8 +114,11 @@ func (c *DirectoryController) MoveDirectory(ctx *gin.Context) {
 		return
 	}
 
-	status := c.directoryCommandHandler.MoveDirectory(folderId, parentId, id)
-	ctx.Status(status)
+	res, status := c.directoryCommandHandler.MoveDirectory(folderId, parentId, id)
+	if status != http.StatusOK {
+		ctx.Status(status)
+	}
+	ctx.JSON(status, res)
 }
 
 func (c *DirectoryController) RenameDirectory(ctx *gin.Context) {

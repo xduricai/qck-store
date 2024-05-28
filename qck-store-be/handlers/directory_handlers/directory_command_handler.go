@@ -75,23 +75,36 @@ func (h *DirectoryCommandHandler) MoveDirectory(folderId, parentId, userId strin
 		return res, http.StatusNotFound
 	}
 
-	query = "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
-	if err := h.db.QueryRow(query, parentId, userId).Scan(&parentPath); err != nil {
-		log.Println("Could not retrieve the destination folder while attempting to move folder", err)
-		return res, http.StatusNotFound
+	if parentId != "-1" {
+		query = "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
+		if err := h.db.QueryRow(query, parentId, userId).Scan(&parentPath); err != nil {
+			log.Println("Could not retrieve the destination folder while attempting to move folder", err)
+			return res, http.StatusNotFound
+		}
+	}
+
+	formattedParentId := sql.NullString{
+		String: parentId,
+		Valid:  parentId != "-1",
+	}
+
+	query = "UPDATE Directories SET ParentId = $1 WHERE Id = $2 AND UserId = $3"
+	if _, err := h.db.Query(query, formattedParentId, folderId, userId); err != nil {
+		log.Println("An error occurred while updating directory Parent ID", err)
+		return res, http.StatusInternalServerError
 	}
 
 	formattedPath := fmt.Sprint(oldPath, "%")
 	newPath := fmt.Sprint(parentPath, folderId, "/")
 	currentTime := handlers.GetUTCTime()
 
-	query = "UPDATE Directories SET Path = REPLACE(Path, $1, $2), ParentId = $3, LastModified = $4, WHERE UserId = $5 AND Path LIKE $6"
-	if _, err := h.db.Query(query, oldPath, newPath, parentId, currentTime, userId, formattedPath); err != nil {
+	query = "UPDATE Directories SET Path = REPLACE(Path, $1, $2), LastModified = $3 WHERE UserId = $4 AND Path LIKE $5"
+	if _, err := h.db.Query(query, oldPath, newPath, currentTime, userId, formattedPath); err != nil {
 		log.Println("An error occurred while attempting to move directories", err)
 		return res, http.StatusInternalServerError
 	}
 
-	query = "UPDATE Files SET Path = REPLACE(Path, $1, $2), LastModified = $3, WHERE UserId = $4 AND Path LIKE $5"
+	query = "UPDATE Files SET Path = REPLACE(Path, $1, $2), LastModified = $3 WHERE UserId = $4 AND Path LIKE $5"
 	if _, err := h.db.Query(query, oldPath, newPath, currentTime, userId, formattedPath); err != nil {
 		log.Println("An error occurred while attempting to move files", err)
 		return res, http.StatusInternalServerError

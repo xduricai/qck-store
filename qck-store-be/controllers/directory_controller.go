@@ -122,6 +122,7 @@ func (c *DirectoryController) MoveDirectory(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
+	defer tx.Rollback()
 
 	res, status := c.directoryCommandHandler.MoveDirectory(folderId, parentId, id, ctx, tx)
 	if status != http.StatusOK {

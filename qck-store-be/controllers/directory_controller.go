@@ -19,6 +19,7 @@ type DirectoryController struct {
 	directoryCommandHandler dirh.IDirectoryCommandHandler
 	fileQueryHandler        fileh.IFileQueryHandler
 	fileCommandHandler      fileh.IFileCommandHandler
+	db                      *sql.DB
 	fileSrc                 string
 }
 
@@ -28,6 +29,7 @@ func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryContr
 		directoryCommandHandler: dirh.NewDirectoryCommandHandler(db),
 		fileQueryHandler:        fileh.NewFileQueryHandler(db),
 		fileCommandHandler:      fileh.NewFileCommandHandler(db),
+		db:                      db,
 		fileSrc:                 os.Getenv("FILESRC"),
 	}
 
@@ -35,7 +37,7 @@ func RegisterDirectoryController(db *sql.DB, server *gin.Engine) *DirectoryContr
 	routes.Use(mw.Authenticate)
 	{
 		routes.GET("/all", controller.GetAll)
-		routes.GET("/content/:folderId", controller.GetFolderContent)
+		routes.GET("/content/:folderId", controller.GetDirectoryContent)
 		routes.POST("create/:parentId", controller.CreateDirectory)
 		routes.PUT("/move/:folderId", controller.MoveDirectory)
 		routes.PATCH("/rename/:folderId", controller.RenameDirectory)
@@ -56,7 +58,7 @@ func (c *DirectoryController) GetAll(ctx *gin.Context) {
 	ctx.JSON(status, dirs)
 }
 
-func (c *DirectoryController) GetFolderContent(ctx *gin.Context) {
+func (c *DirectoryController) GetDirectoryContent(ctx *gin.Context) {
 	id, ok := GetUserId(ctx)
 	folderId := ctx.Param("folderId")
 
@@ -114,10 +116,24 @@ func (c *DirectoryController) MoveDirectory(ctx *gin.Context) {
 		return
 	}
 
-	res, status := c.directoryCommandHandler.MoveDirectory(folderId, parentId, id)
+	tx, err := c.db.BeginTx(ctx, nil)
+	if err != nil {
+		log.Println("An error occurred when creating transaction", err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	res, status := c.directoryCommandHandler.MoveDirectory(folderId, parentId, id, ctx, tx)
 	if status != http.StatusOK {
 		ctx.Status(status)
 	}
+
+	if err := tx.Commit(); err != nil {
+		log.Println("An error occurred when commiting transaction", err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
 	ctx.JSON(status, res)
 }
 
@@ -146,15 +162,29 @@ func (c *DirectoryController) DeleteDirectory(ctx *gin.Context) {
 		return
 	}
 
-	ids, size, status := c.fileCommandHandler.DeleteDirectoryChildren(folderId, id)
+	tx, err := c.db.BeginTx(ctx, nil)
+	if err != nil {
+		log.Println("An error occurred when creating transaction", err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	ids, size, status := c.fileCommandHandler.DeleteDirectoryChildren(folderId, id, ctx, tx)
 	if status != http.StatusOK {
 		ctx.Status(status)
 		return
 	}
 
-	path, status := c.directoryCommandHandler.DeleteDirectory(folderId, id)
+	path, status := c.directoryCommandHandler.DeleteDirectory(folderId, id, ctx, tx)
 	if status != http.StatusOK {
 		ctx.Status(status)
+		return
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Println("An error occurred when commiting transaction", err)
+		ctx.Status(http.StatusInternalServerError)
 		return
 	}
 

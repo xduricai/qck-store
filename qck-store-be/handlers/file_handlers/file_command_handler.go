@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/xduricai/qck-store/qck-store-be/handlers"
 )
 
@@ -14,7 +15,7 @@ type IFileCommandHandler interface {
 	RenameFile(fileName, fileId, userId string) int
 	MoveFile(folderId, fileId, userId string) int
 	DeleteFile(fileId, userId string) (int, int)
-	DeleteDirectoryChildren(folderId, userId string) ([]int, int, int)
+	DeleteDirectoryChildren(folderId, userId string, ctx *gin.Context, tx *sql.Tx) ([]int, int, int)
 }
 
 type FileCommandHandler struct {
@@ -52,7 +53,7 @@ func (h *FileCommandHandler) UploadFile(fileName, folderId, userId string, size 
 	}
 
 	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed + $1 WHERE Id = $2;"
-	if err := h.db.QueryRow(query, size, userId).Scan(); err != nil && err != sql.ErrNoRows {
+	if _, err := h.db.Exec(query, size, userId); err != nil {
 		log.Println("An error occurred while adjusting total number of bytes used for user", err)
 	}
 
@@ -63,7 +64,7 @@ func (h *FileCommandHandler) RenameFile(fileName, fileId, userId string) int {
 	query := "UPDATE Files SET Name = $1, LastModified = $2 WHERE Id = $3 AND UserId = $4"
 	currentTime := handlers.GetUTCTime()
 
-	if err := h.db.QueryRow(query, fileName, currentTime, fileId, userId).Scan(); err != nil && err != sql.ErrNoRows {
+	if _, err := h.db.Exec(query, fileName, currentTime, fileId, userId); err != nil {
 		log.Println("An error occurred while renaming file", err)
 		return http.StatusInternalServerError
 	}
@@ -82,8 +83,7 @@ func (h *FileCommandHandler) MoveFile(folderId, fileId, userId string) int {
 	query = "UPDATE Files SET DirectoryId = $1, Path = $2, LastModified = $3 WHERE Id = $4 AND UserId = $5"
 	currentTime := handlers.GetUTCTime()
 
-	if err := h.db.QueryRow(query, folderId, newPath, currentTime, fileId, userId).
-		Scan(); err != nil && err != sql.ErrNoRows {
+	if _, err := h.db.Exec(query, folderId, newPath, currentTime, fileId, userId); err != nil {
 		log.Println("An error occurred while moving file", err)
 		return http.StatusInternalServerError
 	}
@@ -100,31 +100,32 @@ func (h *FileCommandHandler) DeleteFile(fileId, userId string) (int, int) {
 	}
 
 	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed - $1 WHERE Id = $2"
-	if err := h.db.QueryRow(query, size, userId).Scan(); err != nil && err != sql.ErrNoRows {
+	if _, err := h.db.Exec(query, size, userId); err != nil {
 		log.Println("An error occurred while adjusting total number of bytes used for user", err)
 	}
 
 	return size, http.StatusOK
 }
 
-func (h *FileCommandHandler) DeleteDirectoryChildren(folderId, userId string) ([]int, int, int) {
+func (h *FileCommandHandler) DeleteDirectoryChildren(folderId, userId string, ctx *gin.Context, tx *sql.Tx) ([]int, int, int) {
 	var rows *sql.Rows
 	var path string
 	var totalSize int
 	ids := []int{}
 
 	query := "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
-	if err := h.db.QueryRow(query, folderId, userId).Scan(&path); err != nil {
+	if err := tx.QueryRowContext(ctx, query, folderId, userId).Scan(&path); err != nil {
 		log.Println("Could not retrieve directory for deletion", err)
 		return ids, totalSize, http.StatusNotFound
 	}
 	path = fmt.Sprint(path, "%")
 
 	query = "DELETE FROM Files WHERE UserId = $1 AND Path LIKE $2 RETURNING Id, Size"
-	if data, err := h.db.Query(query, userId, path); err == nil {
+	if data, err := tx.QueryContext(ctx, query, userId, path); err == nil {
 		rows = data
 	} else {
 		log.Println("An error occurred while deleting file descendants of folder", err)
+		return ids, totalSize, http.StatusInternalServerError
 	}
 
 	for rows.Next() {
@@ -133,17 +134,22 @@ func (h *FileCommandHandler) DeleteDirectoryChildren(folderId, userId string) ([
 
 		if err := rows.Scan(&id, &size); err != nil {
 			log.Println("An error occurred while parsing deleted row", err)
-			continue
+			return ids, totalSize, http.StatusInternalServerError
 		}
 		ids = append(ids, id)
 		totalSize += size
 	}
 	if err := rows.Err(); err != nil {
 		log.Println("An unknown error occurred", err)
+		return ids, totalSize, http.StatusInternalServerError
+	}
+	if err := rows.Close(); err != nil {
+		log.Println("An error occurred while closing rows", err)
+		return ids, totalSize, http.StatusInternalServerError
 	}
 
 	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed - $1 WHERE Id = $2"
-	if err := h.db.QueryRow(query, totalSize, userId).Scan(); err != nil && err != sql.ErrNoRows {
+	if _, err := tx.ExecContext(ctx, query, totalSize, userId); err != nil {
 		log.Println("An error occurred while adjusting total number of bytes used for user", err)
 	}
 

@@ -6,14 +6,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/xduricai/qck-store/qck-store-be/handlers"
 )
 
 type IDirectoryCommandHandler interface {
 	CreateDirectory(folderName, parentId, userId string) (handlers.DirectoryResponse, int)
-	MoveDirectory(folderId, parentId, userId string) (handlers.DirectoryMoveResponse, int)
+	MoveDirectory(folderId, parentId, userId string, ctx *gin.Context, tx *sql.Tx) (handlers.DirectoryMoveResponse, int)
 	RenameDirectory(folderName, folderId, userId string) int
-	DeleteDirectory(folderId, userId string) (string, int)
+	DeleteDirectory(folderId, userId string, ctx *gin.Context, tx *sql.Tx) (string, int)
 }
 
 type DirectoryCommandHandler struct {
@@ -64,20 +65,20 @@ func (h *DirectoryCommandHandler) CreateDirectory(folderName, parentId, userId s
 	return folder, http.StatusOK
 }
 
-func (h *DirectoryCommandHandler) MoveDirectory(folderId, parentId, userId string) (handlers.DirectoryMoveResponse, int) {
+func (h *DirectoryCommandHandler) MoveDirectory(folderId, parentId, userId string, ctx *gin.Context, tx *sql.Tx) (handlers.DirectoryMoveResponse, int) {
 	var res handlers.DirectoryMoveResponse
 	var oldPath string
 	var parentPath string
 
 	query := "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
-	if err := h.db.QueryRow(query, folderId, userId).Scan(&oldPath); err != nil {
+	if err := tx.QueryRowContext(ctx, query, folderId, userId).Scan(&oldPath); err != nil {
 		log.Println("Could not retrieve the folder chosen to be moved", err)
 		return res, http.StatusNotFound
 	}
 
 	if parentId != "-1" {
 		query = "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
-		if err := h.db.QueryRow(query, parentId, userId).Scan(&parentPath); err != nil {
+		if err := tx.QueryRowContext(ctx, query, parentId, userId).Scan(&parentPath); err != nil {
 			log.Println("Could not retrieve the destination folder while attempting to move folder", err)
 			return res, http.StatusNotFound
 		}
@@ -89,7 +90,7 @@ func (h *DirectoryCommandHandler) MoveDirectory(folderId, parentId, userId strin
 	}
 
 	query = "UPDATE Directories SET ParentId = $1 WHERE Id = $2 AND UserId = $3"
-	if _, err := h.db.Query(query, formattedParentId, folderId, userId); err != nil {
+	if _, err := tx.ExecContext(ctx, query, formattedParentId, folderId, userId); err != nil {
 		log.Println("An error occurred while updating directory Parent ID", err)
 		return res, http.StatusInternalServerError
 	}
@@ -99,13 +100,13 @@ func (h *DirectoryCommandHandler) MoveDirectory(folderId, parentId, userId strin
 	currentTime := handlers.GetUTCTime()
 
 	query = "UPDATE Directories SET Path = REPLACE(Path, $1, $2), LastModified = $3 WHERE UserId = $4 AND Path LIKE $5"
-	if _, err := h.db.Query(query, oldPath, newPath, currentTime, userId, formattedPath); err != nil {
+	if _, err := tx.ExecContext(ctx, query, oldPath, newPath, currentTime, userId, formattedPath); err != nil {
 		log.Println("An error occurred while attempting to move directories", err)
 		return res, http.StatusInternalServerError
 	}
 
 	query = "UPDATE Files SET Path = REPLACE(Path, $1, $2), LastModified = $3 WHERE UserId = $4 AND Path LIKE $5"
-	if _, err := h.db.Query(query, oldPath, newPath, currentTime, userId, formattedPath); err != nil {
+	if _, err := tx.ExecContext(ctx, query, oldPath, newPath, currentTime, userId, formattedPath); err != nil {
 		log.Println("An error occurred while attempting to move files", err)
 		return res, http.StatusInternalServerError
 	}
@@ -119,25 +120,25 @@ func (h *DirectoryCommandHandler) RenameDirectory(folderName, folderId, userId s
 	query := "UPDATE Directories SET Name = $1, LastModified = $2 WHERE Id = $3 AND UserId = $4"
 	currentTime := handlers.GetUTCTime()
 
-	if err := h.db.QueryRow(query, folderName, currentTime, folderId, userId).Scan(); err != nil && err != sql.ErrNoRows {
+	if _, err := h.db.Exec(query, folderName, currentTime, folderId, userId); err != nil {
 		log.Println("An error occurred while renaming folder", err)
 		return http.StatusInternalServerError
 	}
 	return http.StatusOK
 }
 
-func (h *DirectoryCommandHandler) DeleteDirectory(folderId, userId string) (string, int) {
+func (h *DirectoryCommandHandler) DeleteDirectory(folderId, userId string, ctx *gin.Context, tx *sql.Tx) (string, int) {
 	var path string
 
 	query := "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
-	if err := h.db.QueryRow(query, folderId, userId).Scan(&path); err != nil {
+	if err := tx.QueryRowContext(ctx, query, folderId, userId).Scan(&path); err != nil {
 		log.Println("Could not retrieve directory for deletion", err)
 		return "", http.StatusNotFound
 	}
 	formattedPath := fmt.Sprint(path, "%")
 
 	query = "DELETE FROM Directories WHERE UserId = $1 AND Path LIKE $2"
-	if err := h.db.QueryRow(query, userId, formattedPath).Scan(); err != nil && err != sql.ErrNoRows {
+	if _, err := tx.ExecContext(ctx, query, userId, formattedPath); err != nil {
 		log.Println("An error occurred while deleting directory descendants of directory", err)
 		return "", http.StatusInternalServerError
 	}

@@ -25,7 +25,7 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 	var routes = server.Group("/users")
 	{
 		routes.GET("/authenticate", mw.Authenticate, controller.Authenticate)
-		routes.GET("/all", controller.GetAll) // TOOD remove
+		routes.GET("/all", controller.GetAll) // TODO remove
 		routes.POST("/login", controller.Login)
 		routes.POST("/register", controller.Register)
 	}

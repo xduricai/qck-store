@@ -11,10 +11,10 @@ import (
 )
 
 type IFileCommandHandler interface {
-	UploadFile(fileName, folderId, userId string, size int64) (handlers.FileResponse, int)
+	UploadFile(fileName, folderId, userId string, size int64, ctx *gin.Context, tx *sql.Tx) (handlers.FileResponse, int)
 	RenameFile(fileName, fileId, userId string) int
 	MoveFile(folderId, fileId, userId string) int
-	DeleteFile(fileId, userId string) (int, int)
+	DeleteFile(fileId, userId string, ctx *gin.Context, tx *sql.Tx) (int, int)
 	DeleteDirectoryChildren(folderId, userId string, ctx *gin.Context, tx *sql.Tx) ([]int, int, int)
 }
 
@@ -28,7 +28,7 @@ func NewFileCommandHandler(db *sql.DB) *FileCommandHandler {
 	}
 }
 
-func (h *FileCommandHandler) UploadFile(fileName, folderId, userId string, size int64) (handlers.FileResponse, int) {
+func (h *FileCommandHandler) UploadFile(fileName, folderId, userId string, size int64, ctx *gin.Context, tx *sql.Tx) (handlers.FileResponse, int) {
 	var file handlers.FileResponse
 	var folderPath string
 
@@ -39,22 +39,23 @@ func (h *FileCommandHandler) UploadFile(fileName, folderId, userId string, size 
 	file.Size = int(size)
 
 	query := "SELECT Path FROM Directories WHERE Id = $1 AND UserId = $2"
-	if err := h.db.QueryRow(query, folderId, userId).
+	if err := tx.QueryRowContext(ctx, query, folderId, userId).
 		Scan(&folderPath); err != nil || len(folderPath) == 0 {
 		log.Println("Could not retrieve specified directory to upload file to", err)
 		return file, http.StatusNotFound
 	}
 
 	query = "INSERT INTO Files (UserId, DirectoryId, Name, Path, LastModified, Created, Size) VALUES ($1, $2, $3, $4, $5, $5, $6) RETURNING Id, Name"
-	if err := h.db.QueryRow(query, userId, folderId, fileName, folderPath, currentTime, size).
+	if err := tx.QueryRowContext(ctx, query, userId, folderId, fileName, folderPath, currentTime, size).
 		Scan(&file.Id, &file.Name); err != nil {
 		log.Println("An error occurred during file upload", err)
 		return file, http.StatusInternalServerError
 	}
 
 	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed + $1 WHERE Id = $2;"
-	if _, err := h.db.Exec(query, size, userId); err != nil {
+	if _, err := tx.ExecContext(ctx, query, size, userId); err != nil {
 		log.Println("An error occurred while adjusting total number of bytes used for user", err)
+		return file, http.StatusInternalServerError
 	}
 
 	return file, http.StatusOK
@@ -90,18 +91,19 @@ func (h *FileCommandHandler) MoveFile(folderId, fileId, userId string) int {
 	return http.StatusOK
 }
 
-func (h *FileCommandHandler) DeleteFile(fileId, userId string) (int, int) {
+func (h *FileCommandHandler) DeleteFile(fileId, userId string, ctx *gin.Context, tx *sql.Tx) (int, int) {
 	var size int
 
 	query := "DELETE FROM Files WHERE Id = $1 AND UserId = $2 RETURNING Size"
-	if err := h.db.QueryRow(query, fileId, userId).Scan(&size); err != nil {
+	if err := tx.QueryRowContext(ctx, query, fileId, userId).Scan(&size); err != nil {
 		log.Println("Failed while attempting to delete file", err.Error())
 		return size, http.StatusInternalServerError
 	}
 
 	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed - $1 WHERE Id = $2"
-	if _, err := h.db.Exec(query, size, userId); err != nil {
+	if _, err := tx.ExecContext(ctx, query, size, userId); err != nil {
 		log.Println("An error occurred while adjusting total number of bytes used for user", err)
+		return size, http.StatusInternalServerError
 	}
 
 	return size, http.StatusOK
@@ -151,6 +153,7 @@ func (h *FileCommandHandler) DeleteDirectoryChildren(folderId, userId string, ct
 	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed - $1 WHERE Id = $2"
 	if _, err := tx.ExecContext(ctx, query, totalSize, userId); err != nil {
 		log.Println("An error occurred while adjusting total number of bytes used for user", err)
+		return ids, totalSize, http.StatusInternalServerError
 	}
 
 	return ids, totalSize, http.StatusOK

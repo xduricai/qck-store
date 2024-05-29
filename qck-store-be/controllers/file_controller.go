@@ -17,6 +17,7 @@ type FileController struct {
 	userQueryHandler   userh.IUserQueryHandler
 	fileQueryHandler   fileh.IFileQueryHandler
 	fileCommandHandler fileh.IFileCommandHandler
+	db                 *sql.DB
 	fileSrc            string
 }
 
@@ -25,6 +26,7 @@ func RegisterFileController(db *sql.DB, server *gin.Engine) *FileController {
 		userQueryHandler:   userh.NewUserQueryHandler(db),
 		fileQueryHandler:   fileh.NewFileQueryHandler(db),
 		fileCommandHandler: fileh.NewFileCommandHandler(db),
+		db:                 db,
 		fileSrc:            os.Getenv("FILESRC"),
 	}
 
@@ -80,7 +82,15 @@ func (c *FileController) UploadFile(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 	folderId := ctx.PostForm("folderId")
 
-	res, status := c.fileCommandHandler.UploadFile(name, folderId, id, file.Size)
+	tx, err := c.db.BeginTx(ctx, nil)
+	if err != nil {
+		log.Println("An error occurred when creating transaction", err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	res, status := c.fileCommandHandler.UploadFile(name, folderId, id, file.Size, ctx, tx)
 	if status != 200 {
 		ctx.Status(status)
 		return
@@ -89,7 +99,12 @@ func (c *FileController) UploadFile(ctx *gin.Context) {
 	filePath := fmt.Sprint(c.fileSrc, res.Id)
 	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
 		log.Println("An error occurred while saving file", err)
-		c.fileCommandHandler.DeleteFile(fmt.Sprint(res.Id), id)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Println("An error occurred when commiting transaction", err)
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
@@ -139,7 +154,15 @@ func (c *FileController) DeleteFile(ctx *gin.Context) {
 		return
 	}
 
-	size, status := c.fileCommandHandler.DeleteFile(fileId, id)
+	tx, err := c.db.BeginTx(ctx, nil)
+	if err != nil {
+		log.Println("An error occurred when creating transaction", err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	size, status := c.fileCommandHandler.DeleteFile(fileId, id, ctx, tx)
 	if status != http.StatusOK {
 		ctx.Status(status)
 		return
@@ -148,6 +171,14 @@ func (c *FileController) DeleteFile(ctx *gin.Context) {
 	filePath := fmt.Sprint(c.fileSrc, fileId)
 	if err := os.Remove(filePath); err != nil {
 		log.Println("An error occurred while deleting file from storage")
+		ctx.Status(http.StatusInternalServerError)
 	}
+
+	if err := tx.Commit(); err != nil {
+		log.Println("An error occurred when commiting transaction", err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
 	ctx.JSON(status, size)
 }

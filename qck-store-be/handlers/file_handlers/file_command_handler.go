@@ -145,10 +145,6 @@ func (h *FileCommandHandler) DeleteDirectoryChildren(folderId, userId string, ct
 		log.Println("An unknown error occurred", err)
 		return ids, totalSize, http.StatusInternalServerError
 	}
-	if err := rows.Close(); err != nil {
-		log.Println("An error occurred while closing rows", err)
-		return ids, totalSize, http.StatusInternalServerError
-	}
 
 	query = "UPDATE Users SET TotalBytesUsed = TotalBytesUsed - $1 WHERE Id = $2"
 	if _, err := tx.ExecContext(ctx, query, totalSize, userId); err != nil {

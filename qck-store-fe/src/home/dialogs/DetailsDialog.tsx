@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Button } from "../../shared/Button";
 import { useMenuContext } from "../../global/MenuContext";
+import { getFormattedSize } from "../../api/responses/File";
 
 type DetailsDialogProps = {
     open: boolean;
@@ -31,7 +32,7 @@ export function DetailsDialog({ open, setOpen }: DetailsDialogProps) {
                 {"size" in item && 
                 <div>
                     <span className="text-sm">Size</span>
-                    <p>{item.size}B</p>
+                    <p>{getFormattedSize(item.size)} ({item.size}B)</p>
                 </div>
                 }
                 <div>

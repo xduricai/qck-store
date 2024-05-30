@@ -12,10 +12,10 @@ type RenameDialogProps = {
 }
 
 export function RenameDialog({open, setOpen, renameFile, renameDirectory}: RenameDialogProps) {
-    const [ name, setName ] = useState<string>("");
+    const { menuStatus, setMenuStatus } = useMenuContext();
+    const [ name, setName ] = useState<string>(menuStatus?.item.name || "");
     const ref = useRef<HTMLDialogElement>(null);
 
-    const { menuStatus, setMenuStatus } = useMenuContext();
     const type = menuStatus!.type;
     const id = menuStatus!.item.id;
 
@@ -28,8 +28,10 @@ export function RenameDialog({open, setOpen, renameFile, renameDirectory}: Renam
     }
     
     function handleSubmit() {
-        if (type === "file") renameFile({id, name});
-        if (type === "folder") renameDirectory({id, name});
+        if (name && name !== menuStatus?.item.name) {
+            if (type === "file") renameFile({id, name});
+            if (type === "folder") renameDirectory({id, name});
+        }
         setName("");
         close();
     }

@@ -1,4 +1,4 @@
-import { File } from "../api/responses/File";
+import { File, getFormattedSize } from "../api/responses/File";
 import { MouseEvent } from "react";
 import { useMenuContext } from "../global/MenuContext";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -8,7 +8,7 @@ type FileChipProps = { data: File; }
 
 export function FileChip({ data }: FileChipProps) {  
     const { setMenuStatus } = useMenuContext();
-    
+
     function handleRightClick(event: MouseEvent) {
         event.stopPropagation();
         event.preventDefault();
@@ -20,7 +20,7 @@ export function FileChip({ data }: FileChipProps) {
             <div className="flex flex-row w-full items-center justify-between self-end">
                 <div className="flex flex-col max-w-[calc(100%-1.5rem)]">
                     <span className="truncate">{data.name}</span>
-                    <span className="truncate text-gray-700 text-sm">Size: {data.size}B</span>
+                    <span className="truncate text-gray-700 text-sm">Size: {getFormattedSize(data.size)}</span>
                 </div>
                 <MoreVertIcon onClick={(event) => handleRightClick(event)} className="text-gray-800 cursor-pointer" />
             </div>

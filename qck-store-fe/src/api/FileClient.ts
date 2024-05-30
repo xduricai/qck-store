@@ -44,6 +44,9 @@ export async function renameFile(command: RenameCommand) {
     if (res.status !== 200) {
         throw "An error occurred while renaming file";
     }
+
+    const modified: string = await res.json();
+    return modified;
 }
 
 export async function moveFile(command: MoveCommand) {
@@ -56,6 +59,9 @@ export async function moveFile(command: MoveCommand) {
     if (res.status !== 200) {
         throw "An error occurred while moving file";
     }
+
+    const modified: string = await res.json();
+    return modified;
 }
 
 export async function deleteFile(id: number) {

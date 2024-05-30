@@ -77,6 +77,9 @@ export async function renameDirectory(command: RenameCommand) {
     if (res.status !== 200) {
         throw "An error occurred while renaming directory";
     }
+
+    const modified: string = await res.json();
+    return modified;
 }
 
 export async function moveDirectory(command: MoveCommand) {

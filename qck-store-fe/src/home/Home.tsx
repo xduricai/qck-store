@@ -73,13 +73,15 @@ export function Home() {
 
     const { mutate: renameFileMutation } = useMutation({
         mutationFn: renameFile,
-        onSuccess: (_, variables) => {
+        onSuccess: (modified, variables) => {
             showSnackbar("File renamed successfully", "success");
 
             queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => content && ({
                 ...content,
                 files: content.files.map(file => 
-                    (file.id === variables.id) ? { ...file, name: variables.name } : file
+                    (file.id === variables.id) 
+                        ? { ...file, name: variables.name, modified } 
+                        : file
                 )
             }));
         },
@@ -137,23 +139,23 @@ export function Home() {
 
     const { mutate: renameDirectoryMutation } = useMutation({
         mutationFn: renameDirectory,
-        onSuccess: (_, variables) => {
+        onSuccess: (modified, variables) => {
             showSnackbar("Directory renamed successfully", "success");
 
             queryClient.setQueryData(["dirs"], (dirs: Directory[]) => dirs && dirs.map(dir => 
-                    (dir.id === variables.id) ? { ...dir, name: variables.name } : dir
+                    (dir.id === variables.id) ? { ...dir, name: variables.name, modified } : dir
             ));
             
             queryClient.setQueryData(["content", folderId || query || "home"], (content: FolderContentResponse) => content && ({
                 ...content,
                 directories: content.directories.map(dir => 
-                    (dir.id === variables.id) ? { ...dir, name: variables.name } : dir
+                    (dir.id === variables.id) ? { ...dir, name: variables.name, modified } : dir
                 )
             }));
         },
         onError: (err) => showSnackbar(err.toString(), "error")
     });
-    // TODO update modified on all mutations
+    
     const { mutate: moveDirectoryMutation } = useMutation({
         mutationFn: moveDirectory,
         onSuccess: (res, variables) => {
@@ -169,7 +171,8 @@ export function Home() {
                     return {
                         ...dir,
                         path,
-                        isRoot
+                        isRoot,
+                        modified: res.modified
                     };
                 }
             ));

@@ -12,8 +12,8 @@ import (
 
 type IFileCommandHandler interface {
 	UploadFile(fileName, folderId, userId string, size int64, ctx *gin.Context, tx *sql.Tx) (handlers.FileResponse, int)
-	RenameFile(fileName, fileId, userId string) int
-	MoveFile(folderId, fileId, userId string) int
+	RenameFile(fileName, fileId, userId string) (string, int)
+	MoveFile(folderId, fileId, userId string) (string, int)
 	DeleteFile(fileId, userId string, ctx *gin.Context, tx *sql.Tx) (int, int)
 	DeleteDirectoryChildren(folderId, userId string, ctx *gin.Context, tx *sql.Tx) ([]int, int, int)
 }
@@ -61,24 +61,29 @@ func (h *FileCommandHandler) UploadFile(fileName, folderId, userId string, size 
 	return file, http.StatusOK
 }
 
-func (h *FileCommandHandler) RenameFile(fileName, fileId, userId string) int {
+func (h *FileCommandHandler) RenameFile(fileName, fileId, userId string) (string, int) {
 	query := "UPDATE Files SET Name = $1, LastModified = $2 WHERE Id = $3 AND UserId = $4"
 	currentTime := handlers.GetUTCTime()
 
 	if _, err := h.db.Exec(query, fileName, currentTime, fileId, userId); err != nil {
 		log.Println("An error occurred while renaming file", err)
-		return http.StatusInternalServerError
+		return "", http.StatusInternalServerError
 	}
-	return http.StatusOK
+
+	time, err := handlers.FormatDate(currentTime)
+	if err != nil {
+		log.Println("Could not format date", err)
+	}
+	return time, http.StatusOK
 }
 
-func (h *FileCommandHandler) MoveFile(folderId, fileId, userId string) int {
+func (h *FileCommandHandler) MoveFile(folderId, fileId, userId string) (string, int) {
 	query := "SELECT Path FROM Directories WHERE Id = $1"
 	var newPath string
 
 	if err := h.db.QueryRow(query, folderId).Scan(&newPath); err != nil {
 		log.Println("Could not retrieve the destination folder when attempting to move file", err)
-		return http.StatusNotFound
+		return "", http.StatusNotFound
 	}
 
 	query = "UPDATE Files SET DirectoryId = $1, Path = $2, LastModified = $3 WHERE Id = $4 AND UserId = $5"
@@ -86,9 +91,14 @@ func (h *FileCommandHandler) MoveFile(folderId, fileId, userId string) int {
 
 	if _, err := h.db.Exec(query, folderId, newPath, currentTime, fileId, userId); err != nil {
 		log.Println("An error occurred while moving file", err)
-		return http.StatusInternalServerError
+		return "", http.StatusInternalServerError
 	}
-	return http.StatusOK
+
+	time, err := handlers.FormatDate(currentTime)
+	if err != nil {
+		log.Println("Could not format date", err)
+	}
+	return time, http.StatusOK
 }
 
 func (h *FileCommandHandler) DeleteFile(fileId, userId string, ctx *gin.Context, tx *sql.Tx) (int, int) {

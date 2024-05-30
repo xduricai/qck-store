@@ -151,8 +151,12 @@ func (c *DirectoryController) RenameDirectory(ctx *gin.Context) {
 		return
 	}
 
-	status := c.directoryCommandHandler.RenameDirectory(name, folderId, id)
-	ctx.Status(status)
+	time, status := c.directoryCommandHandler.RenameDirectory(name, folderId, id)
+	if status != http.StatusOK {
+		ctx.Status(status)
+		return
+	}
+	ctx.JSON(status, time)
 }
 
 func (c *DirectoryController) DeleteDirectory(ctx *gin.Context) {

@@ -125,8 +125,12 @@ func (c *FileController) RenameFile(ctx *gin.Context) {
 		return
 	}
 
-	status := c.fileCommandHandler.RenameFile(name, fileId, id)
-	ctx.Status(status)
+	time, status := c.fileCommandHandler.RenameFile(name, fileId, id)
+	if status != http.StatusOK {
+		ctx.Status(status)
+		return
+	}
+	ctx.JSON(status, time)
 }
 
 func (c *FileController) MoveFile(ctx *gin.Context) {
@@ -142,8 +146,12 @@ func (c *FileController) MoveFile(ctx *gin.Context) {
 		return
 	}
 
-	status := c.fileCommandHandler.MoveFile(folderId, fileId, id)
-	ctx.Status(status)
+	time, status := c.fileCommandHandler.MoveFile(folderId, fileId, id)
+	if status != http.StatusOK {
+		ctx.Status(status)
+		return
+	}
+	ctx.JSON(status, time)
 }
 
 func (c *FileController) DeleteFile(ctx *gin.Context) {

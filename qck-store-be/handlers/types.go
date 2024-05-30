@@ -27,8 +27,9 @@ type DirectoryContentResponse struct {
 }
 
 type DirectoryMoveResponse struct {
-	OldPath string `json:"oldPath"`
-	NewPath string `json:"newPath"`
+	OldPath  string `json:"oldPath"`
+	NewPath  string `json:"newPath"`
+	Modified string `json:"modified"`
 }
 
 type DirectoryDeletionResponse struct {

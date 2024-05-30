@@ -13,7 +13,7 @@ import (
 type IDirectoryCommandHandler interface {
 	CreateDirectory(folderName, parentId, userId string) (handlers.DirectoryResponse, int)
 	MoveDirectory(folderId, parentId, userId string, ctx *gin.Context, tx *sql.Tx) (handlers.DirectoryMoveResponse, int)
-	RenameDirectory(folderName, folderId, userId string) int
+	RenameDirectory(folderName, folderId, userId string) (string, int)
 	DeleteDirectory(folderId, userId string, ctx *gin.Context, tx *sql.Tx) (string, int)
 }
 
@@ -111,20 +111,31 @@ func (h *DirectoryCommandHandler) MoveDirectory(folderId, parentId, userId strin
 		return res, http.StatusInternalServerError
 	}
 
+	time, err := handlers.FormatDate(currentTime)
+	if err != nil {
+		log.Println("Could not format date", err)
+	}
+
 	res.OldPath = oldPath
 	res.NewPath = newPath
+	res.Modified = time
 	return res, http.StatusOK
 }
 
-func (h *DirectoryCommandHandler) RenameDirectory(folderName, folderId, userId string) int {
+func (h *DirectoryCommandHandler) RenameDirectory(folderName, folderId, userId string) (string, int) {
 	query := "UPDATE Directories SET Name = $1, LastModified = $2 WHERE Id = $3 AND UserId = $4"
 	currentTime := handlers.GetUTCTime()
 
 	if _, err := h.db.Exec(query, folderName, currentTime, folderId, userId); err != nil {
 		log.Println("An error occurred while renaming folder", err)
-		return http.StatusInternalServerError
+		return "", http.StatusInternalServerError
 	}
-	return http.StatusOK
+
+	time, err := handlers.FormatDate(currentTime)
+	if err != nil {
+		log.Println("Could not format date", err)
+	}
+	return time, http.StatusOK
 }
 
 func (h *DirectoryCommandHandler) DeleteDirectory(folderId, userId string, ctx *gin.Context, tx *sql.Tx) (string, int) {

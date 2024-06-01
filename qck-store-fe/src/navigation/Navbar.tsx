@@ -34,9 +34,12 @@ export function Navbar() {
                     <Searchbar />
                 </div>
                 
-                <div className="mx-2 w-min">                  
+                <div onClick={toggleMenu} className="flex items-center mx-2 w-min text-purple-800 cursor-pointer hover:bg-gray-300 rounded-3xl">      
+                    <span className="w-max h-fit text-base font-semibold ml-4">
+                        {`${userContext.user.firstName} ${userContext.user.lastName}`}
+                    </span>            
                     <IconButton>
-                        <AccountCircleIcon onClick={toggleMenu} fontSize="large" className="text-purple-800" />
+                        <AccountCircleIcon fontSize="large" />
                     </IconButton>
                 </div>
 

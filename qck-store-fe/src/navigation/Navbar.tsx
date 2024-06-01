@@ -5,8 +5,9 @@ import { useUserContext } from "../global/UserContext";
 import { useSnackbarContext } from "../global/SnackbarContext";
 import { MouseEvent, useState } from "react";
 import { logout } from "../api/UserClient";
-import "./navigation.css";
+import { Link } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import "./navigation.css";
  
 export function Navbar() {
     const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
@@ -41,9 +42,9 @@ export function Navbar() {
 
                 {menuOpen &&
                     <div className="absolute z-10 mx-2 top-14 right-1 w-28 rounded border-gray-400 border">
-                        <span onClick={() => {}} className="menu-item text-base">
+                        <Link to="settings" className="menu-item text-base">
                             Settings
-                        </span>
+                        </Link>
                         <span onClick={logOut} className="menu-item text-base text-red-600 font-semibold">
                             Log Out
                         </span>

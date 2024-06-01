@@ -113,6 +113,7 @@ export function Registration() {
         userContext.setUser({
             id: res.id,
             role: "user",
+            email: formData.email,
             firstName: formData.firstName,
             lastName: formData.lastName,
             bytesUsed: 0,

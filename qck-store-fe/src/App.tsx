@@ -14,6 +14,7 @@ import { authenticate } from './api/UserClient';
 import { LoadingPage } from './shared/Loading';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Admin } from './admin/Admin';
+import { Settings } from './settings/Settings';
 import './App.css'
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
       <ReactQueryDevtools initialIsOpen={false} />
       <SnackbarContext.Provider value={showSnackbar}>
         <CurrentUserContext.Provider value={{ user, setUser }}>
+          <Navbar />
           {!user && 
             <Routes>
               <Route path="/" element={<Initial />} />
@@ -52,15 +54,15 @@ function App() {
             </Routes>
           }
   
-          {user?.role === "user" && <>
-            <Navbar />
+          {user?.role === "user" &&
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/folder/:folderId" element={<Home />} />
               <Route path="/search/:query" element={<Home />} />
+              <Route path="/settings/" element={<Settings />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes> 
-          </>}
+          }
 
           {user?.role === "admin" &&
             <Routes>

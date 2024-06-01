@@ -59,7 +59,7 @@ func (h *UserCommandHandler) Register(command *RegistrationCommand) (Registratio
 	created := handlers.GetUTCTime()
 	query = `
 		INSERT INTO Users (Role, UserName, Email, FirstName, LastName, Password, Created, TotalBytesUsed, Quota)
-		VALUES ('User', $1, $2, $3, $4, $5, $6, 0, 1073741824) RETURNING Id`
+		VALUES ('user', $1, $2, $3, $4, $5, $6, 0, 1073741824) RETURNING Id`
 
 	if err := h.db.
 		QueryRow(

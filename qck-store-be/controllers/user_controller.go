@@ -27,6 +27,7 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 		routes.GET("/authenticate", mw.Authenticate, controller.Authenticate)
 		routes.GET("/all", controller.GetAll) // TODO remove
 		routes.POST("/login", controller.Login)
+		routes.POST("/logout", controller.Logout)
 		routes.POST("/register", controller.Register)
 	}
 
@@ -88,6 +89,11 @@ func (c *UserController) Login(ctx *gin.Context) {
 		ctx.SetCookie("Authorization", token, 36000*24*30, "", "", false, true)
 		ctx.JSON(status, res)
 	}
+}
+
+func (c *UserController) Logout(ctx *gin.Context) {
+	ctx.SetCookie("Authorization", "", -1, "", "", false, true)
+	ctx.Status(http.StatusOK)
 }
 
 func (c *UserController) Authenticate(ctx *gin.Context) {

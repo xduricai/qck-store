@@ -35,6 +35,17 @@ export async function login(identifier: string, password: string) {
     return user;
 }
 
+export async function logout() {
+    const res = await fetch(`${BaseUrl}/users/logout`, {
+        method: "POST",
+        credentials: "include"
+    });
+
+    if (res.status !== 200) {
+        throw "An unknown error occurred while logging out"
+    }
+}
+
 export async function register(data: RegistrationCommand) {
     const res = await fetch(`${BaseUrl}/users/register`, {
         method: "POST",

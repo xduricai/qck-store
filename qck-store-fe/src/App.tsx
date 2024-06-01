@@ -13,6 +13,7 @@ import { SnackbarContext } from './global/SnackbarContext';
 import { authenticate } from './api/UserClient';
 import { LoadingPage } from './shared/Loading';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Admin } from './admin/Admin';
 import './App.css'
 
 function App() {
@@ -35,19 +36,35 @@ function App() {
     snackbarTimer.current = setTimeout(() => setSnackbarData(null), duration);
   }
 
+  if (loading) return <LoadingPage />;
+
   return (
     <QueryClientProvider client={queryClient.current}>
       <ReactQueryDevtools initialIsOpen={false} />
       <SnackbarContext.Provider value={showSnackbar}>
         <CurrentUserContext.Provider value={{ user, setUser }}>
-          <Navbar />
-          {loading ? <LoadingPage /> :
+          {!user && 
             <Routes>
-              <Route path="/" element={user ? <Home /> : <Initial />} />
-              <Route path="/folder/:folderId" element={user ? <Home /> : <Navigate replace to="/" />} />
-              <Route path="/search/:query" element={user ? <Home /> : <Navigate replace to="/" />} />
-              <Route path="/login" element={user ? <Navigate replace to="/" /> : <Login />} />
-              <Route path="/register" element={user ? <Navigate replace to="/" /> : <Registration />} />
+              <Route path="/" element={<Initial />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Registration />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          }
+  
+          {user?.role === "user" && <>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/folder/:folderId" element={<Home />} />
+              <Route path="/search/:query" element={<Home />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes> 
+          </>}
+
+          {user?.role === "admin" &&
+            <Routes>
+              <Route path="/" element={<Admin />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes> 
           }
@@ -57,5 +74,4 @@ function App() {
     </QueryClientProvider>
   )
 }
-
 export default App

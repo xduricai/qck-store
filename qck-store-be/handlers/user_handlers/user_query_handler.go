@@ -24,7 +24,7 @@ func NewUserQueryHandler(db *sql.DB) *UserQueryHandler {
 
 func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 	var rows *sql.Rows
-	query := "SELECT Id, Role, Firstname, Lastname, TotalBytesUsed, Quota FROM Users"
+	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota FROM Users"
 
 	if data, err := h.db.Query(query); err == nil {
 		rows = data
@@ -42,12 +42,14 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 			&res.Role,
 			&res.FirstName,
 			&res.LastName,
+			&res.Email,
 			&res.BytesUsed,
 			&res.BytesTotal,
 		); err != nil {
 			log.Println(err)
 			continue
 		}
+		res.FormatEmail()
 		users = append(users, res)
 	}
 
@@ -59,7 +61,7 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 
 func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
 	var res UserResponse
-	query := "SELECT Id, Role, Firstname, Lastname, TotalBytesUsed, Quota FROM Users WHERE Id = $1"
+	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota FROM Users WHERE Id = $1"
 
 	if err := h.db.QueryRow(query, id).
 		Scan(
@@ -67,12 +69,14 @@ func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
 			&res.Role,
 			&res.FirstName,
 			&res.LastName,
+			&res.Email,
 			&res.BytesUsed,
 			&res.BytesTotal,
 		); err != nil {
 		log.Println("An error occurred while retrieving user information", err)
 		return res, http.StatusInternalServerError
 	}
+	res.FormatEmail()
 	return res, http.StatusOK
 }
 

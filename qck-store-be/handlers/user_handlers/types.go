@@ -1,10 +1,13 @@
 package user_handlers
 
+import "fmt"
+
 type UserResponse struct {
 	Id         int    `json:"-"`
 	BytesUsed  int    `json:"bytesUsed"`
 	BytesTotal int    `json:"bytesTotal"`
 	Role       string `json:"role"`
+	Email      string `json:"email"`
 	FirstName  string `json:"firstName"`
 	LastName   string `json:"lastName"`
 }
@@ -26,4 +29,20 @@ type RegistrationCommand struct {
 	FirstName string
 	LastName  string
 	Password  string
+}
+
+func (user *UserResponse) FormatEmail() {
+	var at int
+	var dot int
+
+	for idx := range user.Email {
+		if (user.Email[idx]) == '@' {
+			at = idx
+		}
+		if (user.Email[idx]) == '.' {
+			dot = idx
+			break
+		}
+	}
+	user.Email = fmt.Sprint(string(user.Email[0]), "****@", string(user.Email[at+1]), "****", user.Email[dot:])
 }

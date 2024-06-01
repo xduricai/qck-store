@@ -7,7 +7,7 @@ export async function authenticate() {
     const res = await fetch(`${BaseUrl}/users/authenticate`, { 
         credentials: "include"
     });
-    if (res.status !== 200) throw Error;
+    if (res.status !== 200) throw "An error occurred during authentication";
 
     const user: User = await res.json();
     return user;
@@ -42,7 +42,7 @@ export async function register(data: RegistrationCommand) {
         credentials: "include"
     });
     if (res.status !== 200 && res.status !== 400) {
-        throw new Error();
+        throw "An unknown error occurred during registration"
     }
 
     const response: RegistrationResponse = await res.json();

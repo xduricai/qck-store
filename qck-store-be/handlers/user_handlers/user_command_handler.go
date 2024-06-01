@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
+	"github.com/xduricai/qck-store/qck-store-be/handlers"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -56,7 +56,7 @@ func (h *UserCommandHandler) Register(command *RegistrationCommand) (Registratio
 	}
 
 	password := generatePasswordHash(&command.Password)
-	created := time.Now().Format("2006-01-02 15:04:05")
+	created := handlers.GetUTCTime()
 	query = `
 		INSERT INTO Users (Role, UserName, Email, FirstName, LastName, Password, Created, TotalBytesUsed, Quota)
 		VALUES ('User', $1, $2, $3, $4, $5, $6, 0, 1073741824) RETURNING Id`

@@ -56,6 +56,10 @@ export async function moveFile(command: MoveCommand) {
         credentials: "include"
     });
 
+    if (res.status === 404) {
+        throw "File could not be found";
+    }
+
     if (res.status !== 200) {
         throw "An error occurred while moving file";
     }

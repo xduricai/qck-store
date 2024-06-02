@@ -78,7 +78,7 @@ export function Registration() {
 
     const [lastError, setLastError] = useState<string | null>(null);
     const validateLast = (name: string) => {
-        setLastError(name ? null : "Please enter your first name");
+        setLastError(name ? null : "Please enter your last name");
     }
 
     function checkFormValidity() {

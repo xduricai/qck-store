@@ -2,6 +2,7 @@ import { RegistrationCommand } from "./commands/RegistrationCommand";
 import { User } from "./responses/User";
 import { BaseUrl } from "./BaseUrl";
 import { RegistrationResponse } from "./responses/RegistrationResponse";
+import { UserUpdateCommand } from "./commands/UserUpdateCommand";
 
 export async function authenticate() {
     const res = await fetch(`${BaseUrl}/users/authenticate`, { 
@@ -54,6 +55,20 @@ export async function register(data: RegistrationCommand) {
     });
     if (res.status !== 200 && res.status !== 400) {
         throw "An unknown error occurred during registration"
+    }
+
+    const response: RegistrationResponse = await res.json();
+    return response;
+}
+
+export async function updateUser(data: UserUpdateCommand) {
+    const res = await fetch(`${BaseUrl}/users/update`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        credentials: "include"
+    });
+    if (res.status !== 200 && res.status !== 400) {
+        throw "An unknown error occurred"
     }
 
     const response: RegistrationResponse = await res.json();

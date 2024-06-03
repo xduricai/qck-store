@@ -49,7 +49,7 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 			log.Println(err)
 			continue
 		}
-		res.FormatEmail()
+		res.Email = FormatEmail(res.Email)
 		users = append(users, res)
 	}
 
@@ -76,7 +76,7 @@ func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
 		log.Println("An error occurred while retrieving user information", err)
 		return res, http.StatusInternalServerError
 	}
-	res.FormatEmail()
+	res.Email = FormatEmail(res.Email)
 	return res, http.StatusOK
 }
 

@@ -46,18 +46,18 @@ type UpdatePasswordCommand struct {
 	OldPassword string
 }
 
-func (user *UserResponse) FormatEmail() {
+func FormatEmail(email string) string {
 	var at int
 	var dot int
 
-	for idx := range user.Email {
-		if (user.Email[idx]) == '@' {
+	for idx := range email {
+		if (email[idx]) == '@' {
 			at = idx
 		}
-		if (user.Email[idx]) == '.' {
+		if (email[idx]) == '.' {
 			dot = idx
 			break
 		}
 	}
-	user.Email = fmt.Sprint(string(user.Email[0]), "****@", string(user.Email[at+1]), "****", user.Email[dot:])
+	return fmt.Sprint(string(email[0]), "****@", string(email[at+1]), "****", email[dot:])
 }

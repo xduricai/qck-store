@@ -15,7 +15,7 @@ import (
 type IUserCommandHandler interface {
 	Login(*LoginCommand) (UserResponse, int)
 	Register(*RegistrationCommand) (RegistrationResponse, int)
-	Update(command *UpdateUserCommand, id string, ctx *gin.Context, tx *sql.Tx) (bool, int)
+	Update(command *UpdateUserCommand, id string, ctx *gin.Context, tx *sql.Tx) (string, int)
 	ChangePassword(command *UpdatePasswordCommand, id string) int
 }
 
@@ -112,11 +112,11 @@ func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 	if hash := generatePasswordHash(&command.Password); hash != password {
 		return res, http.StatusUnauthorized
 	}
-	res.FormatEmail()
+	res.Email = FormatEmail(res.Email)
 	return res, http.StatusOK
 }
 
-func (h *UserCommandHandler) Update(command *UpdateUserCommand, id string, ctx *gin.Context, tx *sql.Tx) (bool, int) {
+func (h *UserCommandHandler) Update(command *UpdateUserCommand, id string, ctx *gin.Context, tx *sql.Tx) (string, int) {
 	var query string
 
 	command.Email = strings.ToLower(command.Email)
@@ -124,7 +124,7 @@ func (h *UserCommandHandler) Update(command *UpdateUserCommand, id string, ctx *
 	if (command.Email == "" && command.UpdateEmail) ||
 		command.FirstName == "" ||
 		command.LastName == "" {
-		return false, http.StatusBadRequest
+		return "", http.StatusBadRequest
 	}
 
 	if command.UpdateEmail {
@@ -133,16 +133,16 @@ func (h *UserCommandHandler) Update(command *UpdateUserCommand, id string, ctx *
 		query = "SELECT EXISTS (SELECT 1 FROM Users WHERE Email = $1 AND Id != $2)"
 		if err := tx.QueryRowContext(ctx, query, command.Email, id).Scan(&emailInUse); err != nil {
 			log.Println("Could not check for email conflicts", err)
-			return false, http.StatusInternalServerError
+			return "", http.StatusInternalServerError
 		}
 		if emailInUse {
-			return false, http.StatusConflict
+			return "", http.StatusConflict
 		}
 
 		query = "UPDATE Users SET Email = $1 WHERE Id = $2"
 		if _, err := tx.ExecContext(ctx, query, command.Email, id); err != nil {
 			log.Println("This email is already in use", err)
-			return false, http.StatusInternalServerError
+			return "", http.StatusInternalServerError
 		}
 	}
 
@@ -151,17 +151,17 @@ func (h *UserCommandHandler) Update(command *UpdateUserCommand, id string, ctx *
 		query = "UPDATE Users SET ProfilePicture = $1 WHERE Id = $2"
 		if _, err := tx.ExecContext(ctx, query, data, id); err != nil {
 			log.Println("An error occurred while saving profile picture", err)
-			return false, http.StatusInternalServerError
+			return "", http.StatusInternalServerError
 		}
 	}
 
 	query = "UPDATE Users SET FirstName = $1, LastName = $2 WHERE Id = $3"
 	if _, err := tx.ExecContext(ctx, query, command.FirstName, command.LastName, id); err != nil {
 		log.Println("An error occurred while updating name", err)
-		return false, http.StatusInternalServerError
+		return "", http.StatusInternalServerError
 	}
 
-	return true, http.StatusOK
+	return FormatEmail(command.Email), http.StatusOK
 }
 
 func (h *UserCommandHandler) ChangePassword(command *UpdatePasswordCommand, id string) int {

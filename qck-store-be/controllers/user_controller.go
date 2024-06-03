@@ -147,7 +147,7 @@ func (c *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(status, res)
+	ctx.String(status, res)
 }
 
 func (c *UserController) ChangePassword(ctx *gin.Context) {

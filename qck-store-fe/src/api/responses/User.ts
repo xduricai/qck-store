@@ -6,4 +6,5 @@ export type User = {
     lastName: string;
     bytesUsed: number;
     bytesTotal: number;
+    profilePicture?: string;
 }

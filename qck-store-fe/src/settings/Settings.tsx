@@ -61,7 +61,14 @@ export function Settings({ user }: { user: User }) {
 
     function handleSubmit() {
         if (firstError || lastError || emailError) return;
-        mutate({ profilePicture, firstName, lastName, email });
+        mutate({ 
+            updatePicture: profilePicture === user.profilePicture,
+            updateEmail: email === user.email,
+            profilePicture,
+            firstName,
+            lastName, 
+            email 
+        });
     }
 
     return (

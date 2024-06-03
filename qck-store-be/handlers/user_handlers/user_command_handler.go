@@ -165,6 +165,10 @@ func (h *UserCommandHandler) Update(command *UpdateUserCommand, id string, ctx *
 }
 
 func (h *UserCommandHandler) ChangePassword(command *UpdatePasswordCommand, id string) int {
+	if command.NewPassword == "" {
+		return http.StatusBadRequest
+	}
+
 	oldPassword := generatePasswordHash(&command.OldPassword)
 	newPassword := generatePasswordHash(&command.NewPassword)
 

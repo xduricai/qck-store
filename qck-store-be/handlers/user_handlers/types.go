@@ -3,13 +3,14 @@ package user_handlers
 import "fmt"
 
 type UserResponse struct {
-	Id         int    `json:"-"`
-	BytesUsed  int    `json:"bytesUsed"`
-	BytesTotal int    `json:"bytesTotal"`
-	Role       string `json:"role"`
-	Email      string `json:"email"`
-	FirstName  string `json:"firstName"`
-	LastName   string `json:"lastName"`
+	Id             int    `json:"-"`
+	BytesUsed      int    `json:"bytesUsed"`
+	BytesTotal     int    `json:"bytesTotal"`
+	Role           string `json:"role"`
+	Email          string `json:"email"`
+	FirstName      string `json:"firstName"`
+	LastName       string `json:"lastName"`
+	ProfilePicture string `json:"ProfilePicture"`
 }
 
 type RegistrationResponse struct {
@@ -29,6 +30,20 @@ type RegistrationCommand struct {
 	FirstName string
 	LastName  string
 	Password  string
+}
+
+type UpdateUserCommand struct {
+	UpdateEmail    bool
+	UpdatePicture  bool
+	Email          string
+	FirstName      string
+	LastName       string
+	ProfilePicture string
+}
+
+type UpdatePasswordCommand struct {
+	NewPassword string
+	OldPassword string
 }
 
 func (user *UserResponse) FormatEmail() {

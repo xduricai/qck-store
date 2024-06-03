@@ -13,13 +13,15 @@ import (
 
 type UserController struct {
 	userQueryHandler   userh.IUserQueryHandler
-	userCommandHandler userh.IUSerCommandHandler
+	userCommandHandler userh.IUserCommandHandler
+	db                 *sql.DB
 }
 
 func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 	var controller = &UserController{
 		userQueryHandler:   userh.NewUserQueryHandler(db),
 		userCommandHandler: userh.NewUserCommandHandler(db),
+		db:                 db,
 	}
 
 	var routes = server.Group("/users")
@@ -29,6 +31,8 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 		routes.POST("/login", controller.Login)
 		routes.POST("/logout", controller.Logout)
 		routes.POST("/register", controller.Register)
+		routes.PATCH("/update", controller.Update)
+		routes.PATCH("/password", controller.ChangePassword)
 	}
 
 	return controller
@@ -108,4 +112,58 @@ func (c *UserController) Authenticate(ctx *gin.Context) {
 	} else {
 		ctx.JSON(http.StatusOK, res)
 	}
+}
+
+func (c *UserController) Update(ctx *gin.Context) {
+	id, ok := GetUserId(ctx)
+	if !ok {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	var requestBody userh.UpdateUserCommand
+
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		return
+	}
+
+	tx, err := c.db.BeginTx(ctx, nil)
+	if err != nil {
+		log.Println("An error occurred when creating transaction", err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	res, status := c.userCommandHandler.Update(&requestBody, id, ctx, tx)
+	if status != http.StatusOK {
+		ctx.Status(status)
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Println("An error occurred when commiting transaction", err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(status, res)
+}
+
+func (c *UserController) ChangePassword(ctx *gin.Context) {
+	id, ok := GetUserId(ctx)
+	if !ok {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	var requestBody userh.UpdatePasswordCommand
+
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		return
+	}
+
+	status := c.userCommandHandler.ChangePassword(&requestBody, id)
+	ctx.Status(status)
 }

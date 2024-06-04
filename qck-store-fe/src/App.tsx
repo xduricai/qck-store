@@ -59,7 +59,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/folder/:folderId" element={<Home />} />
               <Route path="/search/:query" element={<Home />} />
-              <Route path="/settings/" element={<Settings user={user} />} />
+              <Route path="/settings/" element={<Settings user={user} setUser={setUser} />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes> 
           }

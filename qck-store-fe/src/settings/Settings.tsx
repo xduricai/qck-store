@@ -12,7 +12,7 @@ import { DeleteOutline, Edit, ImageOutlined } from "@mui/icons-material";
 import { UserUpdateCommand } from "../api/commands/UserUpdateCommand";
 import "./settings.css";
 
-export function Settings({ user }: { user: User }) { 
+export function Settings({ user, setUser }: { user: User, setUser: (user: User) => void }) { 
     const showSnackbar = useSnackbarContext();
     const [ dialogOpen, setDialogOpen ] = useState(false);
     const [ profilePicture, setProfilePicture ] = useState(user.profilePicture);
@@ -42,8 +42,25 @@ export function Settings({ user }: { user: User }) {
     const { mutate } = useMutation({
         mutationFn: updateUser,
         onSuccess: (res, variables) => {
+            if (res.emailError) {
+                setEmailError(res.emailError);
+                showSnackbar("Could not update information, some fields are invalid", "error");
+                return;
+            }
             showSnackbar("Information updated successfully", "success");
-            // TODO 
+            const updatedUser: User = {...user};
+            
+            if (variables.updateEmail) {
+                updatedUser.email = res.email;
+                setEmail(res.email);
+            }
+            if (variables.updatePicture) {
+                updatedUser.profilePicture = profilePicture;
+            }
+            updatedUser.firstName = firstName;
+            updatedUser.lastName = lastName;
+
+            setUser(updatedUser);
         },
         onError: (err) => showSnackbar(err.toString(), "error")
     });
@@ -71,7 +88,7 @@ export function Settings({ user }: { user: User }) {
             email
         };
         if (req.updatePicture) req.profilePicture = profilePicture;
-        
+
         mutate(req);
     }
 

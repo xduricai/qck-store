@@ -2,7 +2,6 @@ package user_handlers
 
 import "fmt"
 
-// TODO move to global types file
 type UserResponse struct {
 	Id             int    `json:"-"`
 	BytesUsed      int    `json:"bytesUsed"`

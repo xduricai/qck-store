@@ -4,6 +4,8 @@ import { BaseUrl } from "./BaseUrl";
 import { RegistrationResponse } from "./responses/RegistrationResponse";
 import { UserUpdateCommand } from "./commands/UserUpdateCommand";
 
+type UserUpdateResult = { email: string, emailError?: string }
+
 export async function authenticate() {
     const res = await fetch(`${BaseUrl}/users/authenticate`, { 
         credentials: "include"
@@ -67,10 +69,15 @@ export async function updateUser(data: UserUpdateCommand) {
         body: JSON.stringify(data),
         credentials: "include"
     });
-    if (res.status !== 200 && res.status !== 400) {
+
+    if (res.status === 400) {
+        throw "Could not update information, some fields are invalid";
+    }
+    if (res.status !== 200 && res.status !== 409) {
         throw "An unknown error occurred"
     }
 
-    const response: string = await res.text();
-    return response;
+    const email: string = await res.text();
+    const emailError = res.status === 409 ? "This email is already in use" : undefined;
+    return { email, emailError } as UserUpdateResult;
 }

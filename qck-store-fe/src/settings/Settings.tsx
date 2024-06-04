@@ -9,12 +9,13 @@ import { useMutation } from "@tanstack/react-query";
 import { updateUser } from "../api/UserClient";
 import { IconButton } from "../shared/IconButton";
 import { DeleteOutline, Edit, ImageOutlined } from "@mui/icons-material";
+import { UserUpdateCommand } from "../api/commands/UserUpdateCommand";
 import "./settings.css";
 
 export function Settings({ user }: { user: User }) { 
     const showSnackbar = useSnackbarContext();
     const [ dialogOpen, setDialogOpen ] = useState(false);
-    const [ profilePicture, setProfilePicture ] = useState<string>("");
+    const [ profilePicture, setProfilePicture ] = useState(user.profilePicture);
     const [ email, setEmail ] = useState(user.email);
     const [ firstName, setFirstName ] = useState(user.firstName);
     const [ lastName, setLastName ] = useState(user.lastName);
@@ -61,14 +62,17 @@ export function Settings({ user }: { user: User }) {
 
     function handleSubmit() {
         if (firstError || lastError || emailError) return;
-        mutate({ 
-            updatePicture: profilePicture === user.profilePicture,
-            updateEmail: email === user.email,
-            profilePicture,
+
+        const req: UserUpdateCommand = { 
+            updatePicture: profilePicture !== user.profilePicture,
+            updateEmail: email !== user.email,
             firstName,
             lastName, 
-            email 
-        });
+            email
+        };
+        if (req.updatePicture) req.profilePicture = profilePicture;
+        
+        mutate(req);
     }
 
     return (

@@ -28,6 +28,9 @@
 
 .picture {
     object-fit: cover;
+    object-position: center;
+    justify-self: center;
+    align-self: center;
     aspect-ratio: 1 / 1;
 }
 

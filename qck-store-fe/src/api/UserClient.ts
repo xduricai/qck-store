@@ -63,7 +63,7 @@ export async function register(data: RegistrationCommand) {
 
 export async function updateUser(data: UserUpdateCommand) {
     const res = await fetch(`${BaseUrl}/users/update`, {
-        method: "POST",
+        method: "PATCH",
         body: JSON.stringify(data),
         credentials: "include"
     });
@@ -71,6 +71,6 @@ export async function updateUser(data: UserUpdateCommand) {
         throw "An unknown error occurred"
     }
 
-    const response: RegistrationResponse = await res.json();
+    const response: string = await res.text();
     return response;
 }

@@ -90,8 +90,9 @@ func (h *UserCommandHandler) Register(command *RegistrationCommand) (Registratio
 func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 	var res UserResponse
 	var password string
+	var profilePicture []byte
 	command.Identifier = strings.ToLower(command.Identifier)
-	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota, Password FROM Users WHERE Email = $1 OR Username = $1"
+	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota, Password, ProfilePicture FROM Users WHERE Email = $1 OR Username = $1"
 
 	if err := h.db.
 		QueryRow(query, command.Identifier).
@@ -104,6 +105,7 @@ func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 			&res.BytesUsed,
 			&res.BytesTotal,
 			&password,
+			&profilePicture,
 		); err != nil {
 		log.Println(err)
 		return res, http.StatusNotFound
@@ -113,6 +115,7 @@ func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 		return res, http.StatusUnauthorized
 	}
 	res.Email = FormatEmail(res.Email)
+	res.ProfilePicture = string(profilePicture)
 	return res, http.StatusOK
 }
 

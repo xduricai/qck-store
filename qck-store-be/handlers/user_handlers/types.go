@@ -2,6 +2,7 @@ package user_handlers
 
 import "fmt"
 
+// TODO move to global types file
 type UserResponse struct {
 	Id             int    `json:"-"`
 	BytesUsed      int    `json:"bytesUsed"`
@@ -10,7 +11,7 @@ type UserResponse struct {
 	Email          string `json:"email"`
 	FirstName      string `json:"firstName"`
 	LastName       string `json:"lastName"`
-	ProfilePicture string `json:"ProfilePicture"`
+	ProfilePicture string `json:"profilePicture"`
 }
 
 type RegistrationResponse struct {

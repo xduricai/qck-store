@@ -26,13 +26,14 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 
 	var routes = server.Group("/users")
 	{
-		routes.GET("/authenticate", mw.Authenticate, controller.Authenticate)
 		routes.GET("/all", controller.GetAll) // TODO remove
 		routes.POST("/login", controller.Login)
-		routes.POST("/logout", controller.Logout)
 		routes.POST("/register", controller.Register)
-		routes.PATCH("/update", controller.Update)
-		routes.PATCH("/password", controller.ChangePassword)
+
+		routes.GET("/authenticate", mw.Authenticate, controller.Authenticate)
+		routes.POST("/logout", mw.Authenticate, controller.Logout)
+		routes.PATCH("/update", mw.Authenticate, controller.Update)
+		routes.PATCH("/password", mw.Authenticate, controller.ChangePassword)
 	}
 
 	return controller
@@ -47,6 +48,7 @@ func (c *UserController) Register(ctx *gin.Context) {
 	var requestBody userh.RegistrationCommand
 
 	if err := ctx.BindJSON(&requestBody); err != nil {
+		log.Println("Could not parse request body", err)
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
@@ -124,6 +126,7 @@ func (c *UserController) Update(ctx *gin.Context) {
 	var requestBody userh.UpdateUserCommand
 
 	if err := ctx.BindJSON(&requestBody); err != nil {
+		log.Println("Could not parse request body", err)
 		ctx.Status(http.StatusBadRequest)
 		return
 	}

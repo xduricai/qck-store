@@ -42,10 +42,10 @@ function getTrackerInput(used: number, total: number) {
 
 export function Tracker() {
     const barRef = useRef<HTMLDivElement>(null);
-    const userContext = useUserContext();
+    const { user } = useUserContext();
     
-    const used = userContext.user?.bytesUsed || 0;
-    const total = userContext.user?.bytesTotal || 0;
+    const used = user!.bytesUsed;
+    const total = user!.bytesTotal;
     const input = getTrackerInput(used, total); 
     
     if (barRef.current) {

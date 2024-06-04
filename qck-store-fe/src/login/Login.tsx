@@ -11,7 +11,7 @@ export function Login() {
     const [ password, setPassword ] = useState('');
     const [ formErr, setFormErr ] = useState('');
 
-    const userContext = useUserContext();
+    const { setUser } = useUserContext();
     const showSnackbar = useSnackbarContext();
     const navigate = useNavigate();
     const toRegistration = () => navigate('/register');
@@ -20,7 +20,7 @@ export function Login() {
         event.preventDefault();
         try {
             const res = await login(identifier, password);
-            userContext.setUser(res);
+            setUser(res);
         } catch (err) {
             if (typeof err === "string") setFormErr(err);
             else {

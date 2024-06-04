@@ -8,7 +8,7 @@ import { useSnackbarContext } from "../global/SnackbarContext";
 import { RegistrationResponse } from "../api/responses/RegistrationResponse";
 
 export function Registration() {
-    const userContext = useUserContext();
+    const { setUser } = useUserContext();
     const showSnackbar = useSnackbarContext();
     const navigate = useNavigate();
     const toLogin = () => navigate('/login');
@@ -78,7 +78,7 @@ export function Registration() {
 
     const [lastError, setLastError] = useState<string | null>(null);
     const validateLast = (name: string) => {
-        setLastError(name ? null : "Please enter your first name");
+        setLastError(name ? null : "Please enter your last name");
     }
 
     function checkFormValidity() {
@@ -110,9 +110,10 @@ export function Registration() {
         }
         if (res.id < 0) return;
 
-        userContext.setUser({
+        setUser({
             id: res.id,
             role: "user",
+            email: formData.email,
             firstName: formData.firstName,
             lastName: formData.lastName,
             bytesUsed: 0,

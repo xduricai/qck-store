@@ -1,0 +1,49 @@
+.settings-field {
+    @apply flex items-center px-4 h-24 bg-white;
+}
+
+.settings-field > span {
+    @apply w-36 font-semibold;
+}
+
+.profile-picture {
+    display: grid;
+    width: 196px;
+    height: 196px;
+}
+
+.profile-picture:has( > .overlay:hover) > .placeholder > .placeholder-icon {
+    display: none;
+}
+
+.picture, .placeholder, .overlay {
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    cursor: pointer;
+}
+
+.overlay { 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    opacity: 0;
+}
+
+.overlay:hover {
+    opacity: 1;
+}
+
+.delete {
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
+    z-index: 3;
+    height: fit-content;
+    width: fit-content;
+    align-self: flex-end;
+    justify-self: flex-end;
+}

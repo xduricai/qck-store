@@ -7,13 +7,16 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/xduricai/qck-store/qck-store-be/handlers"
 	"golang.org/x/crypto/sha3"
 )
 
-type IUSerCommandHandler interface {
+type IUserCommandHandler interface {
 	Login(*LoginCommand) (UserResponse, int)
 	Register(*RegistrationCommand) (RegistrationResponse, int)
+	Update(command *UpdateUserCommand, id string, ctx *gin.Context, tx *sql.Tx) (string, int)
+	ChangePassword(command *UpdatePasswordCommand, id string) int
 }
 
 type UserCommandHandler struct {
@@ -24,6 +27,13 @@ func NewUserCommandHandler(db *sql.DB) *UserCommandHandler {
 	return &UserCommandHandler{
 		db: db,
 	}
+}
+
+func generatePasswordHash(password *string) string {
+	pw := []byte(*password)
+	hash := make([]byte, 64)
+	sha3.ShakeSum256(hash, pw)
+	return hex.EncodeToString(hash)
 }
 
 func (h *UserCommandHandler) Register(command *RegistrationCommand) (RegistrationResponse, int) {
@@ -59,7 +69,7 @@ func (h *UserCommandHandler) Register(command *RegistrationCommand) (Registratio
 	created := handlers.GetUTCTime()
 	query = `
 		INSERT INTO Users (Role, UserName, Email, FirstName, LastName, Password, Created, TotalBytesUsed, Quota)
-		VALUES ('User', $1, $2, $3, $4, $5, $6, 0, 1073741824) RETURNING Id`
+		VALUES ('user', $1, $2, $3, $4, $5, $6, 0, 1073741824) RETURNING Id`
 
 	if err := h.db.
 		QueryRow(
@@ -80,8 +90,9 @@ func (h *UserCommandHandler) Register(command *RegistrationCommand) (Registratio
 func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 	var res UserResponse
 	var password string
+	var profilePicture []byte
 	command.Identifier = strings.ToLower(command.Identifier)
-	query := "SELECT Id, Role, Firstname, Lastname, TotalBytesUsed, Quota, Password FROM Users WHERE Email = $1 OR Username = $1"
+	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota, Password, ProfilePicture FROM Users WHERE Email = $1 OR Username = $1"
 
 	if err := h.db.
 		QueryRow(query, command.Identifier).
@@ -90,9 +101,11 @@ func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 			&res.Role,
 			&res.FirstName,
 			&res.LastName,
+			&res.Email,
 			&res.BytesUsed,
 			&res.BytesTotal,
 			&password,
+			&profilePicture,
 		); err != nil {
 		log.Println(err)
 		return res, http.StatusNotFound
@@ -101,12 +114,82 @@ func (h *UserCommandHandler) Login(command *LoginCommand) (UserResponse, int) {
 	if hash := generatePasswordHash(&command.Password); hash != password {
 		return res, http.StatusUnauthorized
 	}
+	res.Email = FormatEmail(res.Email)
+	res.ProfilePicture = string(profilePicture)
 	return res, http.StatusOK
 }
 
-func generatePasswordHash(password *string) string {
-	pw := []byte(*password)
-	hash := make([]byte, 64)
-	sha3.ShakeSum256(hash, pw)
-	return hex.EncodeToString(hash)
+func (h *UserCommandHandler) Update(command *UpdateUserCommand, id string, ctx *gin.Context, tx *sql.Tx) (string, int) {
+	var query string
+
+	command.Email = strings.ToLower(command.Email)
+
+	if (command.Email == "" && command.UpdateEmail) ||
+		command.FirstName == "" ||
+		command.LastName == "" {
+		return "", http.StatusBadRequest
+	}
+
+	if command.UpdateEmail {
+		var emailInUse bool
+
+		query = "SELECT EXISTS (SELECT 1 FROM Users WHERE Email = $1 AND Id != $2)"
+		if err := tx.QueryRowContext(ctx, query, command.Email, id).Scan(&emailInUse); err != nil {
+			log.Println("Could not check for email conflicts", err)
+			return "", http.StatusInternalServerError
+		}
+		if emailInUse {
+			return "", http.StatusConflict
+		}
+
+		query = "UPDATE Users SET Email = $1 WHERE Id = $2"
+		if _, err := tx.ExecContext(ctx, query, command.Email, id); err != nil {
+			log.Println("This email is already in use", err)
+			return "", http.StatusInternalServerError
+		}
+	}
+
+	if command.UpdatePicture {
+		data := []byte(command.ProfilePicture)
+		query = "UPDATE Users SET ProfilePicture = $1 WHERE Id = $2"
+		if _, err := tx.ExecContext(ctx, query, data, id); err != nil {
+			log.Println("An error occurred while saving profile picture", err)
+			return "", http.StatusInternalServerError
+		}
+	}
+
+	query = "UPDATE Users SET FirstName = $1, LastName = $2 WHERE Id = $3"
+	if _, err := tx.ExecContext(ctx, query, command.FirstName, command.LastName, id); err != nil {
+		log.Println("An error occurred while updating name", err)
+		return "", http.StatusInternalServerError
+	}
+
+	return FormatEmail(command.Email), http.StatusOK
+}
+
+func (h *UserCommandHandler) ChangePassword(command *UpdatePasswordCommand, id string) int {
+	if command.NewPassword == "" {
+		return http.StatusBadRequest
+	}
+
+	oldPassword := generatePasswordHash(&command.OldPassword)
+	newPassword := generatePasswordHash(&command.NewPassword)
+
+	var correctPw bool
+	query := "SELECT EXISTS (SELECT 1 FROM Users WHERE Password = $1 AND Id = $2)"
+	if err := h.db.QueryRow(query, oldPassword, id).Scan(&correctPw); err != nil {
+		log.Println("Could not verify password", err)
+		return http.StatusInternalServerError
+	}
+	if !correctPw {
+		return http.StatusUnauthorized
+	}
+
+	query = "UPDATE Users SET Password = $1 WHERE Id = $2"
+	if _, err := h.db.Exec(query, newPassword, id); err != nil {
+		log.Println("Could not update password", err)
+		return http.StatusInternalServerError
+	}
+
+	return http.StatusOK
 }

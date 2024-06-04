@@ -132,7 +132,9 @@ export function ContextMenu({ dirs, setDetails, setRename, setDelete, moveFile, 
             }
             <div className="flex flex-col w-48 h-fit rounded outline outline-gray-400 outline-[1px]">
                 <MenuItem onClick={() => setDetails(true)}>Details</MenuItem>
-                <MenuItem onClick={() => downloadItem()}>Download</MenuItem>
+                {menuStatus.type === "file" && 
+                    <MenuItem onClick={() => downloadItem()}>Download</MenuItem>
+                }
                 <MenuItem onClick={() => setRename(true)}>Rename</MenuItem>
                 <MenuItem className="moveto-toggle cursor-default justify-between pr-2">
                     Move To <ChevronRightIcon />

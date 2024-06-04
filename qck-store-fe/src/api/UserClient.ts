@@ -2,6 +2,9 @@ import { RegistrationCommand } from "./commands/RegistrationCommand";
 import { User } from "./responses/User";
 import { BaseUrl } from "./BaseUrl";
 import { RegistrationResponse } from "./responses/RegistrationResponse";
+import { UserUpdateCommand } from "./commands/UserUpdateCommand";
+
+type UserUpdateResult = { email: string, emailError?: string }
 
 export async function authenticate() {
     const res = await fetch(`${BaseUrl}/users/authenticate`, { 
@@ -35,6 +38,17 @@ export async function login(identifier: string, password: string) {
     return user;
 }
 
+export async function logout() {
+    const res = await fetch(`${BaseUrl}/users/logout`, {
+        method: "POST",
+        credentials: "include"
+    });
+
+    if (res.status !== 200) {
+        throw "An unknown error occurred while logging out"
+    }
+}
+
 export async function register(data: RegistrationCommand) {
     const res = await fetch(`${BaseUrl}/users/register`, {
         method: "POST",
@@ -47,4 +61,23 @@ export async function register(data: RegistrationCommand) {
 
     const response: RegistrationResponse = await res.json();
     return response;
+}
+
+export async function updateUser(data: UserUpdateCommand) {
+    const res = await fetch(`${BaseUrl}/users/update`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+        credentials: "include"
+    });
+
+    if (res.status === 400) {
+        throw "Could not update information, some fields are invalid";
+    }
+    if (res.status !== 200 && res.status !== 409) {
+        throw "An unknown error occurred"
+    }
+
+    const email: string = await res.text();
+    const emailError = res.status === 409 ? "This email is already in use" : undefined;
+    return { email, emailError } as UserUpdateResult;
 }

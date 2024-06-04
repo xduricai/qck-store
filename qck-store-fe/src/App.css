@@ -25,3 +25,11 @@
 .menu-item {
     @apply flex w-full bg-white hover:bg-gray-100 items-center p-2 cursor-pointer first:rounded-t last:rounded-b;
 }
+
+.picture {
+    object-fit: cover;
+    object-position: center;
+    justify-self: center;
+    align-self: center;
+    aspect-ratio: 1 / 1;
+}

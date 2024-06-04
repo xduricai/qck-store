@@ -11,7 +11,7 @@ import "./navigation.css";
  
 export function Navbar() {
     const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
-    const userContext = useUserContext();
+    const { user, setUser } = useUserContext();
     const showSnackbar = useSnackbarContext();
     
     function toggleMenu (event: MouseEvent) {
@@ -21,26 +21,31 @@ export function Navbar() {
 
     async function logOut () {
         logout()
-            .then(() => userContext.setUser(undefined))
+            .then(() => setUser(undefined))
             .catch((err) => showSnackbar(err.toString(), "error"));
     }
 
     return (
         <nav onClick={() => setMenuOpen(false)} className="navbar items-center w-full align-items-center text-xl font-medium bg-gray-100 h-16">
             <Logo />
-            {!!userContext.user &&
+            {!!user &&
             <>
                 <div className="ml-4">
                     <Searchbar />
                 </div>
                 
-                <div onClick={toggleMenu} className="flex items-center mx-2 w-min text-purple-800 cursor-pointer hover:bg-gray-300 rounded-3xl">      
+                <div onClick={toggleMenu} className="flex items-center mx-2 w-max text-purple-800 cursor-pointer hover:bg-gray-300 rounded-3xl">      
                     <span className="w-max h-fit text-base font-semibold ml-4">
-                        {`${userContext.user.firstName} ${userContext.user.lastName}`}
+                        {`${user.firstName} ${user.lastName}`}
                     </span>            
-                    <IconButton>
-                        <AccountCircleIcon fontSize="large" />
-                    </IconButton>
+                    {!user.profilePicture &&
+                        <IconButton>
+                            <AccountCircleIcon fontSize="large" />
+                        </IconButton>
+                    }
+                    {user.profilePicture &&
+                        <img src={user.profilePicture} className="picture size-10 m-[3px] ml-2" />
+                    }
                 </div>
 
                 {menuOpen &&

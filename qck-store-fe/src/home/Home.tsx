@@ -26,7 +26,7 @@ export function Home() {
     const location = useLocation();    
     const queryClient = useQueryClient();
     const showSnackbar = useSnackbarContext();
-    const userContext = useUserContext();
+    const { user, setUser } = useUserContext();
 
     const sortOptions = getSortOptions();
     const [ sortOption, setSortOption ] = useState<SortOption>(sortOptions[0]);
@@ -56,10 +56,7 @@ export function Home() {
         mutationFn: uploadFile,
         onSuccess: (file, variables) => {
             showSnackbar("File uploaded successfully", "success");
-
-            const user = {...userContext.user!};
-            user.bytesUsed += file.size;
-            userContext.setUser(user);
+            setUser({ ...user!, bytesUsed: user!.bytesUsed + file.size });
 
             if (folderId !== variables.folderId) return;
 
@@ -106,10 +103,7 @@ export function Home() {
         mutationFn: deleteFile,
         onSuccess: (size, deletedId) => {
             showSnackbar("File deleted successfully", "success");
-
-            const user = {...userContext.user!};
-            user.bytesUsed -= size;
-            userContext.setUser(user);
+            setUser({ ...user!, bytesUsed: user!.bytesUsed - size});
 
             queryClient.setQueryData(["content", folderId || query], (content: FolderContentResponse) => content && ({
                 ...content,
@@ -190,10 +184,7 @@ export function Home() {
         mutationFn: deleteDirectory,
         onSuccess: (res) => {
             showSnackbar("Directory deleted successfully", "success");
-
-            const user = {...userContext.user!};
-            user.bytesUsed -= res.size;
-            userContext.setUser(user);
+            setUser({ ...user!, bytesUsed: user!.bytesUsed - res.size });
 
             queryClient.setQueryData(["dirs"], (dirs: Directory[]) => dirs &&
                 dirs.filter(dir => !dir.path.startsWith(res.path))

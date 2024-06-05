@@ -8,11 +8,16 @@ import { useSnackbarContext } from "../global/SnackbarContext";
 import { useMutation } from "@tanstack/react-query";
 import { updateUser } from "../api/UserClient";
 import { IconButton } from "../shared/IconButton";
-import { DeleteOutline, Edit, ImageOutlined } from "@mui/icons-material";
 import { UserUpdateCommand } from "../api/commands/UserUpdateCommand";
+import { DeleteOutline, Edit, FileUploadOutlined, ImageOutlined } from "@mui/icons-material";
 import "./settings.css";
 
-export function Settings({ user, setUser }: { user: User, setUser: (user: User) => void }) { 
+type SettingsProps = { 
+    user: User,
+    setUser: (user: User) => void
+}
+
+export function Settings({ user, setUser }: SettingsProps) { 
     const showSnackbar = useSnackbarContext();
     const [ dialogOpen, setDialogOpen ] = useState(false);
     const [ profilePicture, setProfilePicture ] = useState(user.profilePicture);
@@ -32,6 +37,8 @@ export function Settings({ user, setUser }: { user: User, setUser: (user: User) 
 
     const [ emailError, setEmailError ] = useState<string | null>(null);
     const validateEmail = (email: string) => {
+        if (email === user.email) return true;
+        
         if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
             setEmailError("Please enter a valid email address");
             return;
@@ -88,6 +95,10 @@ export function Settings({ user, setUser }: { user: User, setUser: (user: User) 
     }
 
     function handleSubmit() {
+        validateEmail(email);
+        validateFirst(firstName);
+        validateLast(lastName);
+
         if (firstError || lastError || emailError) return;
         if (profilePicture === user.profilePicture && 
             email === user.email && 
@@ -133,6 +144,15 @@ export function Settings({ user, setUser }: { user: User, setUser: (user: User) 
                                 <IconButton className="bg-gray-100">
                                     <DeleteOutline onClick={() => setProfilePicture("")} fontSize="large" className="text-red-800" />
                                 </IconButton>
+                            </div>
+                        }
+                        {!profilePicture && 
+                            <div className="upload">
+                                <label htmlFor="image-upload">
+                                    <IconButton className="bg-gray-100">
+                                        <FileUploadOutlined  fontSize="large" className="text-purple-800" />
+                                    </IconButton>
+                                </label>
                             </div>
                         }
                     </div>  
@@ -183,7 +203,7 @@ export function Settings({ user, setUser }: { user: User, setUser: (user: User) 
                     <Button onClick={handleSubmit} color="accent" className="mr-4">Save Changes</Button>
                 </div>
             </section>
-            <PasswordDialog userId={user.id} open={dialogOpen} setOpen={setDialogOpen} />
+            <PasswordDialog open={dialogOpen} setOpen={setDialogOpen} />
         </div>
     );
 }

@@ -77,8 +77,23 @@ export function Settings({ user, setUser }: { user: User, setUser: (user: User) 
         }
     }
 
+    function revertChanges() {
+        setEmail(user.email);
+        setFirstName(user.firstName);
+        setLastName(user.lastName);
+        setProfilePicture(user.profilePicture);
+        setEmailError("");
+        setFirstError("");
+        setLastError("");
+    }
+
     function handleSubmit() {
         if (firstError || lastError || emailError) return;
+        if (profilePicture === user.profilePicture && 
+            email === user.email && 
+            firstName === user.firstName && 
+            lastName === user.lastName
+        ) return;
 
         const req: UserUpdateCommand = { 
             updatePicture: profilePicture !== user.profilePicture,
@@ -164,8 +179,8 @@ export function Settings({ user, setUser }: { user: User, setUser: (user: User) 
                     />
                 </div>
                 <div className="flex items-center h-[72px] bg-gray-300 rounded-b">
-                    {/* TODO <Button onClick={handleSubmit} color="accent" className="ml-auto mr-4">Revert Changes</Button> */}
-                    <Button onClick={handleSubmit} color="accent" className="ml-auto mr-4">Save Changes</Button>
+                    <Button onClick={revertChanges} color="outlined" className="ml-auto mr-4">Discard Changes</Button>
+                    <Button onClick={handleSubmit} color="accent" className="mr-4">Save Changes</Button>
                 </div>
             </section>
             <PasswordDialog userId={user.id} open={dialogOpen} setOpen={setDialogOpen} />

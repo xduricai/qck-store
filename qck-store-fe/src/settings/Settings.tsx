@@ -119,7 +119,7 @@ export function Settings({ user, setUser }: SettingsProps) {
     }
 
     return (
-        <div className="h-[calc(100%-4rem)] max-w-[800px] mx-auto">
+        <div className="h-[calc(100%-4rem)] max-w-[800px] px-12 mx-auto">
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-semibold my-6">Settings</h1>
                 <Link to="/">

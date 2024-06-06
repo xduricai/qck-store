@@ -24,6 +24,8 @@ func NewUserQueryHandler(db *sql.DB) *UserQueryHandler {
 
 func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 	var rows *sql.Rows
+	var bytesUsed sql.NullInt32
+	var bytesTotal sql.NullInt32
 	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota, ProfilePicture FROM Users"
 
 	if data, err := h.db.Query(query); err == nil {
@@ -44,12 +46,19 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 			&res.FirstName,
 			&res.LastName,
 			&res.Email,
-			&res.BytesUsed,
-			&res.BytesTotal,
+			&bytesUsed,
+			&bytesTotal,
 			&profilePicture,
 		); err != nil {
 			log.Println(err)
 			continue
+		}
+
+		if bytesUsed.Valid {
+			res.BytesUsed = int(bytesUsed.Int32)
+		}
+		if bytesTotal.Valid {
+			res.BytesTotal = int(bytesTotal.Int32)
 		}
 		res.Email = FormatEmail(res.Email)
 		res.ProfilePicture = string(profilePicture)
@@ -64,6 +73,8 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 
 func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
 	var res UserResponse
+	var bytesUsed sql.NullInt32
+	var bytesTotal sql.NullInt32
 	var profilePicture []byte
 	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota, ProfilePicture FROM Users WHERE Id = $1"
 
@@ -74,12 +85,19 @@ func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
 			&res.FirstName,
 			&res.LastName,
 			&res.Email,
-			&res.BytesUsed,
-			&res.BytesTotal,
+			&bytesUsed,
+			&bytesTotal,
 			&profilePicture,
 		); err != nil {
 		log.Println("An error occurred while retrieving user information", err)
 		return res, http.StatusInternalServerError
+	}
+
+	if bytesUsed.Valid {
+		res.BytesUsed = int(bytesUsed.Int32)
+	}
+	if bytesTotal.Valid {
+		res.BytesTotal = int(bytesTotal.Int32)
 	}
 	res.Email = FormatEmail(res.Email)
 	res.ProfilePicture = string(profilePicture)

@@ -33,13 +33,7 @@ func main() {
 	controllers.RegisterDirectoryController(DB, server)
 	controllers.RegisterFileController(DB, server)
 	controllers.RegisterSearchController(DB, server)
-
-	// TODO remove
-	server.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	controllers.RegisterAdminController(DB, server)
 
 	server.Run()
 }

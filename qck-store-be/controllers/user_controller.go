@@ -26,7 +26,6 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 
 	var routes = server.Group("/users")
 	{
-		routes.GET("/all", controller.GetAll) // TODO remove
 		routes.POST("/login", controller.Login)
 		routes.POST("/register", controller.Register)
 
@@ -37,11 +36,6 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 	}
 
 	return controller
-}
-
-func (c *UserController) GetAll(ctx *gin.Context) {
-	users, status := c.userQueryHandler.GetAll()
-	ctx.JSON(status, users)
 }
 
 func (c *UserController) Register(ctx *gin.Context) {

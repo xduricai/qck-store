@@ -26,7 +26,7 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 	var rows *sql.Rows
 	var bytesUsed sql.NullInt32
 	var bytesTotal sql.NullInt32
-	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota, ProfilePicture FROM Users"
+	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota FROM Users WHERE Role != 'admin'"
 
 	if data, err := h.db.Query(query); err == nil {
 		rows = data
@@ -38,7 +38,6 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 
 	for rows.Next() {
 		var res UserResponse
-		var profilePicture []byte
 
 		if err := rows.Scan(
 			&res.Id,
@@ -48,7 +47,6 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 			&res.Email,
 			&bytesUsed,
 			&bytesTotal,
-			&profilePicture,
 		); err != nil {
 			log.Println(err)
 			continue
@@ -60,8 +58,6 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 		if bytesTotal.Valid {
 			res.BytesTotal = int(bytesTotal.Int32)
 		}
-		res.Email = FormatEmail(res.Email)
-		res.ProfilePicture = string(profilePicture)
 		users = append(users, res)
 	}
 

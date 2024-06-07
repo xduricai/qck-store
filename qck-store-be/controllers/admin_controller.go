@@ -30,7 +30,8 @@ func RegisterAdminController(db *sql.DB, server *gin.Engine) *AdminController {
 func (c *AdminController) GetAllUsers(ctx *gin.Context) {
 	res, status := c.userQueryHandler.GetAll()
 	if status != http.StatusOK {
-		ctx.AbortWithStatus(http.StatusInternalServerError)
+		ctx.Status(http.StatusInternalServerError)
+		return
 	}
 	ctx.JSON(status, res)
 }

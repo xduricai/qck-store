@@ -51,6 +51,7 @@ func AuthenticateAdmin(ctx *gin.Context) {
 	role, ok := ctx.Get("role")
 	if !ok || role != "admin" {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
+		return
 	}
 	ctx.Next()
 }

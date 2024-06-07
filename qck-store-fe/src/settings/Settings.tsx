@@ -3,7 +3,7 @@ import { Input } from "../shared/Input";
 import { User } from "../api/responses/User";
 import { Button } from "../shared/Button";
 import { PasswordDialog } from "./PasswordDialog";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSnackbarContext } from "../global/SnackbarContext";
 import { useMutation } from "@tanstack/react-query";
 import { updateUser } from "../api/UserClient";
@@ -18,6 +18,7 @@ type SettingsProps = {
 }
 
 export function Settings({ user, setUser }: SettingsProps) { 
+    const navigate = useNavigate();
     const showSnackbar = useSnackbarContext();
     const [ dialogOpen, setDialogOpen ] = useState(false);
     const [ profilePicture, setProfilePicture ] = useState(user.profilePicture);
@@ -122,9 +123,9 @@ export function Settings({ user, setUser }: SettingsProps) {
         <div className="h-[calc(100%-4rem)] max-w-[800px] px-12 mx-auto">
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-semibold my-6">Settings</h1>
-                <Link to="/">
-                    <Button color="outlined">Home</Button>
-                </Link>
+                <Button color="outlined" onClick={() => navigate(-1)}>
+                    Return
+                </Button>
             </div>
             <div className="mb-8">
                 <h2 className="text-lg font-semibold mb-4">Profile Picture</h2>

@@ -5,7 +5,7 @@ import { useUserContext } from "../global/UserContext";
 import { useSnackbarContext } from "../global/SnackbarContext";
 import { MouseEvent, useState } from "react";
 import { logout } from "../api/UserClient";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import "./navigation.css";
  
@@ -13,7 +13,13 @@ export function Navbar() {
     const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
     const { user, setUser } = useUserContext();
     const showSnackbar = useSnackbarContext();
-    
+    const navigate = useNavigate();
+
+    function search(query: string) {
+        if (!query) return;
+        navigate(`/search/${query}`);
+    }
+
     function toggleMenu (event: MouseEvent) {
         event.stopPropagation();
         setMenuOpen(!menuOpen);
@@ -27,12 +33,14 @@ export function Navbar() {
 
     return (
         <nav onClick={() => setMenuOpen(false)} className="navbar items-center w-full align-items-center text-xl font-medium bg-gray-100 h-16">
-            <Logo />
+            <div className="hover:bg-purple-100 ml-2 py-2 rounded-lg">
+                <Logo />
+            </div>
             {!!user &&
             <>
                 {user.role !== "admin" &&                 
                     <div className="ml-4">
-                        <Searchbar />
+                        <Searchbar onSubmit={search} />
                     </div>
                 }
                 

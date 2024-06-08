@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { useUserContext } from "../global/UserContext";
+import { useEffect, useRef } from "react";
+import { User } from "../api/responses/User";
 
 type TrackerInput = {
     used: string;
@@ -40,20 +40,18 @@ function getTrackerInput(used: number, total: number) {
     } as TrackerInput;
 }
 
-export function Tracker() {
+export function Tracker({ user, className = "" }: { user: User, className?: string }) {
     const barRef = useRef<HTMLDivElement>(null);
-    const { user } = useUserContext();
+    const input = getTrackerInput(user!.bytesUsed, user!.bytesTotal);
     
-    const used = user!.bytesUsed;
-    const total = user!.bytesTotal;
-    const input = getTrackerInput(used, total); 
-    
-    if (barRef.current) {
-        barRef.current.style.width = input.percentage; 
-    }
+    useEffect(() => {
+        if (barRef.current) {
+            barRef.current.style.width = input.percentage; 
+        }
+    }, [barRef, input])
     
     return (
-        <div className="flex flex-col mt-auto pt-2 pb-4 px-4 border-t border-gray-400">
+        <div className={`flex flex-col ${className}`}>
             <span className="mb-1 px-[1px]">Storage Used</span>
             <div className="h-2 rounded-lg bg-purple-200">
                 <div ref={barRef} className={`h-full rounded-lg bg-purple-800 ${barRef.current ? '' : 'w-0'}`} />

@@ -1,5 +1,5 @@
 import { BaseUrl } from "./BaseUrl";
-import { User } from "./responses/User";
+import { UserDetails } from "./responses/UserDetails";
 
 export async function getUsers() {
     const res = await fetch(`${BaseUrl}/admin/users`, { 
@@ -7,6 +7,6 @@ export async function getUsers() {
     });
     if (res.status !== 200) throw "Could not retrieve users";
 
-    const users: User[] = await res.json();
+    const users: UserDetails[] = await res.json();
     return users;
 }

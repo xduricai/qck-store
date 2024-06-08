@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+
+	"github.com/xduricai/qck-store/qck-store-be/handlers"
 )
 
 type IUserQueryHandler interface {
-	GetAll() ([]UserResponse, int)
+	GetAll() ([]UserDetailResponse, int)
 	GetUserDetails(string) (UserResponse, int)
 	FileFits(fileSize int64, userId string) bool
 }
@@ -22,25 +24,27 @@ func NewUserQueryHandler(db *sql.DB) *UserQueryHandler {
 	}
 }
 
-func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
+func (h *UserQueryHandler) GetAll() ([]UserDetailResponse, int) {
 	var rows *sql.Rows
 	var bytesUsed sql.NullInt32
 	var bytesTotal sql.NullInt32
-	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota FROM Users WHERE Role != 'admin'"
+	var users []UserDetailResponse
+	query := "SELECT Id, Created, Username, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota FROM Users WHERE Role != 'admin'"
 
 	if data, err := h.db.Query(query); err == nil {
 		rows = data
 	} else {
 		log.Println(err)
-		return []UserResponse{}, http.StatusInternalServerError
+		return users, http.StatusInternalServerError
 	}
-	var users = []UserResponse{}
 
 	for rows.Next() {
-		var res UserResponse
+		var res UserDetailResponse
 
 		if err := rows.Scan(
 			&res.Id,
+			&res.Created,
+			&res.Username,
 			&res.Role,
 			&res.FirstName,
 			&res.LastName,
@@ -52,6 +56,7 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 			continue
 		}
 
+		res.Created, _ = handlers.FormatDate(res.Created)
 		if bytesUsed.Valid {
 			res.BytesUsed = int(bytesUsed.Int32)
 		}

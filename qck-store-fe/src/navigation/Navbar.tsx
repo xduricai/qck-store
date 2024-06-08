@@ -30,11 +30,13 @@ export function Navbar() {
             <Logo />
             {!!user &&
             <>
-                <div className="ml-4">
-                    <Searchbar />
-                </div>
+                {user.role !== "admin" &&                 
+                    <div className="ml-4">
+                        <Searchbar />
+                    </div>
+                }
                 
-                <div onClick={toggleMenu} className="flex items-center mx-2 w-max text-purple-800 cursor-pointer hover:bg-gray-300 rounded-3xl">      
+                <div onClick={toggleMenu} className="flex items-center ml-auto mr-2 w-max text-purple-800 cursor-pointer hover:bg-gray-300 rounded-3xl">      
                     <span className="w-max h-fit text-base font-semibold ml-4">
                         {`${user.firstName} ${user.lastName}`}
                     </span>            

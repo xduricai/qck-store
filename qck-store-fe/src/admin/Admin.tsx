@@ -14,10 +14,10 @@ export function Admin() {
     if (isError) return <ErrorPage />
     
     return (
-        <div className="h-[calc(100%-4rem)] max-w-[800px] px-12 mx-auto">
+        <div className="h-[calc(100%-4rem)] max-w-[900px] px-12 mx-auto">
             <h1 className="text-xl font-semibold my-6">Users</h1>
             <section className="flex flex-col gap-y-3">
-                {data?.map(user => <UserCard user={user} /> )}
+                {data?.map(user => <UserCard key={user.id} user={user} /> )}
             </section>
         </div>          
     );

@@ -22,6 +22,7 @@ type FileResponse struct {
 }
 
 type DirectoryContentResponse struct {
+	Path        string              `json:"path"`
 	Files       []FileResponse      `json:"files"`
 	Directories []DirectoryResponse `json:"directories"`
 }

@@ -76,6 +76,13 @@ func (c *DirectoryController) GetDirectoryContent(ctx *gin.Context) {
 		res.Directories = dirs
 	}
 
+	if path, status := c.directoryQueryHandler.GetPath(folderId, id); status != http.StatusOK {
+		ctx.Status(status)
+		return
+	} else {
+		res.Path = path
+	}
+
 	if files, status := c.fileQueryHandler.GetForDirectory(folderId, id); status != http.StatusOK {
 		ctx.Status(status)
 		return

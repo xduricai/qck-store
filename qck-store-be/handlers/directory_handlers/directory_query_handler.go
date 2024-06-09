@@ -10,6 +10,7 @@ import (
 )
 
 type IDirectoryQueryHandler interface {
+	GetPath(folderId, userId string) (string, int)
 	GetAll(userId string) ([]handlers.DirectoryResponse, int)
 	GetForDirectory(folderId, userId string) ([]handlers.DirectoryResponse, int)
 	GetByName(folderId, userId string) ([]handlers.DirectoryResponse, int)
@@ -23,6 +24,17 @@ func NewDirectoryQueryHandler(db *sql.DB) *DirectoryQueryHandler {
 	return &DirectoryQueryHandler{
 		db: db,
 	}
+}
+
+func (h *DirectoryQueryHandler) GetPath(folderId, userId string) (string, int) {
+	query := "SELECT Path FROM Directories WHERE UserId = $1 AND Id = $2"
+	var path string
+
+	if err := h.db.QueryRow(query, userId, folderId).Scan(&path); err != nil {
+		log.Println("Could not retrieve path for specified directory", err)
+		return path, http.StatusInternalServerError
+	}
+	return path, http.StatusOK
 }
 
 func (h *DirectoryQueryHandler) GetAll(id string) ([]handlers.DirectoryResponse, int) {

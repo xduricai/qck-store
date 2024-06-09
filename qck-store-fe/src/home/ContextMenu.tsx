@@ -5,7 +5,7 @@ import { BaseUrl } from "../api/BaseUrl";
 import { MoveCommand } from "../api/commands/MoveCommand";
 import { ContextMenuStatus, useMenuContext } from "../global/MenuContext";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import './home.css';
+import styles from './home.module.css';
 
 type MenuItemProps = {
     children: ReactNode;
@@ -121,7 +121,7 @@ export function ContextMenu({ dirs, setDetails, setRename, setDelete, moveFile, 
     return (
         <section className="flex flex-row absolute w-fit" style={style} >
             {x < 0 &&
-            <div className={`moveto-section w-48 h-fit max-h-64 rounded-l border-gray-400 border bg-white flex-col overflow-y-auto scrollbar hidden hover:flex ${dirsMargin}`}>
+            <div className={`${styles["moveto-section"]} w-48 h-fit max-h-64 rounded-l border-gray-400 border bg-white flex-col overflow-y-auto scrollbar hidden hover:flex ${dirsMargin}`}>
                 {filteredDirs!.map(dir => 
                     <MenuItem key={dir.id} onClick={() => moveItem(dir.id)}>
                         {dir.name}
@@ -136,7 +136,7 @@ export function ContextMenu({ dirs, setDetails, setRename, setDelete, moveFile, 
                     <MenuItem onClick={() => downloadItem()}>Download</MenuItem>
                 }
                 <MenuItem onClick={() => setRename(true)}>Rename</MenuItem>
-                <MenuItem className="moveto-toggle cursor-default justify-between pr-2">
+                <MenuItem className={`${styles["moveto-toggle"]} cursor-default justify-between pr-2`}>
                     Move To <ChevronRightIcon />
                 </MenuItem>
                 <MenuItem onClick={() => setDelete(true)} className="text-red-600 font-semibold">
@@ -144,7 +144,7 @@ export function ContextMenu({ dirs, setDetails, setRename, setDelete, moveFile, 
                 </MenuItem>
             </div>
             {x >= 0 &&
-            <div className={`moveto-section w-48 h-fit max-h-64 rounded-r border-gray-400 border bg-white flex-col overflow-y-auto scrollbar hidden hover:flex ${dirsMargin}`}>
+            <div className={`${styles["moveto-section"]} w-48 h-fit max-h-64 rounded-r border-gray-400 border bg-white flex-col overflow-y-auto scrollbar hidden hover:flex ${dirsMargin}`}>
                 {filteredDirs!.map(dir => 
                     <MenuItem key={dir.id} onClick={() => moveItem(dir.id)}>
                         {dir.name}

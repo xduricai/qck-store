@@ -10,7 +10,7 @@ import { updateUser } from "../api/UserClient";
 import { IconButton } from "../shared/IconButton";
 import { UserUpdateCommand } from "../api/commands/UserUpdateCommand";
 import { DeleteOutline, Edit, FileUploadOutlined, ImageOutlined } from "@mui/icons-material";
-import "./settings.css";
+import styles from "./settings.module.css";
 
 type SettingsProps = { 
     user: User,
@@ -129,26 +129,26 @@ export function Settings({ user, setUser }: SettingsProps) {
             </div>
             <div className="mb-8">
                 <h2 className="text-lg font-semibold mb-4">Profile Picture</h2>
-                <div className="profile-picture">
-                        {profilePicture && <img src={profilePicture} className="picture" />}
+                <div className={styles["profile-picture"]}>
+                        {profilePicture && <img src={profilePicture} className={`${styles.picture} picture`} />}
                         {!profilePicture &&
-                            <div className="placeholder bg-gray-100">
-                                <ImageOutlined sx={{ width: 1/3, height: 1/3 }} className="placeholder-icon text-gray-800" />
+                            <div className={`${styles.placeholder} bg-gray-100`}>
+                                <ImageOutlined sx={{ width: 1/3, height: 1/3 }} className={`${styles["placeholder-icon"]} text-gray-800`} />
                             </div>
                         }
-                        <label htmlFor="image-upload" className="overlay hover:bg-gray-400/60">
-                            <Edit sx={{ width: 1/4, height: 1/4 }} className="overlay-icon text-gray-800" />
+                        <label htmlFor="image-upload" className={`${styles.overlay} hover:bg-gray-400/60`}>
+                            <Edit sx={{ width: 1/4, height: 1/4 }} className="text-gray-800" />
                         </label>
                         <input onChange={handleUpload} className="hidden" type="file" id="image-upload" accept="image/*" />
                         {profilePicture && 
-                            <div className="delete">
+                            <div className={styles.delete}>
                                 <IconButton className="bg-gray-100">
                                     <DeleteOutline onClick={() => setProfilePicture("")} fontSize="large" className="text-red-800" />
                                 </IconButton>
                             </div>
                         }
                         {!profilePicture && 
-                            <div className="upload">
+                            <div className={styles.upload}>
                                 <label htmlFor="image-upload">
                                     <IconButton className="bg-gray-100">
                                         <FileUploadOutlined  fontSize="large" className="text-purple-800" />
@@ -159,11 +159,11 @@ export function Settings({ user, setUser }: SettingsProps) {
                     </div>  
             </div>
             <section className="grid grid-cols-1 rounded p-[1px] bg-gray-800 gap-y-[1px]">
-                <div className="settings-field rounded-t">
+                <div className={`${styles["settings-field"]} rounded-t`}>
                     <span className="">Password</span>
                     <Button onClick={() => setDialogOpen(true)} color="outlined">Change Password</Button>
                 </div>
-                <div className="settings-field">
+                <div className={styles["settings-field"]}>
                     <span>Email</span>
                     <Input 
                         width="w-72"
@@ -175,7 +175,7 @@ export function Settings({ user, setUser }: SettingsProps) {
                         className="mt-5 focus:mt-[19px]"
                     />
                 </div>
-                <div className="settings-field">
+                <div className={styles["settings-field"]}>
                     <span>First Name</span>
                     <Input 
                         width="w-72"
@@ -187,7 +187,7 @@ export function Settings({ user, setUser }: SettingsProps) {
                         className="mt-5 focus:mt-[19px]"
                     />
                 </div>
-                <div className="settings-field">
+                <div className={styles["settings-field"]}>
                     <span>Last Name</span>
                     <Input 
                         width="w-72"

@@ -7,7 +7,7 @@ import { MouseEvent, useState } from "react";
 import { logout } from "../api/UserClient";
 import { Link, useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import "./navigation.css";
+import styles from "./navigation.module.css";
  
 export function Navbar() {
     const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
@@ -32,7 +32,7 @@ export function Navbar() {
     }
 
     return (
-        <nav onClick={() => setMenuOpen(false)} className="navbar items-center w-full align-items-center text-xl font-medium bg-gray-100 h-16">
+        <nav onClick={() => setMenuOpen(false)} className={`${styles.navbar} items-center w-full align-items-center text-xl font-medium bg-gray-100 h-16`}>
             <div className="hover:bg-purple-100 ml-2 py-2 rounded-lg">
                 <Logo />
             </div>

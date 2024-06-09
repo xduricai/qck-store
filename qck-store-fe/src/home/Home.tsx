@@ -21,7 +21,7 @@ import { ContextMenuContext, ContextMenuStatus, ItemType } from "../global/MenuC
 import { Directory } from "../api/responses/Directory";
 import { IconButton } from "../shared/IconButton";
 import { Close } from "@mui/icons-material";
-import './home.css';
+import styles from './home.module.css';
 
 export function Home() {
     const { folderId, query } = useParams();
@@ -268,11 +268,11 @@ export function Home() {
                 </div>
 
                 {contentDirs.length > 0 && 
-                    <div className="dynamic-grid-sm gap-4 mb-8">
+                    <div className={`${styles["dynamic-grid-sm"]} gap-4 mb-8`}>
                         {contentDirs.map(dir => <DirectoryChip key={dir.id} data={dir} />)}
                     </div>
                 }
-                <div className="dynamic-grid-lg gap-4">
+                <div className={`${styles["dynamic-grid-lg"]} gap-4`}>
                     {files.map(file => <FileChip key={file.id} data={file} />)}
                 </div>
             </section>

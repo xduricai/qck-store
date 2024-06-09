@@ -10,7 +10,7 @@ const snackbarColors = {
 
 export function Snackbar({ message, style }: SnackbarProps) {
     const background = snackbarColors[style];
-    const color = `${background} text-white`;
+    const color = `${background} text-slate-50`;
     
     return (
         <Overlay>

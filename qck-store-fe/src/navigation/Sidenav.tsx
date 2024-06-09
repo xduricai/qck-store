@@ -4,6 +4,7 @@ import { Directory } from "../api/responses/Directory";
 import { Button } from "../shared/Button";
 import { Tracker } from './Tracker';
 import { ItemType, useMenuContext } from '../global/MenuContext';
+import { useUserContext } from "../global/UserContext";
 import AddIcon from '@mui/icons-material/Add';
 
 type SidenavProps = {
@@ -15,6 +16,7 @@ type SidenavProps = {
 }
 
 export function Sidenav({ directories, selectedId, addOpen, setAddOpen, setDialogStatus }: SidenavProps) {  
+    const { user } = useUserContext();
     const { setMenuStatus } = useMenuContext();
 
     const colorRegular = "hover:bg-gray-200";
@@ -59,7 +61,7 @@ export function Sidenav({ directories, selectedId, addOpen, setAddOpen, setDialo
                 )
             }
             </div>
-            <Tracker />
+            <Tracker className="mt-auto pt-2 pb-4 px-4 border-t border-gray-400" user={user!}/>
         </div>
     );
 }

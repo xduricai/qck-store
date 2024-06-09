@@ -31,5 +31,6 @@
     object-position: center;
     justify-self: center;
     align-self: center;
+    border-radius: 9999px;
     aspect-ratio: 1 / 1;
 }

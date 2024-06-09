@@ -1,7 +1,7 @@
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Sidenav } from "../navigation/Sidenav";
 import { getDirectoryContent, getRootDirectories, getSearchResults, createDirectory, renameDirectory, deleteDirectory, moveDirectory } from "../api/DirectoryClient";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { DirectoryChip } from "./DirectoryChip";
 import { FileChip } from "./FileChip";
 import { useEffect, useState } from "react";
@@ -19,7 +19,9 @@ import { useSnackbarContext } from "../global/SnackbarContext";
 import { useUserContext } from "../global/UserContext";
 import { ContextMenuContext, ContextMenuStatus, ItemType } from "../global/MenuContext";
 import { Directory } from "../api/responses/Directory";
-import './home.css';
+import { IconButton } from "../shared/IconButton";
+import { Close } from "@mui/icons-material";
+import styles from './home.module.css';
 
 export function Home() {
     const { folderId, query } = useParams();
@@ -244,9 +246,16 @@ export function Home() {
             </section>
 
             <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">
-                <div className="w-full h-10 flex justify-between mb-4 overflow-x-visible">
-                    <h1 className="text-xl font-semibold">{title}</h1>
-                    <div className="h-fit w-28 relative border-gray-400 border rounded" onClick={(event) => {setSortOpen(!sortOpen); event.stopPropagation()}}>
+                <div className="w-full h-10 flex items-center mb-4 overflow-x-visible">
+                    <h1 className="text-xl mr-0.5 font-semibold">{title}</h1>
+                    {query && 
+                        <Link to="/">
+                            <IconButton>
+                                <Close className="text-purple-800"/>
+                            </IconButton>
+                        </Link>
+                    }
+                    <div className="h-fit w-28 ml-auto relative border-gray-400 border rounded" onClick={(event) => {setSortOpen(!sortOpen); event.stopPropagation()}}>
                         <li className="menu-item">{sortOption.name}</li>
                         {sortOpen && sortOptions
                             .filter(opt => opt.name !== sortOption.name)
@@ -259,11 +268,11 @@ export function Home() {
                 </div>
 
                 {contentDirs.length > 0 && 
-                    <div className="dynamic-grid-sm gap-4 mb-8">
+                    <div className={`${styles["dynamic-grid-sm"]} gap-4 mb-8`}>
                         {contentDirs.map(dir => <DirectoryChip key={dir.id} data={dir} />)}
                     </div>
                 }
-                <div className="dynamic-grid-lg gap-4">
+                <div className={`${styles["dynamic-grid-lg"]} gap-4`}>
                     {files.map(file => <FileChip key={file.id} data={file} />)}
                 </div>
             </section>

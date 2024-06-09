@@ -3,6 +3,7 @@ import { User } from "./responses/User";
 import { BaseUrl } from "./BaseUrl";
 import { RegistrationResponse } from "./responses/RegistrationResponse";
 import { UserUpdateCommand } from "./commands/UserUpdateCommand";
+import { PasswordUpdateCommand } from "./commands/PasswordUpdateCommand";
 
 type UserUpdateResult = { email: string, emailError?: string }
 
@@ -74,10 +75,23 @@ export async function updateUser(data: UserUpdateCommand) {
         throw "Could not update information, some fields are invalid";
     }
     if (res.status !== 200 && res.status !== 409) {
-        throw "An unknown error occurred"
+        throw "An unknown error occurred while updating settings"
     }
 
     const email: string = await res.text();
     const emailError = res.status === 409 ? "This email is already in use" : undefined;
     return { email, emailError } as UserUpdateResult;
+}
+
+export async function updatePassword(data: PasswordUpdateCommand) {
+    const res = await fetch(`${BaseUrl}/users/password`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+        credentials: "include"
+    });
+
+    if (res.status !== 200 && res.status !== 401) {
+        throw "An unknown error occurred while updating password"
+    }
+    return res.status === 200;
 }

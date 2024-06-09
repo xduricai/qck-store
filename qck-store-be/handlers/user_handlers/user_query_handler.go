@@ -2,13 +2,17 @@ package user_handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/xduricai/qck-store/qck-store-be/handlers"
 )
 
 type IUserQueryHandler interface {
-	GetAll() ([]UserResponse, int)
-	GetUserDetails(string) (UserResponse, int)
+	GetAll() ([]UserDetailResponse, int)
+	GetByName(searchTerm string) ([]UserDetailResponse, int)
+	GetUserDetails(id string) (UserResponse, int)
 	FileFits(fileSize int64, userId string) bool
 }
 
@@ -22,37 +26,94 @@ func NewUserQueryHandler(db *sql.DB) *UserQueryHandler {
 	}
 }
 
-func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
+func (h *UserQueryHandler) GetAll() ([]UserDetailResponse, int) {
 	var rows *sql.Rows
-	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota, ProfilePicture FROM Users"
+	var bytesUsed sql.NullInt32
+	var bytesTotal sql.NullInt32
+	var users []UserDetailResponse
+	query := "SELECT Id, Created, Username, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota FROM Users WHERE Role != 'admin'"
 
 	if data, err := h.db.Query(query); err == nil {
 		rows = data
 	} else {
 		log.Println(err)
-		return []UserResponse{}, http.StatusInternalServerError
+		return users, http.StatusInternalServerError
 	}
-	var users = []UserResponse{}
 
 	for rows.Next() {
-		var res UserResponse
-		var profilePicture []byte
+		var res UserDetailResponse
 
 		if err := rows.Scan(
 			&res.Id,
+			&res.Created,
+			&res.Username,
 			&res.Role,
 			&res.FirstName,
 			&res.LastName,
 			&res.Email,
-			&res.BytesUsed,
-			&res.BytesTotal,
-			&profilePicture,
+			&bytesUsed,
+			&bytesTotal,
 		); err != nil {
 			log.Println(err)
 			continue
 		}
-		res.Email = FormatEmail(res.Email)
-		res.ProfilePicture = string(profilePicture)
+
+		res.Created, _ = handlers.FormatDate(res.Created)
+		if bytesUsed.Valid {
+			res.BytesUsed = int(bytesUsed.Int32)
+		}
+		if bytesTotal.Valid {
+			res.BytesTotal = int(bytesTotal.Int32)
+		}
+		users = append(users, res)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println(err)
+	}
+	return users, http.StatusOK
+}
+
+func (h *UserQueryHandler) GetByName(searchTerm string) ([]UserDetailResponse, int) {
+	var rows *sql.Rows
+	var bytesUsed sql.NullInt32
+	var bytesTotal sql.NullInt32
+	var users []UserDetailResponse
+	searchTerm = fmt.Sprint("%", searchTerm, "%")
+	query := "SELECT Id, Created, Username, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota FROM Users WHERE Role != 'admin' AND (LOWER(Username) LIKE $1 OR LOWER(FirstName) LIKE $1 OR LOWER(LastName) LIKE $1 OR LOWER(Email) LIKE $1)"
+
+	if data, err := h.db.Query(query, searchTerm); err == nil {
+		rows = data
+	} else {
+		log.Println(err)
+		return users, http.StatusInternalServerError
+	}
+
+	for rows.Next() {
+		var res UserDetailResponse
+
+		if err := rows.Scan(
+			&res.Id,
+			&res.Created,
+			&res.Username,
+			&res.Role,
+			&res.FirstName,
+			&res.LastName,
+			&res.Email,
+			&bytesUsed,
+			&bytesTotal,
+		); err != nil {
+			log.Println(err)
+			continue
+		}
+
+		res.Created, _ = handlers.FormatDate(res.Created)
+		if bytesUsed.Valid {
+			res.BytesUsed = int(bytesUsed.Int32)
+		}
+		if bytesTotal.Valid {
+			res.BytesTotal = int(bytesTotal.Int32)
+		}
 		users = append(users, res)
 	}
 
@@ -64,6 +125,8 @@ func (h *UserQueryHandler) GetAll() ([]UserResponse, int) {
 
 func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
 	var res UserResponse
+	var bytesUsed sql.NullInt32
+	var bytesTotal sql.NullInt32
 	var profilePicture []byte
 	query := "SELECT Id, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota, ProfilePicture FROM Users WHERE Id = $1"
 
@@ -74,12 +137,19 @@ func (h *UserQueryHandler) GetUserDetails(id string) (UserResponse, int) {
 			&res.FirstName,
 			&res.LastName,
 			&res.Email,
-			&res.BytesUsed,
-			&res.BytesTotal,
+			&bytesUsed,
+			&bytesTotal,
 			&profilePicture,
 		); err != nil {
 		log.Println("An error occurred while retrieving user information", err)
 		return res, http.StatusInternalServerError
+	}
+
+	if bytesUsed.Valid {
+		res.BytesUsed = int(bytesUsed.Int32)
+	}
+	if bytesTotal.Valid {
+		res.BytesTotal = int(bytesTotal.Int32)
 	}
 	res.Email = FormatEmail(res.Email)
 	res.ProfilePicture = string(profilePicture)

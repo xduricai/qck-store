@@ -13,6 +13,19 @@ type UserResponse struct {
 	ProfilePicture string `json:"profilePicture"`
 }
 
+type UserDetailResponse struct {
+	Id             int    `json:"id"`
+	Created        string `json:"created"`
+	Username       string `json:"username"`
+	BytesUsed      int    `json:"bytesUsed"`
+	BytesTotal     int    `json:"bytesTotal"`
+	Role           string `json:"role"`
+	Email          string `json:"email"`
+	FirstName      string `json:"firstName"`
+	LastName       string `json:"lastName"`
+	ProfilePicture string `json:"profilePicture"`
+}
+
 type RegistrationResponse struct {
 	Id         int  `json:"-"`
 	EmailInUse bool `json:"emailInUse"`

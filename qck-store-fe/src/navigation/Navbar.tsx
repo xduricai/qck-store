@@ -5,15 +5,21 @@ import { useUserContext } from "../global/UserContext";
 import { useSnackbarContext } from "../global/SnackbarContext";
 import { MouseEvent, useState } from "react";
 import { logout } from "../api/UserClient";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import "./navigation.css";
+import styles from "./navigation.module.css";
  
 export function Navbar() {
     const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
     const { user, setUser } = useUserContext();
     const showSnackbar = useSnackbarContext();
-    
+    const navigate = useNavigate();
+
+    function search(query: string) {
+        if (!query) return;
+        navigate(`/search/${query.toLocaleLowerCase()}`);
+    }
+
     function toggleMenu (event: MouseEvent) {
         event.stopPropagation();
         setMenuOpen(!menuOpen);
@@ -26,15 +32,19 @@ export function Navbar() {
     }
 
     return (
-        <nav onClick={() => setMenuOpen(false)} className="navbar items-center w-full align-items-center text-xl font-medium bg-gray-100 h-16">
-            <Logo />
+        <nav onClick={() => setMenuOpen(false)} className={`${styles.navbar} items-center w-full align-items-center text-xl font-medium bg-gray-100 h-16`}>
+            <div className="hover:bg-purple-100 ml-2 py-2 rounded-lg">
+                <Logo />
+            </div>
             {!!user &&
             <>
-                <div className="ml-4">
-                    <Searchbar />
-                </div>
+                {user.role !== "admin" &&                 
+                    <div className="ml-4">
+                        <Searchbar onSubmit={search} />
+                    </div>
+                }
                 
-                <div onClick={toggleMenu} className="flex items-center mx-2 w-max text-purple-800 cursor-pointer hover:bg-gray-300 rounded-3xl">      
+                <div onClick={toggleMenu} className="flex items-center ml-auto mr-2 w-max text-purple-800 cursor-pointer hover:bg-gray-300 rounded-3xl">      
                     <span className="w-max h-fit text-base font-semibold ml-4">
                         {`${user.firstName} ${user.lastName}`}
                     </span>            

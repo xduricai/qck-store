@@ -26,7 +26,6 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 
 	var routes = server.Group("/users")
 	{
-		routes.GET("/all", controller.GetAll) // TODO remove
 		routes.POST("/login", controller.Login)
 		routes.POST("/register", controller.Register)
 
@@ -37,11 +36,6 @@ func RegisterUserController(db *sql.DB, server *gin.Engine) *UserController {
 	}
 
 	return controller
-}
-
-func (c *UserController) GetAll(ctx *gin.Context) {
-	users, status := c.userQueryHandler.GetAll()
-	ctx.JSON(status, users)
 }
 
 func (c *UserController) Register(ctx *gin.Context) {
@@ -57,7 +51,7 @@ func (c *UserController) Register(ctx *gin.Context) {
 		ctx.Status(status)
 	} else {
 		var token string
-		if tokenStr, err := services.GenerateToken(res.Id); err != nil {
+		if tokenStr, err := services.GenerateToken(res.Id, "user"); err != nil {
 			log.Println(err)
 			ctx.Status(http.StatusInternalServerError)
 			return
@@ -83,7 +77,7 @@ func (c *UserController) Login(ctx *gin.Context) {
 		ctx.Status(status)
 	} else {
 		var token string
-		if tokenStr, err := services.GenerateToken(res.Id); err != nil {
+		if tokenStr, err := services.GenerateToken(res.Id, res.Role); err != nil {
 			log.Println(err)
 			ctx.Status(http.StatusInternalServerError)
 			return

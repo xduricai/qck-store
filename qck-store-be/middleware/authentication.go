@@ -33,6 +33,7 @@ func Authenticate(ctx *gin.Context) {
 	}
 
 	userId := claims["user"].(float64)
+	role := claims["role"].(string)
 	expiration := claims["expiration"].(float64)
 
 	if userId <= 0 || int64(expiration) < time.Now().Unix() {
@@ -42,5 +43,15 @@ func Authenticate(ctx *gin.Context) {
 
 	formattedId := strconv.FormatFloat(userId, 'f', -1, 64)
 	ctx.Set("userId", formattedId)
+	ctx.Set("role", role)
+	ctx.Next()
+}
+
+func AuthenticateAdmin(ctx *gin.Context) {
+	role, ok := ctx.Get("role")
+	if !ok || role != "admin" {
+		ctx.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
 	ctx.Next()
 }

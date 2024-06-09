@@ -2,6 +2,7 @@ package user_handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -10,7 +11,8 @@ import (
 
 type IUserQueryHandler interface {
 	GetAll() ([]UserDetailResponse, int)
-	GetUserDetails(string) (UserResponse, int)
+	GetByName(searchTerm string) ([]UserDetailResponse, int)
+	GetUserDetails(id string) (UserResponse, int)
 	FileFits(fileSize int64, userId string) bool
 }
 
@@ -32,6 +34,55 @@ func (h *UserQueryHandler) GetAll() ([]UserDetailResponse, int) {
 	query := "SELECT Id, Created, Username, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota FROM Users WHERE Role != 'admin'"
 
 	if data, err := h.db.Query(query); err == nil {
+		rows = data
+	} else {
+		log.Println(err)
+		return users, http.StatusInternalServerError
+	}
+
+	for rows.Next() {
+		var res UserDetailResponse
+
+		if err := rows.Scan(
+			&res.Id,
+			&res.Created,
+			&res.Username,
+			&res.Role,
+			&res.FirstName,
+			&res.LastName,
+			&res.Email,
+			&bytesUsed,
+			&bytesTotal,
+		); err != nil {
+			log.Println(err)
+			continue
+		}
+
+		res.Created, _ = handlers.FormatDate(res.Created)
+		if bytesUsed.Valid {
+			res.BytesUsed = int(bytesUsed.Int32)
+		}
+		if bytesTotal.Valid {
+			res.BytesTotal = int(bytesTotal.Int32)
+		}
+		users = append(users, res)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println(err)
+	}
+	return users, http.StatusOK
+}
+
+func (h *UserQueryHandler) GetByName(searchTerm string) ([]UserDetailResponse, int) {
+	var rows *sql.Rows
+	var bytesUsed sql.NullInt32
+	var bytesTotal sql.NullInt32
+	var users []UserDetailResponse
+	searchTerm = fmt.Sprint("%", searchTerm, "%")
+	query := "SELECT Id, Created, Username, Role, Firstname, Lastname, Email, TotalBytesUsed, Quota FROM Users WHERE Role != 'admin' AND (LOWER(Username) LIKE $1 OR LOWER(FirstName) LIKE $1 OR LOWER(LastName) LIKE $1 OR LOWER(Email) LIKE $1)"
+
+	if data, err := h.db.Query(query, searchTerm); err == nil {
 		rows = data
 	} else {
 		log.Println(err)

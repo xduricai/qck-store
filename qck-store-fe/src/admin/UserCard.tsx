@@ -3,7 +3,7 @@ import { Tracker } from "../navigation/Tracker";
 
 export function UserCard({ user }: { user: UserDetails }) {
     return (
-        <div className="flex gap-x-8 rounded-xl items-center border-gray-400 hover:border-gray-800 hover:bg-gray-100 border p-4">
+        <div className="flex gap-x-8 rounded-lg items-center border-gray-400 hover:border-gray-800 hover:bg-gray-100 border p-4">
             <p className="text-xl">
                 <b>ID:</b> {user.id}
             </p>

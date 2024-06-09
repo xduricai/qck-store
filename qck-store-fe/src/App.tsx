@@ -67,7 +67,7 @@ function App() {
           {user?.role === "admin" &&
             <Routes>
               <Route path="/" element={<Admin />} />
-              <Route path="/:query/" element={<Admin />} />
+              <Route path="/search/:query/" element={<Admin />} />
               <Route path="/settings/" element={<Settings user={user} setUser={setUser} />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes> 

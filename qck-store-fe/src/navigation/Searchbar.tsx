@@ -16,7 +16,7 @@ export function Searchbar({ onSubmit, className = "" }: SearchbarProps) {
     }
 
     function handleSubmit() {
-        onSubmit(value);
+        onSubmit(value.toLocaleLowerCase());
         setValue("");
     }
 

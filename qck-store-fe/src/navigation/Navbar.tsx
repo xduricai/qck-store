@@ -17,7 +17,7 @@ export function Navbar() {
 
     function search(query: string) {
         if (!query) return;
-        navigate(`/search/${query}`);
+        navigate(`/search/${query.toLocaleLowerCase()}`);
     }
 
     function toggleMenu (event: MouseEvent) {

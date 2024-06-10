@@ -20,6 +20,7 @@ import { useUserContext } from "../global/UserContext";
 import { ContextMenuContext, ContextMenuStatus, ItemType } from "../global/MenuContext";
 import { Directory } from "../api/responses/Directory";
 import { IconButton } from "../shared/IconButton";
+import { Breadcrumb } from "./Breadcrumb";
 import { Close } from "@mui/icons-material";
 import styles from './home.module.css';
 
@@ -246,6 +247,7 @@ export function Home() {
             </section>
 
             <section className="w-full mt-1 p-4 rounded-tl-xl bg-white">
+                {folderId && <Breadcrumb path={content!.data!.path} folders={dirs!.data} />}
                 <div className="w-full h-10 flex items-center mb-4 overflow-x-visible">
                     <h1 className="text-xl mr-0.5 font-semibold">{title}</h1>
                     {query && 

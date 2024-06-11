@@ -111,7 +111,6 @@ export function Registration() {
         if (res.id < 0) return;
 
         setUser({
-            id: res.id,
             role: "user",
             email: formData.email,
             firstName: formData.firstName,

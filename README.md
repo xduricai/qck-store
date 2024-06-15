@@ -38,3 +38,8 @@ npm run preview
 ## Usage 
 
 Create an account or log in to proceed to the home page which also doubles as the root directory. The root directory can only contain other directories but files can be uploaded to all other directories. You can move files or whole directories into other directories (a directory cannot be moved into one of its subdirectories).  
+
+## TODO
+
+- Add support for downloading directories as in .zip format
+- Add better handling for uploads of large files
